@@ -21,47 +21,18 @@ local days99 = game.GameId == 7326934954
 local ZOmBie = game.GameId == 7750955984
 local FishIt = game.GameId == 121864768012064
 local BAZ = game.GameId == 8066283370
-repeat wait() until game:IsLoaded();
-local CountString = 0
-local MainPack
-local LoadedBackUp
+
+repeat task.wait() until game:IsLoaded()
+
 if MAPBF then
-    task.spawn(function()
-            repeat task.wait() until LoadedBackUp
-                    repeat task.wait() until StatusCheckIsBad
-                            wait()
-                                    if _G.Script_Mode == "PVP"then 
-                                                loadstring(game:HttpGet("https://raw.githubusercontent.com/xshiba/CreamSoScute/main/LoadP.lua",true))()
-                                                        elseif _G.Script_Language == "Thai"then 
-                                                                    loadstring(game:HttpGet("https://raw.githubusercontent.com/xshiba/CreamSoScute/main/LoadTh.lua",true))()
-                                                                            elseif getgenv().Script_Mode == "Kaitun_Script"then 
-                                                                                        loadstring(game:HttpGet("https://raw.githubusercontent.com/xshiba/CreamSoScute/main/LoadKT.lua",true))()
-                                                                                                else 
-                                                                                                            loadstring(game:HttpGet("https://raw.githubusercontent.com/xshiba/CreamSoScute/main/LoadNormal.lua",true))()
-                                                                                                                    end
-                                                                                                                        end)
-                                                                                                                            loadstring(game:HttpGet("https://raw.githubusercontent.com/xshiba/FIXING/main/ABC.lua"))()
-                                                                                                                                LoadedBackUp = true
-                                                                                                                                    print("Loaded Backup Load")
-                                                                                                                                        local ABC, CBA = pcall(function()
-                                                                                                                                                if _G.Script_Mode == "PVP"then 
-                                                                                                                                                            loadstring(game:HttpGet("https://raw.githubusercontent.com/xshiba/CreamSoScute/main/LoadP.lua",true))()
-                                                                                                                                                                    elseif _G.Script_Language == "Thai"then 
-                                                                                                                                                                                loadstring(game:HttpGet("https://raw.githubusercontent.com/xshiba/CreamSoScute/main/LoadTh.lua",true))()
-                                                                                                                                                                                        elseif getgenv().Script_Mode == "Kaitun_Script"then 
-                                                                                                                                                                                                    loadstring(game:HttpGet("https://raw.githubusercontent.com/xshiba/CreamSoScute/main/LoadKT.lua",true))()
-                                                                                                                                                                                                            else 
-                                                                                                                                                                                                                        loadstring(game:HttpGet("https://raw.githubusercontent.com/xshiba/CreamSoScute/main/LoadNormal.lua",true))()
-                                                                                                                                                                                                                                end
-                                                                                                                                                                                                                                    end)
-                                                                                                                                                                                                                                        if not ABC then
-                                                                                                                                                                                                                                                StatusCheckIsBad = true
-                                                                                                                                                                                                                                                    end
-                                                                                                                                                                                                                                                        print("Loaded Main Load")
-                                                                                                                                                                                                                                                        elseif MAPKL then 
-                                                                                                                                                                                                                                                            loadstring(game:HttpGet("https://raw.githubusercontent.com/xshiba/CreamSoScute/main/LoadKL.lua",true))()
-                                                                                                                                                                                                                                                            elseif (MAPBLADEB or MAPAFS or MAPRGH or MAPHAZEP or MAPALS or DRIVEEMPIRE or SOLRNG or TITAN or MS or AV or PG or Fish or Jujutsu or AA or BL or AD or AC or HT or ARX or BS or GAG or ASTDX or days99 or ZOmBie or game.GameId == 6701277882 or BAZ or game.GameId == 7671049560) then
-                                                                                                                                                                                                                                                                loadstring(game:HttpGet("https://api.junkie-development.de/api/v1/luascripts/public/2c6add962ae46c985b3dd1652811a82413d572714d65315e88b539454782bf84/download",true))()
-                                                                                                                                                                                                                                                                else 
-                                                                                                                                                                                                                                                                loadstring(game:HttpGet("https://raw.githubusercontent.com/malcompetchthong-dev/ITKuo/refs/heads/main/Kuohub-General%20map.lua"))()
-                                                                                                                                                                                                                                                                    end
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/malcompetchthong-dev/ITKuo/refs/heads/main/Blockfoot.lua", true))()
+
+elseif MAPKL then 
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/xshiba/CreamSoScute/main/LoadKL.lua", true))()
+
+elseif (MAPBLADEB or MAPAFS or MAPRGH or MAPHAZEP or MAPALS or DRIVEEMPIRE or SOLRNG or TITAN or AV or Fish or AA or BL or AD or AC or BS or GAG or ASTDX or days99 or ZOmBie or game.GameId == 6701277882 or BAZ or game.GameId == 7671049560) then
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/malcompetchthong-dev/ITKuo/refs/heads/main/99%20Nights%20in%20the%20Forestl.ua", true))()
+
+else 
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/malcompetchthong-dev/ITKuo/refs/heads/main/Kuohub-General%20map.lua"))()
+end                                                                                                                                                                                                                                                            

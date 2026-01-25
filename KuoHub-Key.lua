@@ -18,7 +18,7 @@ local REQUIRED_PREFIX = "FREE_"
 local KEY_FILE = "KuoHub_Key.txt"
 
 local SCRIPT_TO_LOAD =
-"https://api.junkie-development.de/api/v1/luascripts/public/928c638552cda68b8f1112a7c2b03092f23c9394671c108463d2caa90ad1528e/download"
+"https://raw.githubusercontent.com/malcompetchthong-dev/ITKuo/refs/heads/main/KuoHub-Map.lua"
 
 --------------------------------------------------
 -- EXECUTOR FUNCTIONS

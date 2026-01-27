@@ -1,19 +1,23 @@
---// REDZ UI LIB (English Version)
---// Edited for public use
+--// Redz Simple UI Library (Modified by Kuo)
+--// Drag All Area | Mobile Ready | Rainbow Border
 
-repeat task.wait() until game:IsLoaded()
-
---// Services
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
+local player = Players.LocalPlayer
 
-local Player = Players.LocalPlayer
+local RedzLib = {}
 
---// Device detect
+-- ===== ScreenGui =====
+local gui = Instance.new("ScreenGui")
+gui.Name = "RedzUI"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+-- ===== Detect Mobile =====
 local isMobile = UIS.TouchEnabled and not UIS.KeyboardEnabled
 
---// Rainbow colors
+-- ===== Rainbow Colors =====
 local rainbowColors = {
     Color3.fromRGB(255,0,0),
     Color3.fromRGB(255,127,0),
@@ -27,187 +31,188 @@ local rainbowColors = {
 local function RainbowStroke(stroke)
     task.spawn(function()
         local i = 1
-        while stroke and stroke.Parent do
+        while stroke.Parent do
             TweenService:Create(
                 stroke,
-                TweenInfo.new(1),
+                TweenInfo.new(0.8),
                 {Color = rainbowColors[i]}
             ):Play()
-
-            i += 1
+            i = i + 1
             if i > #rainbowColors then i = 1 end
-            task.wait(1)
+            task.wait(0.8)
         end
     end)
 end
 
---// Library
-local redzlib = {}
-redzlib.__index = redzlib
+-- ===== Drag System (All Area) =====
+local function MakeDraggable(frame)
+    local dragging = false
+    local dragStart, startPos
 
-redzlib.Theme = {
-    Background = Color3.fromRGB(25,25,25),
-    Text = Color3.fromRGB(255,255,255)
-}
-
-function redzlib:SetTheme(name)
-    -- Reserved (compatibility)
-end
-
---// Window
-function redzlib:MakeWindow(cfg)
-    local gui = Instance.new("ScreenGui")
-    gui.Name = "RedzUI"
-    gui.ResetOnSpawn = false
-    gui.Parent = Player:WaitForChild("PlayerGui")
-
-    local main = Instance.new("Frame", gui)
-    main.Size = UDim2.new(0, isMobile and 480 or 620, 0, isMobile and 320 or 380)
-    main.Position = UDim2.new(0.5,-main.Size.X.Offset/2,0.5,-main.Size.Y.Offset/2)
-    main.BackgroundColor3 = redzlib.Theme.Background
-    main.BorderSizePixel = 0
-    main.Active = true
-
-    -- Drag anywhere
-    local dragging, dragStart, startPos
-    main.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             dragStart = input.Position
-            startPos = main.Position
+            startPos = frame.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
         end
     end)
 
     UIS.InputChanged:Connect(function(input)
-        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        if dragging and (
+            input.UserInputType == Enum.UserInputType.MouseMovement
+            or input.UserInputType == Enum.UserInputType.Touch
+        ) then
             local delta = input.Position - dragStart
-            main.Position = startPos + UDim2.fromOffset(delta.X, delta.Y)
+            frame.Position = UDim2.new(
+                startPos.X.Scale,
+                startPos.X.Offset + delta.X,
+                startPos.Y.Scale,
+                startPos.Y.Offset + delta.Y
+            )
         end
     end)
+end
 
-    UIS.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = false
-        end
-    end)
+-- ===== Window =====
+function RedzLib:MakeWindow(cfg)
+    local Window = {}
 
-    local scale = Instance.new("UIScale", main)
-    scale.Scale = isMobile and 0.9 or 1
+    local main = Instance.new("Frame", gui)
+    main.Size = isMobile and UDim2.new(0,360,0,260) or UDim2.new(0,520,0,320)
+    main.Position = UDim2.new(0.5,-260,0.5,-160)
+    main.BackgroundColor3 = Color3.fromRGB(20,20,20)
+    main.BorderSizePixel = 0
 
-    Instance.new("UICorner", main).CornerRadius = UDim.new(0,14)
+    local corner = Instance.new("UICorner", main)
+    corner.CornerRadius = UDim.new(0,14)
 
     local stroke = Instance.new("UIStroke", main)
     stroke.Thickness = 4
     RainbowStroke(stroke)
 
-    -- Title (single line, left aligned)
-    local title = Instance.new("TextLabel", main)
-    title.Size = UDim2.new(1,-90,0,36)
-    title.Position = UDim2.new(0,10,0,0)
+    MakeDraggable(main)
+
+    -- ===== Header =====
+    local header = Instance.new("Frame", main)
+    header.Size = UDim2.new(1,0,0,36)
+    header.BackgroundTransparency = 1
+    MakeDraggable(header)
+
+    local title = Instance.new("TextLabel", header)
+    title.Size = UDim2.new(1,-90,1,0)
+    title.Position = UDim2.new(0,12,0,0)
     title.BackgroundTransparency = 1
-    title.TextXAlignment = Enum.TextXAlignment.Left
-    title.Text = (cfg.Title or "") .. " " .. (cfg.SubTitle or "")
+    title.TextXAlignment = Left
+    title.Text = cfg.Title or "Redz UI"
     title.Font = Enum.Font.GothamBold
-    title.TextSize = 16
-    title.TextColor3 = redzlib.Theme.Text
+    title.TextSize = 14
+    title.TextColor3 = Color3.new(1,1,1)
 
-    -- Minimize button
-    local minimize = Instance.new("TextButton", main)
-    minimize.Size = UDim2.new(0,30,0,30)
-    minimize.Position = UDim2.new(1,-70,0,3)
-    minimize.Text = "-"
-    minimize.Font = Enum.Font.GothamBold
-    minimize.TextSize = 20
-    minimize.BackgroundColor3 = redzlib.Theme.Background
-    minimize.TextColor3 = Color3.new(1,1,1)
-    Instance.new("UICorner", minimize)
-
-    -- Close button
-    local close = Instance.new("TextButton", main)
-    close.Size = UDim2.new(0,30,0,30)
-    close.Position = UDim2.new(1,-35,0,3)
-    close.Text = "X"
-    close.Font = Enum.Font.GothamBold
-    close.TextSize = 18
-    close.BackgroundColor3 = redzlib.Theme.Background
-    close.TextColor3 = Color3.fromRGB(255,80,80)
-    Instance.new("UICorner", close)
-
-    -- Content
-    local content = Instance.new("Frame", main)
-    content.Position = UDim2.new(0,0,0,36)
-    content.Size = UDim2.new(1,0,1,-36)
-    content.BackgroundTransparency = 1
-
-    -- Minimize logic
+    -- ===== Minimize =====
     local minimized = false
-    local fullSize = main.Size
+    local minBtn = Instance.new("TextButton", header)
+    minBtn.Size = UDim2.new(0,28,0,28)
+    minBtn.Position = UDim2.new(1,-64,0,4)
+    minBtn.Text = "-"
+    minBtn.Font = Enum.Font.GothamBold
+    minBtn.TextSize = 18
+    minBtn.TextColor3 = Color3.new(1,1,1)
+    minBtn.BackgroundColor3 = Color3.fromRGB(30,30,30)
 
-    minimize.MouseButton1Click:Connect(function()
+    local minCorner = Instance.new("UICorner", minBtn)
+
+    minBtn.MouseButton1Click:Connect(function()
         minimized = not minimized
-        minimize.Text = minimized and "+" or "-"
-        content.Visible = not minimized
-
-        TweenService:Create(main,TweenInfo.new(0.25),{
-            Size = minimized and
-                UDim2.new(fullSize.X.Scale,fullSize.X.Offset,0,36)
-                or fullSize
-        }):Play()
+        minBtn.Text = minimized and "+" or "-"
+        main.Size = minimized
+            and UDim2.new(main.Size.X.Scale, main.Size.X.Offset, 0,36)
+            or (isMobile and UDim2.new(0,360,0,260) or UDim2.new(0,520,0,320))
     end)
 
-    -- Close confirmation
-    close.MouseButton1Click:Connect(function()
-        if gui:FindFirstChild("ConfirmDialog") then return end
+    -- ===== Close =====
+    local closeBtn = Instance.new("TextButton", header)
+    closeBtn.Size = UDim2.new(0,28,0,28)
+    closeBtn.Position = UDim2.new(1,-32,0,4)
+    closeBtn.Text = "X"
+    closeBtn.Font = Enum.Font.GothamBold
+    closeBtn.TextSize = 16
+    closeBtn.TextColor3 = Color3.fromRGB(255,80,80)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(30,30,30)
 
-        local box = Instance.new("Frame", gui)
-        box.Name = "ConfirmDialog"
-        box.Size = UDim2.new(0,260,0,120)
-        box.Position = UDim2.new(0.5,-130,0.5,-60)
-        box.BackgroundColor3 = redzlib.Theme.Background
-        Instance.new("UICorner", box)
+    local closeCorner = Instance.new("UICorner", closeBtn)
 
-        local text = Instance.new("TextLabel", box)
-        text.Size = UDim2.new(1,0,0,60)
-        text.BackgroundTransparency = 1
-        text.TextWrapped = true
-        text.Text = "Do you want to destroy this UI?"
-        text.TextColor3 = Color3.new(1,1,1)
+    closeBtn.MouseButton1Click:Connect(function()
+        local dialog = Instance.new("Frame", gui)
+        dialog.Size = UDim2.new(0,260,0,120)
+        dialog.Position = UDim2.new(0.5,-130,0.5,-60)
+        dialog.BackgroundColor3 = Color3.fromRGB(25,25,25)
+        dialog.BorderSizePixel = 0
+        local dc = Instance.new("UICorner", dialog)
 
-        local yes = Instance.new("TextButton", box)
-        yes.Size = UDim2.new(0.5,-5,0,30)
-        yes.Position = UDim2.new(0,5,1,-35)
+        local txt = Instance.new("TextLabel", dialog)
+        txt.Size = UDim2.new(1,-20,0,60)
+        txt.Position = UDim2.new(0,10,0,10)
+        txt.BackgroundTransparency = 1
+        txt.TextWrapped = true
+        txt.Text = "Do you want to destroy this UI?"
+        txt.TextColor3 = Color3.new(1,1,1)
+        txt.Font = Enum.Font.Gotham
+        txt.TextSize = 14
+
+        local yes = Instance.new("TextButton", dialog)
+        yes.Size = UDim2.new(0.5,-15,0,30)
+        yes.Position = UDim2.new(0,10,1,-40)
         yes.Text = "Confirm"
+        yes.BackgroundColor3 = Color3.fromRGB(70,200,120)
+        local yc = Instance.new("UICorner", yes)
 
-        local no = Instance.new("TextButton", box)
-        no.Size = UDim2.new(0.5,-5,0,30)
-        no.Position = UDim2.new(0.5,0,1,-35)
+        local no = Instance.new("TextButton", dialog)
+        no.Size = UDim2.new(0.5,-15,0,30)
+        no.Position = UDim2.new(0.5,5,1,-40)
         no.Text = "Cancel"
+        no.BackgroundColor3 = Color3.fromRGB(200,80,80)
+        local nc = Instance.new("UICorner", no)
 
         yes.MouseButton1Click:Connect(function()
             gui:Destroy()
         end)
+
         no.MouseButton1Click:Connect(function()
-            box:Destroy()
+            dialog:Destroy()
         end)
     end)
 
-    -- Tabs
-    local Window = {}
+    -- ===== Tabs =====
+    local tabs = {}
 
     function Window:MakeTab(info)
         local Tab = {}
+        Tab.Name = info[1] or "Tab"
+        Tab.Buttons = {}
 
-        function Tab:AddButton(data)
-            local btn = Instance.new("TextButton", content)
-            btn.Size = UDim2.new(1,-20,0,36)
-            btn.Position = UDim2.new(0,10,0,10)
-            btn.Text = data[1]
+        function Tab:AddButton(info)
+            local btn = Instance.new("TextButton", main)
+            btn.Size = UDim2.new(0,140,0,36)
+            btn.Position = UDim2.new(0,20,0,60 + (#Tab.Buttons * 42))
+            btn.Text = info[1]
             btn.Font = Enum.Font.Gotham
+            btn.TextSize = 14
             btn.TextColor3 = Color3.new(1,1,1)
             btn.BackgroundColor3 = Color3.fromRGB(35,35,35)
-            Instance.new("UICorner", btn)
+            local bc = Instance.new("UICorner", btn)
 
-            btn.MouseButton1Click:Connect(data[2])
+            btn.MouseButton1Click:Connect(function()
+                info[2]()
+            end)
+
+            table.insert(Tab.Buttons, btn)
         end
 
         return Tab
@@ -216,4 +221,8 @@ function redzlib:MakeWindow(cfg)
     return Window
 end
 
-return redzlib
+function RedzLib:SetTheme(theme)
+    -- placeholder (Dark / Darker)
+end
+
+return RedzLib

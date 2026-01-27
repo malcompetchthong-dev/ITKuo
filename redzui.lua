@@ -1,45 +1,19 @@
---====================================================
--- REDZ UI LIBRARY (GENERIC / REUSABLE)
--- Drag Anywhere | Rainbow Border | Tabs
---====================================================
+--// REDZ UI LIB (English Version)
+--// Edited for public use
 
+repeat task.wait() until game:IsLoaded()
+
+--// Services
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
-local RunService = game:GetService("RunService")
 
 local Player = Players.LocalPlayer
 
---====================================================
--- LIB TABLE
---====================================================
-local redzlib = {}
-redzlib.Themes = {
-    Darker = {
-        BG = Color3.fromRGB(25,25,25),
-        Stroke = Color3.fromRGB(40,40,40),
-        Text = Color3.fromRGB(255,255,255),
-        Accent = Color3.fromRGB(88,101,242)
-    },
-    Dark = {
-        BG = Color3.fromRGB(40,40,40),
-        Stroke = Color3.fromRGB(65,65,65),
-        Text = Color3.fromRGB(245,245,245),
-        Accent = Color3.fromRGB(65,150,255)
-    },
-    Purple = {
-        BG = Color3.fromRGB(30,30,35),
-        Stroke = Color3.fromRGB(40,40,40),
-        Text = Color3.fromRGB(240,240,240),
-        Accent = Color3.fromRGB(150,0,255)
-    }
-}
+--// Device detect
+local isMobile = UIS.TouchEnabled and not UIS.KeyboardEnabled
 
-redzlib.CurrentTheme = redzlib.Themes.Darker
-
---====================================================
--- RAINBOW COLORS
---====================================================
+--// Rainbow colors
 local rainbowColors = {
     Color3.fromRGB(255,0,0),
     Color3.fromRGB(255,127,0),
@@ -53,178 +27,193 @@ local rainbowColors = {
 local function RainbowStroke(stroke)
     task.spawn(function()
         local i = 1
-        while stroke.Parent do
+        while stroke and stroke.Parent do
             TweenService:Create(
                 stroke,
                 TweenInfo.new(1),
                 {Color = rainbowColors[i]}
             ):Play()
-            i = i + 1
+
+            i += 1
             if i > #rainbowColors then i = 1 end
             task.wait(1)
         end
     end)
 end
 
---====================================================
--- MAKE WINDOW
---====================================================
-function redzlib:MakeWindow(data)
-    local gui = Instance.new("ScreenGui", Player.PlayerGui)
-    gui.Name = "RedzUILib"
+--// Library
+local redzlib = {}
+redzlib.__index = redzlib
+
+redzlib.Theme = {
+    Background = Color3.fromRGB(25,25,25),
+    Text = Color3.fromRGB(255,255,255)
+}
+
+function redzlib:SetTheme(name)
+    -- Reserved (compatibility)
+end
+
+--// Window
+function redzlib:MakeWindow(cfg)
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "RedzUI"
     gui.ResetOnSpawn = false
+    gui.Parent = Player:WaitForChild("PlayerGui")
 
     local main = Instance.new("Frame", gui)
-    main.Size = UDim2.new(0,620,0,380)
-    main.Position = UDim2.new(0.5,-310,0.5,-190)
-    main.BackgroundColor3 = self.CurrentTheme.BG
+    main.Size = UDim2.new(0, isMobile and 480 or 620, 0, isMobile and 320 or 380)
+    main.Position = UDim2.new(0.5,-main.Size.X.Offset/2,0.5,-main.Size.Y.Offset/2)
+    main.BackgroundColor3 = redzlib.Theme.Background
     main.BorderSizePixel = 0
     main.Active = true
-    main.Draggable = true
 
-    local corner = Instance.new("UICorner", main)
-    corner.CornerRadius = UDim.new(0,15)
+    -- Drag anywhere
+    local dragging, dragStart, startPos
+    main.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = main.Position
+        end
+    end)
+
+    UIS.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            main.Position = startPos + UDim2.fromOffset(delta.X, delta.Y)
+        end
+    end)
+
+    UIS.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
+
+    local scale = Instance.new("UIScale", main)
+    scale.Scale = isMobile and 0.9 or 1
+
+    Instance.new("UICorner", main).CornerRadius = UDim.new(0,14)
 
     local stroke = Instance.new("UIStroke", main)
     stroke.Thickness = 4
     RainbowStroke(stroke)
 
-    --================ TITLE =================
+    -- Title (single line, left aligned)
     local title = Instance.new("TextLabel", main)
-    title.Size = UDim2.new(1,-80,0,40)
+    title.Size = UDim2.new(1,-90,0,36)
     title.Position = UDim2.new(0,10,0,0)
     title.BackgroundTransparency = 1
-    title.TextXAlignment = Left
+    title.TextXAlignment = Enum.TextXAlignment.Left
+    title.Text = (cfg.Title or "") .. " " .. (cfg.SubTitle or "")
     title.Font = Enum.Font.GothamBold
     title.TextSize = 16
-    title.TextColor3 = self.CurrentTheme.Text
+    title.TextColor3 = redzlib.Theme.Text
 
-    local titleText = data.Title or "UI Library"
-    if data.SubTitle and data.SubTitle ~= "" then
-        titleText = titleText .. "  |  " .. data.SubTitle
-    end
-    title.Text = titleText
+    -- Minimize button
+    local minimize = Instance.new("TextButton", main)
+    minimize.Size = UDim2.new(0,30,0,30)
+    minimize.Position = UDim2.new(1,-70,0,3)
+    minimize.Text = "-"
+    minimize.Font = Enum.Font.GothamBold
+    minimize.TextSize = 20
+    minimize.BackgroundColor3 = redzlib.Theme.Background
+    minimize.TextColor3 = Color3.new(1,1,1)
+    Instance.new("UICorner", minimize)
 
-    --================ MINIMIZE =================
-    local mini = Instance.new("TextButton", main)
-    mini.Size = UDim2.new(0,30,0,30)
-    mini.Position = UDim2.new(1,-35,0,5)
-    mini.Text = "-"
-    mini.Font = Enum.Font.GothamBold
-    mini.TextSize = 18
-    mini.BackgroundColor3 = self.CurrentTheme.BG
-    mini.TextColor3 = self.CurrentTheme.Text
+    -- Close button
+    local close = Instance.new("TextButton", main)
+    close.Size = UDim2.new(0,30,0,30)
+    close.Position = UDim2.new(1,-35,0,3)
+    close.Text = "X"
+    close.Font = Enum.Font.GothamBold
+    close.TextSize = 18
+    close.BackgroundColor3 = redzlib.Theme.Background
+    close.TextColor3 = Color3.fromRGB(255,80,80)
+    Instance.new("UICorner", close)
 
-    local mc = Instance.new("UICorner", mini)
-    mc.CornerRadius = UDim.new(0,6)
-
-    local minimized = false
-    mini.MouseButton1Click:Connect(function()
-        minimized = not minimized
-        main.Size = minimized
-            and UDim2.new(0,620,0,40)
-            or UDim2.new(0,620,0,380)
-    end)
-
-    --================ SIDEBAR =================
-    local sidebar = Instance.new("Frame", main)
-    sidebar.Position = UDim2.new(0,0,0,40)
-    sidebar.Size = UDim2.new(0,160,1,-40)
-    sidebar.BackgroundColor3 = self.CurrentTheme.BG
-    sidebar.BorderSizePixel = 0
-
-    local sbStroke = Instance.new("UIStroke", sidebar)
-    sbStroke.Thickness = 3
-    RainbowStroke(sbStroke)
-
-    local layout = Instance.new("UIListLayout", sidebar)
-    layout.Padding = UDim.new(0,6)
-    layout.HorizontalAlignment = Center
-
-    local pad = Instance.new("UIPadding", sidebar)
-    pad.PaddingTop = UDim.new(0,6)
-
-    --================ CONTENT =================
+    -- Content
     local content = Instance.new("Frame", main)
-    content.Position = UDim2.new(0,160,0,40)
-    content.Size = UDim2.new(1,-160,1,-40)
+    content.Position = UDim2.new(0,0,0,36)
+    content.Size = UDim2.new(1,0,1,-36)
     content.BackgroundTransparency = 1
 
-    local CurrentTab
+    -- Minimize logic
+    local minimized = false
+    local fullSize = main.Size
 
-    --====================================================
-    -- TAB API
-    --====================================================
+    minimize.MouseButton1Click:Connect(function()
+        minimized = not minimized
+        minimize.Text = minimized and "+" or "-"
+        content.Visible = not minimized
+
+        TweenService:Create(main,TweenInfo.new(0.25),{
+            Size = minimized and
+                UDim2.new(fullSize.X.Scale,fullSize.X.Offset,0,36)
+                or fullSize
+        }):Play()
+    end)
+
+    -- Close confirmation
+    close.MouseButton1Click:Connect(function()
+        if gui:FindFirstChild("ConfirmDialog") then return end
+
+        local box = Instance.new("Frame", gui)
+        box.Name = "ConfirmDialog"
+        box.Size = UDim2.new(0,260,0,120)
+        box.Position = UDim2.new(0.5,-130,0.5,-60)
+        box.BackgroundColor3 = redzlib.Theme.Background
+        Instance.new("UICorner", box)
+
+        local text = Instance.new("TextLabel", box)
+        text.Size = UDim2.new(1,0,0,60)
+        text.BackgroundTransparency = 1
+        text.TextWrapped = true
+        text.Text = "Do you want to destroy this UI?"
+        text.TextColor3 = Color3.new(1,1,1)
+
+        local yes = Instance.new("TextButton", box)
+        yes.Size = UDim2.new(0.5,-5,0,30)
+        yes.Position = UDim2.new(0,5,1,-35)
+        yes.Text = "Confirm"
+
+        local no = Instance.new("TextButton", box)
+        no.Size = UDim2.new(0.5,-5,0,30)
+        no.Position = UDim2.new(0.5,0,1,-35)
+        no.Text = "Cancel"
+
+        yes.MouseButton1Click:Connect(function()
+            gui:Destroy()
+        end)
+        no.MouseButton1Click:Connect(function()
+            box:Destroy()
+        end)
+    end)
+
+    -- Tabs
     local Window = {}
 
-    function Window:MakeTab(tabData)
-        local name = tabData[1]
-
-        local btn = Instance.new("TextButton", sidebar)
-        btn.Size = UDim2.new(1,-12,0,36)
-        btn.Text = name
-        btn.Font = Enum.Font.Gotham
-        btn.TextSize = 14
-        btn.BackgroundColor3 = redzlib.CurrentTheme.BG
-        btn.TextColor3 = redzlib.CurrentTheme.Text
-
-        local bc = Instance.new("UICorner", btn)
-        bc.CornerRadius = UDim.new(0,8)
-
-        local page = Instance.new("ScrollingFrame", content)
-        page.Size = UDim2.new(1,0,1,0)
-        page.CanvasSize = UDim2.new(0,0,0,0)
-        page.AutomaticCanvasSize = Y
-        page.ScrollBarImageTransparency = 0.7
-        page.Visible = false
-        page.BackgroundTransparency = 1
-
-        local pl = Instance.new("UIListLayout", page)
-        pl.Padding = UDim.new(0,8)
-
-        btn.MouseButton1Click:Connect(function()
-            if CurrentTab then
-                CurrentTab.Page.Visible = false
-            end
-            page.Visible = true
-            CurrentTab = {Page = page}
-        end)
-
-        if not CurrentTab then
-            task.defer(function() btn:Fire() end)
-        end
-
+    function Window:MakeTab(info)
         local Tab = {}
 
         function Tab:AddButton(data)
-            local b = Instance.new("TextButton", page)
-            b.Size = UDim2.new(1,0,0,38)
-            b.Text = data[1]
-            b.Font = Enum.Font.Gotham
-            b.TextSize = 14
-            b.BackgroundColor3 = redzlib.CurrentTheme.BG
-            b.TextColor3 = redzlib.CurrentTheme.Text
-            local c = Instance.new("UICorner", b)
-            c.CornerRadius = UDim.new(0,8)
+            local btn = Instance.new("TextButton", content)
+            btn.Size = UDim2.new(1,-20,0,36)
+            btn.Position = UDim2.new(0,10,0,10)
+            btn.Text = data[1]
+            btn.Font = Enum.Font.Gotham
+            btn.TextColor3 = Color3.new(1,1,1)
+            btn.BackgroundColor3 = Color3.fromRGB(35,35,35)
+            Instance.new("UICorner", btn)
 
-            b.MouseButton1Click:Connect(function()
-                data[2]()
-            end)
+            btn.MouseButton1Click:Connect(data[2])
         end
 
         return Tab
     end
 
     return Window
-end
-
---====================================================
--- SET THEME
---====================================================
-function redzlib:SetTheme(name)
-    if self.Themes[name] then
-        self.CurrentTheme = self.Themes[name]
-    end
 end
 
 return redzlib

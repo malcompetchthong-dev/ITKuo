@@ -1,23 +1,26 @@
---// Redz Simple UI Library (Modified by Kuo)
---// Drag All Area | Mobile Ready | Rainbow Border
+--// Redz UI (Custom Build for Kuo)
+--// One-file version (Fixed API Compatible)
 
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
+
 local player = Players.LocalPlayer
+local PlayerGui = player:WaitForChild("PlayerGui")
+
+-- =========================
+-- Anti Duplicate UI
+-- =========================
+if PlayerGui:FindFirstChild("RedzUI") then
+    PlayerGui.RedzUI:Destroy()
+end
 
 local RedzLib = {}
+RedzLib.__index = RedzLib
 
--- ===== ScreenGui =====
-local gui = Instance.new("ScreenGui")
-gui.Name = "RedzUI"
-gui.ResetOnSpawn = false
-gui.Parent = player:WaitForChild("PlayerGui")
-
--- ===== Detect Mobile =====
-local isMobile = UIS.TouchEnabled and not UIS.KeyboardEnabled
-
--- ===== Rainbow Colors =====
+-- =========================
+-- Rainbow Colors
+-- =========================
 local rainbowColors = {
     Color3.fromRGB(255,0,0),
     Color3.fromRGB(255,127,0),
@@ -25,7 +28,7 @@ local rainbowColors = {
     Color3.fromRGB(0,255,0),
     Color3.fromRGB(0,0,255),
     Color3.fromRGB(75,0,130),
-    Color3.fromRGB(148,0,211)
+    Color3.fromRGB(148,0,211),
 }
 
 local function RainbowStroke(stroke)
@@ -34,20 +37,21 @@ local function RainbowStroke(stroke)
         while stroke.Parent do
             TweenService:Create(
                 stroke,
-                TweenInfo.new(0.8),
-                {Color = rainbowColors[i]}
+                TweenInfo.new(1),
+                { Color = rainbowColors[i] }
             ):Play()
-            i = i + 1
+            i += 1
             if i > #rainbowColors then i = 1 end
-            task.wait(0.8)
+            task.wait(1)
         end
     end)
 end
 
--- ===== Drag System (All Area) =====
+-- =========================
+-- Drag (All Points)
+-- =========================
 local function MakeDraggable(frame)
-    local dragging = false
-    local dragStart, startPos
+    local dragging, dragStart, startPos
 
     frame.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1
@@ -80,149 +84,163 @@ local function MakeDraggable(frame)
     end)
 end
 
--- ===== Window =====
+-- =========================
+-- Make Window
+-- =========================
 function RedzLib:MakeWindow(cfg)
-    local Window = {}
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "RedzUI"
+    gui.ResetOnSpawn = false
+    gui.Parent = PlayerGui
+
+    local isMobile = UIS.TouchEnabled and not UIS.KeyboardEnabled
 
     local main = Instance.new("Frame", gui)
-    main.Size = isMobile and UDim2.new(0,360,0,260) or UDim2.new(0,520,0,320)
-    main.Position = UDim2.new(0.5,-260,0.5,-160)
-    main.BackgroundColor3 = Color3.fromRGB(20,20,20)
+    main.Size = UDim2.new(0, 620, 0, 380)
+    main.Position = UDim2.new(0.5, -310, 0.5, -190)
+    main.BackgroundColor3 = Color3.fromRGB(25,25,25)
     main.BorderSizePixel = 0
+    Instance.new("UICorner", main).CornerRadius = UDim.new(0,14)
 
-    local corner = Instance.new("UICorner", main)
-    corner.CornerRadius = UDim.new(0,14)
+    local scale = Instance.new("UIScale", main)
+    scale.Scale = isMobile and 0.9 or 1
+
+    MakeDraggable(main)
 
     local stroke = Instance.new("UIStroke", main)
     stroke.Thickness = 4
     RainbowStroke(stroke)
 
-    MakeDraggable(main)
-
-    -- ===== Header =====
-    local header = Instance.new("Frame", main)
-    header.Size = UDim2.new(1,0,0,36)
-    header.BackgroundTransparency = 1
-    MakeDraggable(header)
-
-    local title = Instance.new("TextLabel", header)
-    title.Size = UDim2.new(1,-90,1,0)
+    -- Title (single line)
+    local title = Instance.new("TextLabel", main)
+    title.Size = UDim2.new(1,-100,0,40)
     title.Position = UDim2.new(0,12,0,0)
     title.BackgroundTransparency = 1
-    title.TextXAlignment = Left
-    title.Text = cfg.Title or "Redz UI"
-    title.Font = Enum.Font.GothamBold
-    title.TextSize = 14
+    title.TextXAlignment = Enum.TextXAlignment.Left
+    title.Text = (cfg.Title or "") .. " " .. (cfg.SubTitle or "")
     title.TextColor3 = Color3.new(1,1,1)
+    title.Font = Enum.Font.GothamBold
+    title.TextSize = 16
 
-    -- ===== Minimize =====
+    -- =========================
+    -- Minimize Button
+    -- =========================
     local minimized = false
-    local minBtn = Instance.new("TextButton", header)
-    minBtn.Size = UDim2.new(0,28,0,28)
-    minBtn.Position = UDim2.new(1,-64,0,4)
+    local minBtn = Instance.new("TextButton", main)
+    minBtn.Size = UDim2.new(0,30,0,30)
+    minBtn.Position = UDim2.new(1,-70,0,5)
     minBtn.Text = "-"
     minBtn.Font = Enum.Font.GothamBold
-    minBtn.TextSize = 18
-    minBtn.TextColor3 = Color3.new(1,1,1)
-    minBtn.BackgroundColor3 = Color3.fromRGB(30,30,30)
-
-    local minCorner = Instance.new("UICorner", minBtn)
+    minBtn.TextSize = 20
+    minBtn.BackgroundColor3 = Color3.fromRGB(35,35,35)
+    Instance.new("UICorner", minBtn)
 
     minBtn.MouseButton1Click:Connect(function()
         minimized = not minimized
         minBtn.Text = minimized and "+" or "-"
-        main.Size = minimized
-            and UDim2.new(main.Size.X.Scale, main.Size.X.Offset, 0,36)
-            or (isMobile and UDim2.new(0,360,0,260) or UDim2.new(0,520,0,320))
+        TweenService:Create(
+            main,
+            TweenInfo.new(0.25),
+            { Size = minimized and UDim2.new(0,620,0,40) or UDim2.new(0,620,0,380) }
+        ):Play()
     end)
 
-    -- ===== Close =====
-    local closeBtn = Instance.new("TextButton", header)
-    closeBtn.Size = UDim2.new(0,28,0,28)
-    closeBtn.Position = UDim2.new(1,-32,0,4)
+    -- =========================
+    -- Close Button (Confirm)
+    -- =========================
+    local closeBtn = Instance.new("TextButton", main)
+    closeBtn.Size = UDim2.new(0,30,0,30)
+    closeBtn.Position = UDim2.new(1,-35,0,5)
     closeBtn.Text = "X"
     closeBtn.Font = Enum.Font.GothamBold
-    closeBtn.TextSize = 16
+    closeBtn.TextSize = 18
     closeBtn.TextColor3 = Color3.fromRGB(255,80,80)
-    closeBtn.BackgroundColor3 = Color3.fromRGB(30,30,30)
-
-    local closeCorner = Instance.new("UICorner", closeBtn)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(35,35,35)
+    Instance.new("UICorner", closeBtn)
 
     closeBtn.MouseButton1Click:Connect(function()
-        local dialog = Instance.new("Frame", gui)
-        dialog.Size = UDim2.new(0,260,0,120)
-        dialog.Position = UDim2.new(0.5,-130,0.5,-60)
-        dialog.BackgroundColor3 = Color3.fromRGB(25,25,25)
-        dialog.BorderSizePixel = 0
-        local dc = Instance.new("UICorner", dialog)
+        local confirm = Instance.new("Frame", gui)
+        confirm.Size = UDim2.new(0,300,0,140)
+        confirm.Position = UDim2.new(0.5,-150,0.5,-70)
+        confirm.BackgroundColor3 = Color3.fromRGB(30,30,30)
+        Instance.new("UICorner", confirm)
+        MakeDraggable(confirm)
 
-        local txt = Instance.new("TextLabel", dialog)
+        local txt = Instance.new("TextLabel", confirm)
         txt.Size = UDim2.new(1,-20,0,60)
         txt.Position = UDim2.new(0,10,0,10)
         txt.BackgroundTransparency = 1
+        txt.Text = "Do you want to destroy this GUI?"
         txt.TextWrapped = true
-        txt.Text = "Do you want to destroy this UI?"
         txt.TextColor3 = Color3.new(1,1,1)
         txt.Font = Enum.Font.Gotham
         txt.TextSize = 14
 
-        local yes = Instance.new("TextButton", dialog)
-        yes.Size = UDim2.new(0.5,-15,0,30)
-        yes.Position = UDim2.new(0,10,1,-40)
+        local yes = Instance.new("TextButton", confirm)
+        yes.Size = UDim2.new(0.45,0,0,30)
+        yes.Position = UDim2.new(0.05,0,1,-40)
         yes.Text = "Confirm"
         yes.BackgroundColor3 = Color3.fromRGB(70,200,120)
-        local yc = Instance.new("UICorner", yes)
+        Instance.new("UICorner", yes)
 
-        local no = Instance.new("TextButton", dialog)
-        no.Size = UDim2.new(0.5,-15,0,30)
-        no.Position = UDim2.new(0.5,5,1,-40)
+        local no = Instance.new("TextButton", confirm)
+        no.Size = UDim2.new(0.45,0,0,30)
+        no.Position = UDim2.new(0.5,0,1,-40)
         no.Text = "Cancel"
-        no.BackgroundColor3 = Color3.fromRGB(200,80,80)
-        local nc = Instance.new("UICorner", no)
+        no.BackgroundColor3 = Color3.fromRGB(200,70,70)
+        Instance.new("UICorner", no)
 
         yes.MouseButton1Click:Connect(function()
             gui:Destroy()
         end)
-
         no.MouseButton1Click:Connect(function()
-            dialog:Destroy()
+            confirm:Destroy()
         end)
     end)
 
-    -- ===== Tabs =====
-    local tabs = {}
+    -- =========================
+    -- Window API
+    -- =========================
+    local Window = {}
+
+    function Window:AddMinimizeButton() end
+    function Window:SelectTab() end
+
+    function Window:Dialog(cfg)
+        -- already handled by close button (compat)
+    end
 
     function Window:MakeTab(info)
-        local Tab = {}
-        Tab.Name = info[1] or "Tab"
-        Tab.Buttons = {}
+        local tab = {}
 
-        function Tab:AddButton(info)
-            local btn = Instance.new("TextButton", main)
-            btn.Size = UDim2.new(0,140,0,36)
-            btn.Position = UDim2.new(0,20,0,60 + (#Tab.Buttons * 42))
-            btn.Text = info[1]
-            btn.Font = Enum.Font.Gotham
-            btn.TextSize = 14
-            btn.TextColor3 = Color3.new(1,1,1)
-            btn.BackgroundColor3 = Color3.fromRGB(35,35,35)
-            local bc = Instance.new("UICorner", btn)
-
-            btn.MouseButton1Click:Connect(function()
-                info[2]()
-            end)
-
-            table.insert(Tab.Buttons, btn)
+        function tab:AddButton(data)
+            local b = Instance.new("TextButton", main)
+            b.Size = UDim2.new(0,160,0,36)
+            b.Position = UDim2.new(0,20,0,60)
+            b.Text = data[1]
+            b.BackgroundColor3 = Color3.fromRGB(40,40,40)
+            b.TextColor3 = Color3.new(1,1,1)
+            b.Font = Enum.Font.Gotham
+            b.TextSize = 14
+            Instance.new("UICorner", b)
+            b.MouseButton1Click:Connect(data[2])
         end
 
-        return Tab
+        function tab:AddSection() end
+        function tab:AddParagraph() end
+
+        function tab:AddDiscordInvite(data)
+            if _G.RedzDiscordInvited then return end
+            _G.RedzDiscordInvited = true
+            print("Discord Invite:", data.Invite)
+        end
+
+        return tab
     end
 
     return Window
 end
 
-function RedzLib:SetTheme(theme)
-    -- placeholder (Dark / Darker)
-end
+function RedzLib:SetTheme() end
 
-return RedzLib
+return setmetatable({}, RedzLib)

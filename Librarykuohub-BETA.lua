@@ -1,14 +1,15 @@
---// KUOHUB UI LIBRARY FIXED
+--// KUOHUB UI LIBRARY FULL
 
 local Library = {}
+
 local UIS = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
-local Http = game:GetService("HttpService")
 
 --================ THEMES ================--
 
 local Themes = {
-    SoftDark = {
+    Dark = {
         Main = Color3.fromRGB(38,38,38),
         Top = Color3.fromRGB(48,48,48),
         Sidebar = Color3.fromRGB(42,42,42),
@@ -17,19 +18,39 @@ local Themes = {
         Text = Color3.fromRGB(235,235,235),
         SubText = Color3.fromRGB(180,180,180),
         Accent = Color3.fromRGB(120,120,120)
-    },
-
-    Light = {
-        Main = Color3.fromRGB(240,240,240),
-        Top = Color3.fromRGB(225,225,225),
-        Sidebar = Color3.fromRGB(235,235,235),
-        Item = Color3.fromRGB(220,220,220),
-        Border = Color3.fromRGB(200,200,200),
-        Text = Color3.fromRGB(40,40,40),
-        SubText = Color3.fromRGB(80,80,80),
-        Accent = Color3.fromRGB(120,120,120)
     }
 }
+
+--================ RAINBOW STROKE ================--
+
+local rainbowColors = {
+    Color3.fromRGB(255,0,0),
+    Color3.fromRGB(255,127,0),
+    Color3.fromRGB(255,255,0),
+    Color3.fromRGB(0,255,0),
+    Color3.fromRGB(0,0,255),
+    Color3.fromRGB(75,0,130),
+    Color3.fromRGB(148,0,211)
+}
+
+local function tweenStrokeColor(stroke)
+    task.spawn(function()
+        local i = 1
+        while stroke and stroke.Parent do
+            TweenService:Create(
+                stroke,
+                TweenInfo.new(1),
+                {Color = rainbowColors[i]}
+            ):Play()
+
+            i += 1
+            if i > #rainbowColors then
+                i = 1
+            end
+            task.wait(1)
+        end
+    end)
+end
 
 --================ DRAG ================--
 
@@ -49,6 +70,7 @@ local function Dragify(Frame, DragArea)
     DragArea.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1
         or input.UserInputType == Enum.UserInputType.Touch then
+
             dragging = true
             dragStart = input.Position
             startPos = Frame.Position
@@ -63,8 +85,8 @@ local function Dragify(Frame, DragArea)
 
     UIS.InputChanged:Connect(function(input)
         if dragging and (
-            input.UserInputType == Enum.UserInputType.MouseMovement or
-            input.UserInputType == Enum.UserInputType.Touch
+            input.UserInputType == Enum.UserInputType.MouseMovement
+            or input.UserInputType == Enum.UserInputType.Touch
         ) then
             update(input)
         end
@@ -74,14 +96,16 @@ end
 --================ WINDOW ================--
 
 function Library:Window(config)
+    config = config or {}
 
-    local Theme = Themes[config.Theme] or Themes.SoftDark
+    local Theme = Themes[config.Theme] or Themes.Dark
 
+    -- 🔴 ห้ามเปลี่ยน (ตามที่คุณสั่ง)
     local gui = Instance.new("ScreenGui", game.CoreGui)
     gui.Name = "KUOHUB_UI"
 
     local Main = Instance.new("Frame", gui)
-    Main.Size = config.Config.Size or UDim2.new(0,500,0,400)
+    Main.Size = config.Config and config.Config.Size or UDim2.new(0,500,0,400)
     Main.Position = UDim2.new(0.5,-250,0.5,-200)
     Main.BackgroundColor3 = Theme.Main
     Main.BorderSizePixel = 0
@@ -89,6 +113,8 @@ function Library:Window(config)
 
     local Stroke = Instance.new("UIStroke",Main)
     Stroke.Color = Theme.Border
+    Stroke.Thickness = 3
+    tweenStrokeColor(Stroke)
 
     -- TOP
     local Top = Instance.new("Frame",Main)
@@ -106,106 +132,113 @@ function Library:Window(config)
     Title.TextColor3 = Theme.Text
     Title.Font = Enum.Font.GothamBold
     Title.TextSize = 16
+    -- 🔴 จบส่วนห้ามแตะ
 
-    -- CLOSE
-    local Close = Instance.new("TextButton",Top)
-    Close.Size = UDim2.new(0,32,0,32)
-    Close.Position = UDim2.new(1,-40,0.5,-16)
-    Close.Text = "X"
-    Close.BackgroundColor3 = Theme.Item
-    Close.TextColor3 = Theme.Text
-    Instance.new("UICorner",Close).CornerRadius = UDim.new(1,0)
+    Dragify(Main, Top)
 
-    Close.MouseButton1Click:Connect(function()
-        gui:Destroy()
-    end)
+    --================ SIDEBAR ================--
 
-    -- MIN
-    local Min = Instance.new("TextButton",Top)
-    Min.Size = UDim2.new(0,32,0,32)
-    Min.Position = UDim2.new(1,-80,0.5,-16)
-    Min.Text = "-"
-    Min.BackgroundColor3 = Theme.Item
-    Min.TextColor3 = Theme.Text
-    Instance.new("UICorner",Min).CornerRadius = UDim.new(1,0)
+    local Sidebar = Instance.new("Frame", Main)
+    Sidebar.Size = UDim2.new(0,140,1,-45)
+    Sidebar.Position = UDim2.new(0,0,0,45)
+    Sidebar.BackgroundColor3 = Theme.Sidebar
+    Sidebar.BorderSizePixel = 0
+    Instance.new("UICorner",Sidebar)
 
-    -- CONTENT
-    local Content = Instance.new("Frame",Main)
-    Content.Position = UDim2.new(0,0,0,50)
-    Content.Size = UDim2.new(1,0,1,-50)
-    Content.BackgroundTransparency = 1
+    local SideLayout = Instance.new("UIListLayout", Sidebar)
+    SideLayout.Padding = UDim.new(0,6)
+    SideLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
-    Min.MouseButton1Click:Connect(function()
-        Content.Visible = not Content.Visible
-        Min.Text = Content.Visible and "-" or "+"
-    end)
+    local Pages = Instance.new("Frame", Main)
+    Pages.Size = UDim2.new(1,-140,1,-45)
+    Pages.Position = UDim2.new(0,140,0,45)
+    Pages.BackgroundTransparency = 1
 
-    Dragify(Main,Top)
+    local CurrentTab
+
+    local WindowFunctions = {}
 
     --================ TAB ================--
 
-    local Tabs = {}
-    local CurrentTab
+    function WindowFunctions:Tab(tabConfig)
+        tabConfig = tabConfig or {}
 
-    local WindowFuncs = {}
+        local TabButton = Instance.new("TextButton", Sidebar)
+        TabButton.Size = UDim2.new(1,-10,0,36)
+        TabButton.BackgroundColor3 = Theme.Item
+        TabButton.Text = tabConfig.Title or "Tab"
+        TabButton.TextColor3 = Theme.Text
+        TabButton.Font = Enum.Font.Gotham
+        TabButton.TextSize = 14
+        TabButton.AutoButtonColor = false
+        Instance.new("UICorner",TabButton)
 
-    function WindowFuncs:Tab(tabConfig)
+        local Page = Instance.new("ScrollingFrame", Pages)
+        Page.Size = UDim2.new(1,0,1,0)
+        Page.BackgroundTransparency = 1
+        Page.Visible = false
+        Page.AutomaticCanvasSize = Enum.AutomaticSize.Y
+        Page.ScrollBarThickness = 4
 
-        local TabFrame = Instance.new("ScrollingFrame",Content)
-        TabFrame.Size = UDim2.new(1,0,1,0)
-        TabFrame.CanvasSize = UDim2.new(0,0,0,0)
-        TabFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
-        TabFrame.ScrollBarThickness = 4
-        TabFrame.BackgroundTransparency = 1
-        TabFrame.Visible = false
+        local Layout = Instance.new("UIListLayout", Page)
+        Layout.Padding = UDim.new(0,6)
 
-        local layout = Instance.new("UIListLayout",TabFrame)
-        layout.Padding = UDim.new(0,8)
-
-        table.insert(Tabs,TabFrame)
+        TabButton.MouseButton1Click:Connect(function()
+            if CurrentTab then
+                CurrentTab.Page.Visible = false
+            end
+            Page.Visible = true
+            CurrentTab = {Page = Page}
+        end)
 
         if not CurrentTab then
-            CurrentTab = TabFrame
-            TabFrame.Visible = true
+            task.defer(function()
+                TabButton:Activate()
+            end)
         end
 
-        local TabFuncs = {}
+        local TabFunctions = {}
 
-        function TabFuncs:Section(sec)
-            local Label = Instance.new("TextLabel",TabFrame)
-            Label.Size = UDim2.new(1,-10,0,24)
-            Label.BackgroundTransparency = 1
-            Label.Text = sec.Title
-            Label.TextColor3 = Theme.SubText
-            Label.Font = Enum.Font.GothamBold
-            Label.TextSize = 14
-        end
+        function TabFunctions:AddToggle(cfg)
+            local Toggle = Instance.new("TextButton", Page)
+            Toggle.Size = UDim2.new(1,0,0,36)
+            Toggle.BackgroundColor3 = Theme.Item
+            Toggle.Text = cfg.Title or "Toggle"
+            Toggle.TextColor3 = Theme.Text
+            Toggle.Font = Enum.Font.Gotham
+            Toggle.TextSize = 14
+            Toggle.AutoButtonColor = false
+            Instance.new("UICorner",Toggle)
 
-        function TabFuncs:Toggle(opt)
-            local state = opt.Value or false
-
-            local Btn = Instance.new("TextButton",TabFrame)
-            Btn.Size = UDim2.new(1,-10,0,40)
-            Btn.BackgroundColor3 = Theme.Item
-            Btn.Text = opt.Title
-            Btn.TextColor3 = Theme.Text
-            Instance.new("UICorner",Btn).CornerRadius = UDim.new(0,8)
-
-            Btn.MouseButton1Click:Connect(function()
+            local state = false
+            Toggle.MouseButton1Click:Connect(function()
                 state = not state
-                Btn.BackgroundColor3 = state and Theme.Accent or Theme.Item
-                if opt.Callback then
-                    opt.Callback(state)
+                if cfg.Callback then
+                    cfg.Callback(state)
                 end
             end)
         end
 
-        return TabFuncs
+        return TabFunctions
     end
 
-    function WindowFuncs:AddMinimizeButton() end
+    --================ MINIMIZE BUTTON ================--
 
-    return WindowFuncs
+    function WindowFunctions:AddMinimizeButton(cfg)
+        local btn = Instance.new("ImageButton", gui)
+        btn.Size = UDim2.new(0,50,0,50)
+        btn.Position = UDim2.new(0,20,0.5,-25)
+        btn.Image = cfg.Button.Image
+        btn.BackgroundTransparency = cfg.Button.BackgroundTransparency or 0
+        Instance.new("UICorner",btn).CornerRadius =
+            cfg.Corner and cfg.Corner.CornerRadius or UDim.new(1,0)
+
+        btn.MouseButton1Click:Connect(function()
+            Main.Visible = not Main.Visible
+        end)
+    end
+
+    return WindowFunctions
 end
 
 return Library

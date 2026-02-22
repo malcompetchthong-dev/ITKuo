@@ -13,7 +13,7 @@ end
 -- THEMES
 local Themes = {
     Dark = {
-        Main = Color3.fromRGB(32,32,36),
+        Main = Color3.fromRGB(20,20,20),
         Top = Color3.fromRGB(40,40,46),
         Text = Color3.fromRGB(235,235,235),
         Border = Color3.fromRGB(90,90,110)

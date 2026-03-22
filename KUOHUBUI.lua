@@ -1,4 +1,4 @@
---// KUOHUB FULL ADVANCED + FUTURISTIC + MINIMIZE FIX
+--// KUOHUB FULL ADVANCED + FUTURISTIC + MINIMIZE FIX (Tab หายจริง)
 
 local TweenService = game:GetService("TweenService")
 local UIS = game:GetService("UserInputService")
@@ -9,7 +9,7 @@ ScreenGui.Name = "KuoHub"
 -- MAIN
 local Main = Instance.new("Frame", ScreenGui)
 Main.Size = UDim2.new(0, 550, 0, 350)
-Main.Position = UDim2.new(0, 0, 0.5, -175) -- เริ่มฝั่งซ้าย
+Main.Position = UDim2.new(0, 0, 0.5, -175) -- ฝั่งซ้าย
 Main.BackgroundColor3 = Color3.fromRGB(15,15,15)
 Main.BackgroundTransparency = 0.15
 Main.Active = true
@@ -51,6 +51,18 @@ Line.Position = UDim2.new(0,10,1,-2)
 Line.BackgroundColor3 = Color3.fromRGB(170,0,255)
 Line.BorderSizePixel = 0
 
+-- SIDE
+local Side = Instance.new("Frame", Main)
+Side.Size = UDim2.new(0,140,1,-45)
+Side.Position = UDim2.new(0,0,0,45)
+Side.BackgroundTransparency = 1
+
+-- PAGES FOLDER
+local Pages = Instance.new("Folder", Main)
+
+-- CURRENT PAGE TRACKER
+local CurrentPage = nil
+
 -- MINIMIZE & CLOSE
 local Minimize = Instance.new("TextButton", Top)
 Minimize.Size = UDim2.new(0,40,1,0)
@@ -77,36 +89,22 @@ Minimize.MouseButton1Click:Connect(function()
     Minimize.Text = minimized and "+" or "–"
 
     if minimized then
+        -- ลดขนาด GUI
         TweenService:Create(Main,TweenInfo.new(0.3),{Size=UDim2.new(0,550,0,45)}):Play()
         Side.Visible = false
-        -- ซ่อนทุก Tab
-        for _,v in pairs(Pages:GetChildren()) do
-            if v:IsA("ScrollingFrame") then
-                v.Visible = false
-            end
+        if CurrentPage then
+            CurrentPage.Visible = false -- ซ่อน Tab จริง
         end
     else
+        -- ขยาย GUI
         TweenService:Create(Main,TweenInfo.new(0.3),{Size=UDim2.new(0,550,0,350)}):Play()
         task.wait(0.15)
         Side.Visible = true
-        -- เปิด Tab ล่าสุดถ้ามี
         if CurrentPage then
-            CurrentPage.Visible = true
+            CurrentPage.Visible = true -- เปิด Tab กลับ
         end
     end
 end)
-
--- SIDE MENU
-local Side = Instance.new("Frame", Main)
-Side.Size = UDim2.new(0,140,1,-45)
-Side.Position = UDim2.new(0,0,0,45)
-Side.BackgroundTransparency = 1
-
--- PAGES FOLDER
-local Pages = Instance.new("Folder", Main)
-
--- CURRENT PAGE TRACKER
-local CurrentPage = nil
 
 -- WINDOW SYSTEM
 local Window = {}
@@ -140,11 +138,14 @@ function Window:Tab(name)
     end)
 
     Btn.MouseButton1Click:Connect(function()
+        -- ซ่อนทุก Page
         for _,v in pairs(Pages:GetChildren()) do
-            v.Visible = false
+            if v:IsA("ScrollingFrame") then
+                v.Visible = false
+            end
         end
         Page.Visible = true
-        CurrentPage = Page
+        CurrentPage = Page -- บันทึก Tab ปัจจุบัน
     end)
 
     -- TAB SYSTEM
@@ -227,7 +228,6 @@ function Window:Tab(name)
 
         update()
 
-        -- FIX CLICK รองรับมือถือ+PC
         ToggleFrame.InputEnded:Connect(function(i)
             if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
                 state = not state

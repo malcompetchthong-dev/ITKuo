@@ -1,6 +1,8 @@
---// KUOHUB ADVANCED + FUTURISTIC THEME
+--// KUOHUB ADVANCED + FUTURISTIC THEME FULL
 
 local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 
 local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
 ScreenGui.Name = "KuoHub"
@@ -35,6 +37,7 @@ Title.BackgroundTransparency = 1
 Title.Font = Enum.Font.GothamBold
 Title.TextSize = 20
 Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.TextColor3 = Color3.new(1,1,1) -- ขาวเพื่อให้ Gradient ทำงาน
 
 local Gradient = Instance.new("UIGradient", Title)
 Gradient.Color = ColorSequence.new{
@@ -49,16 +52,59 @@ Line.Position = UDim2.new(0,10,1,-2)
 Line.BackgroundColor3 = Color3.fromRGB(170,0,255)
 Line.BorderSizePixel = 0
 
+-- CLOSE BUTTON
+local Close = Instance.new("TextButton", Top)
+Close.Size = UDim2.new(0, 40, 1, 0)
+Close.Position = UDim2.new(1, -40, 0, 0)
+Close.Text = "X"
+Close.BackgroundTransparency = 1
+Close.TextColor3 = Color3.fromRGB(255, 80, 80)
+Close.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+-- MINIMIZE BUTTON
+local Minimize = Instance.new("TextButton", Top)
+Minimize.Size = UDim2.new(0, 40, 1, 0)
+Minimize.Position = UDim2.new(1, -80, 0, 0)
+Minimize.Text = "–"
+Minimize.BackgroundTransparency = 1
+Minimize.TextColor3 = Color3.fromRGB(200, 200, 200)
+local minimized = false
+
+Minimize.MouseEnter:Connect(function()
+    Minimize.TextColor3 = Color3.fromRGB(170,0,255)
+end)
+Minimize.MouseLeave:Connect(function()
+    Minimize.TextColor3 = Color3.fromRGB(200,200,200)
+end)
+
+Minimize.MouseButton1Click:Connect(function()
+    minimized = not minimized
+    Minimize.Text = minimized and "+" or "–"
+
+    if minimized then
+        TweenService:Create(Main, TweenInfo.new(0.3), {Size = UDim2.new(0,550,0,45)}):Play()
+        Side.Visible = false
+        Content.Visible = false
+    else
+        TweenService:Create(Main, TweenInfo.new(0.3), {Size = UDim2.new(0,550,0,350)}):Play()
+        task.wait(0.15)
+        Side.Visible = true
+        Content.Visible = true
+    end
+end)
+
 -- SIDE
 local Side = Instance.new("Frame", Main)
 Side.Size = UDim2.new(0,140,1,-45)
 Side.Position = UDim2.new(0,0,0,45)
 Side.BackgroundTransparency = 1
 
--- PAGES
+-- PAGES HOLDER
 local Pages = Instance.new("Folder", Main)
 
--- WINDOW
+-- WINDOW SYSTEM
 local Window = {}
 
 function Window:Tab(name)
@@ -73,7 +119,7 @@ function Window:Tab(name)
     local Layout = Instance.new("UIListLayout", Page)
     Layout.Padding = UDim.new(0,8)
 
-    -- TAB BTN
+    -- TAB BUTTON
     local Btn = Instance.new("TextButton", Side)
     Btn.Size = UDim2.new(1,-10,0,40)
     Btn.Position = UDim2.new(0,5,0,#Side:GetChildren()*45)
@@ -83,17 +129,11 @@ function Window:Tab(name)
     Instance.new("UICorner", Btn).CornerRadius = UDim.new(0,10)
 
     Btn.MouseEnter:Connect(function()
-        TweenService:Create(Btn, TweenInfo.new(0.2), {
-            BackgroundColor3 = Color3.fromRGB(120,0,200)
-        }):Play()
+        TweenService:Create(Btn, TweenInfo.new(0.2), {BackgroundColor3=Color3.fromRGB(120,0,200)}):Play()
     end)
-
     Btn.MouseLeave:Connect(function()
-        TweenService:Create(Btn, TweenInfo.new(0.2), {
-            BackgroundColor3 = Color3.fromRGB(30,30,30)
-        }):Play()
+        TweenService:Create(Btn, TweenInfo.new(0.2), {BackgroundColor3=Color3.fromRGB(30,30,30)}):Play()
     end)
-
     Btn.MouseButton1Click:Connect(function()
         for _,v in pairs(Pages:GetChildren()) do
             v.Visible = false
@@ -101,7 +141,7 @@ function Window:Tab(name)
         Page.Visible = true
     end)
 
-    -- TAB SYSTEM
+    -- TAB ELEMENTS
     local Tab = {}
 
     function Tab:Section(text)
@@ -122,11 +162,8 @@ function Window:Tab(name)
         Btn.BackgroundColor3 = Color3.fromRGB(100,0,200)
         Btn.TextColor3 = Color3.new(1,1,1)
         Instance.new("UICorner", Btn).CornerRadius = UDim.new(0,8)
-
         Btn.MouseButton1Click:Connect(function()
-            if config.Callback then
-                config.Callback()
-            end
+            if config.Callback then config.Callback() end
         end)
     end
 
@@ -174,7 +211,6 @@ function Window:Tab(name)
             TweenService:Create(Circle, TweenInfo.new(0.2), {
                 Position = state and UDim2.new(1,-19,0.5,-9) or UDim2.new(0,1,0.5,-9)
             }):Play()
-
             TweenService:Create(Toggle, TweenInfo.new(0.2), {
                 BackgroundColor3 = state and Color3.fromRGB(170,0,255) or Color3.fromRGB(60,60,60)
             }):Play()
@@ -182,24 +218,35 @@ function Window:Tab(name)
 
         update()
 
-        -- FIX CLICK
+        -- รองรับ PC + มือถือ
         Toggle.InputEnded:Connect(function(i)
             if i.UserInputType == Enum.UserInputType.MouseButton1
             or i.UserInputType == Enum.UserInputType.Touch then
                 state = not state
                 update()
-                if config.Callback then
-                    config.Callback(state)
-                end
+                if config.Callback then config.Callback(state) end
             end
         end)
 
-        if config.Callback then
-            config.Callback(state)
-        end
+        if config.Callback then config.Callback(state) end
     end
 
     return Tab
 end
+
+-- FLOAT BUTTON
+local ToggleBtn = Instance.new("TextButton", ScreenGui)
+ToggleBtn.Size = UDim2.new(0,50,0,50)
+ToggleBtn.Position = UDim2.new(0,20,0.5,-25)
+ToggleBtn.Text = "K"
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(120,0,200)
+ToggleBtn.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(1,0)
+
+local visible = true
+ToggleBtn.MouseButton1Click:Connect(function()
+    visible = not visible
+    Main.Visible = visible
+end)
 
 return Window

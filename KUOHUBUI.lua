@@ -1,4 +1,4 @@
---// KUOHUB ADVANCED + FUTURISTIC THEME
+--// KUOHUB ADVANCED + FUTURISTIC (FIX TITLE COLOR)
 
 local TweenService = game:GetService("TweenService")
 
@@ -26,7 +26,7 @@ local Top = Instance.new("Frame", Main)
 Top.Size = UDim2.new(1,0,0,45)
 Top.BackgroundTransparency = 1
 
--- TITLE + GRADIENT
+-- TITLE (FIX สี)
 local Title = Instance.new("TextLabel", Top)
 Title.Text = "KuoHub"
 Title.Size = UDim2.new(1,-100,1,0)
@@ -36,6 +36,10 @@ Title.Font = Enum.Font.GothamBold
 Title.TextSize = 20
 Title.TextXAlignment = Enum.TextXAlignment.Left
 
+-- ✅ สำคัญ: ต้องเป็นขาว
+Title.TextColor3 = Color3.new(1,1,1)
+
+-- GRADIENT ม่วง → ฟ้า
 local Gradient = Instance.new("UIGradient", Title)
 Gradient.Color = ColorSequence.new{
     ColorSequenceKeypoint.new(0, Color3.fromRGB(170,0,255)),
@@ -58,7 +62,7 @@ Side.BackgroundTransparency = 1
 -- PAGES
 local Pages = Instance.new("Folder", Main)
 
--- WINDOW
+-- WINDOW SYSTEM
 local Window = {}
 
 function Window:Tab(name)
@@ -73,7 +77,7 @@ function Window:Tab(name)
     local Layout = Instance.new("UIListLayout", Page)
     Layout.Padding = UDim.new(0,8)
 
-    -- TAB BTN
+    -- TAB BUTTON
     local Btn = Instance.new("TextButton", Side)
     Btn.Size = UDim2.new(1,-10,0,40)
     Btn.Position = UDim2.new(0,5,0,#Side:GetChildren()*45)
@@ -101,7 +105,7 @@ function Window:Tab(name)
         Page.Visible = true
     end)
 
-    -- TAB SYSTEM
+    -- TAB API
     local Tab = {}
 
     function Tab:Section(text)
@@ -182,7 +186,6 @@ function Window:Tab(name)
 
         update()
 
-        -- FIX CLICK
         Toggle.InputEnded:Connect(function(i)
             if i.UserInputType == Enum.UserInputType.MouseButton1
             or i.UserInputType == Enum.UserInputType.Touch then

@@ -1,4 +1,4 @@
---// KUOHUB ADVANCED UI SYSTEM
+--// KUOHUB ADVANCED + FUTURISTIC THEME
 
 local TweenService = game:GetService("TweenService")
 
@@ -10,20 +10,44 @@ local Main = Instance.new("Frame", ScreenGui)
 Main.Size = UDim2.new(0, 550, 0, 350)
 Main.Position = UDim2.new(0.5, -275, 0.5, -175)
 Main.BackgroundColor3 = Color3.fromRGB(15,15,15)
+Main.BackgroundTransparency = 0.15
 Main.Active = true
 Main.Draggable = true
 Instance.new("UICorner", Main).CornerRadius = UDim.new(0,16)
 
+-- GLOW BORDER
+local Stroke = Instance.new("UIStroke", Main)
+Stroke.Color = Color3.fromRGB(170,0,255)
+Stroke.Thickness = 2
+Stroke.Transparency = 0.2
+
 -- TOP
-local Top = Instance.new("TextLabel", Main)
+local Top = Instance.new("Frame", Main)
 Top.Size = UDim2.new(1,0,0,45)
-Top.Text = "⚡ KuoHub"
 Top.BackgroundTransparency = 1
-Top.TextColor3 = Color3.fromRGB(200,100,255)
-Top.Font = Enum.Font.GothamBold
-Top.TextSize = 20
-Top.TextXAlignment = Enum.TextXAlignment.Left
-Top.Position = UDim2.new(0,10,0,0)
+
+-- TITLE + GRADIENT
+local Title = Instance.new("TextLabel", Top)
+Title.Text = "KuoHub"
+Title.Size = UDim2.new(1,-100,1,0)
+Title.Position = UDim2.new(0,10,0,0)
+Title.BackgroundTransparency = 1
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 20
+Title.TextXAlignment = Enum.TextXAlignment.Left
+
+local Gradient = Instance.new("UIGradient", Title)
+Gradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(170,0,255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0,200,255))
+}
+
+-- LINE
+local Line = Instance.new("Frame", Top)
+Line.Size = UDim2.new(0,80,0,2)
+Line.Position = UDim2.new(0,10,1,-2)
+Line.BackgroundColor3 = Color3.fromRGB(170,0,255)
+Line.BorderSizePixel = 0
 
 -- SIDE
 local Side = Instance.new("Frame", Main)
@@ -31,10 +55,10 @@ Side.Size = UDim2.new(0,140,1,-45)
 Side.Position = UDim2.new(0,0,0,45)
 Side.BackgroundTransparency = 1
 
--- CONTENT HOLDER
+-- PAGES
 local Pages = Instance.new("Folder", Main)
 
--- TAB SYSTEM
+-- WINDOW
 local Window = {}
 
 function Window:Tab(name)
@@ -49,7 +73,7 @@ function Window:Tab(name)
     local Layout = Instance.new("UIListLayout", Page)
     Layout.Padding = UDim.new(0,8)
 
-    -- TAB BUTTON
+    -- TAB BTN
     local Btn = Instance.new("TextButton", Side)
     Btn.Size = UDim2.new(1,-10,0,40)
     Btn.Position = UDim2.new(0,5,0,#Side:GetChildren()*45)
@@ -58,6 +82,18 @@ function Window:Tab(name)
     Btn.TextColor3 = Color3.fromRGB(200,200,200)
     Instance.new("UICorner", Btn).CornerRadius = UDim.new(0,10)
 
+    Btn.MouseEnter:Connect(function()
+        TweenService:Create(Btn, TweenInfo.new(0.2), {
+            BackgroundColor3 = Color3.fromRGB(120,0,200)
+        }):Play()
+    end)
+
+    Btn.MouseLeave:Connect(function()
+        TweenService:Create(Btn, TweenInfo.new(0.2), {
+            BackgroundColor3 = Color3.fromRGB(30,30,30)
+        }):Play()
+    end)
+
     Btn.MouseButton1Click:Connect(function()
         for _,v in pairs(Pages:GetChildren()) do
             v.Visible = false
@@ -65,7 +101,7 @@ function Window:Tab(name)
         Page.Visible = true
     end)
 
-    -- ELEMENT SYSTEM
+    -- TAB SYSTEM
     local Tab = {}
 
     function Tab:Section(text)
@@ -83,7 +119,7 @@ function Window:Tab(name)
         local Btn = Instance.new("TextButton", Page)
         Btn.Size = UDim2.new(1,-10,0,35)
         Btn.Text = config.Title or "Button"
-        Btn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+        Btn.BackgroundColor3 = Color3.fromRGB(100,0,200)
         Btn.TextColor3 = Color3.new(1,1,1)
         Instance.new("UICorner", Btn).CornerRadius = UDim.new(0,8)
 
@@ -122,6 +158,8 @@ function Window:Tab(name)
         Toggle.Size = UDim2.new(0,40,0,20)
         Toggle.Position = UDim2.new(1,-45,0.5,-10)
         Toggle.BackgroundColor3 = Color3.fromRGB(60,60,60)
+        Toggle.Active = true
+        Toggle.Selectable = true
         Instance.new("UICorner", Toggle).CornerRadius = UDim.new(1,0)
 
         local Circle = Instance.new("Frame", Toggle)
@@ -144,8 +182,10 @@ function Window:Tab(name)
 
         update()
 
-        Toggle.InputBegan:Connect(function(i)
-            if i.UserInputType == Enum.UserInputType.MouseButton1 then
+        -- FIX CLICK
+        Toggle.InputEnded:Connect(function(i)
+            if i.UserInputType == Enum.UserInputType.MouseButton1
+            or i.UserInputType == Enum.UserInputType.Touch then
                 state = not state
                 update()
                 if config.Callback then

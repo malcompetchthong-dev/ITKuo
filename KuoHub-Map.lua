@@ -21,18 +21,22 @@ local days99 = game.GameId == 7326934954
 local ZOmBie = game.GameId == 7750955984
 local FishIt = game.GameId == 121864768012064
 local BAZ = game.GameId == 8066283370
+local MM2 = game.GameId == 66654135 or game.PlaceId == 142823291
 
 repeat task.wait() until game:IsLoaded()
 
 if MAPBF then
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/malcompetchthong-dev/ITKuo/refs/heads/main/Blockfoot.lua", true))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/malcompetchthong-dev/ITKuo/refs/heads/main/Blockfoot.lua", true))()
 
-elseif MAPKL then 
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/xshiba/CreamSoScute/main/LoadKL.lua", true))()
+elseif MAPKL then
+loadstring(game:HttpGet("https://raw.githubusercontent.com/xshiba/CreamSoScute/main/LoadKL.lua", true))()
 
-elseif (MAPBLADEB or MAPAFS or MAPRGH or MAPHAZEP or MAPALS or DRIVEEMPIRE or SOLRNG or TITAN or AV or Fish or AA or BL or AD or AC or BS or GAG or ASTDX or days99 or ZOmBie or game.GameId == 6701277882 or BAZ or game.GameId == 7671049560) then
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/malcompetchthong-dev/ITKuo/refs/heads/main/99%20Nights%20in%20the%20Forestl.ua", true))()
+elseif MM2 then
+loadstring(game:HttpGet("https://raw.githubusercontent.com/malcompetchthong-dev/ITKuo/refs/heads/main/MM2.lua", true))()
 
-else 
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/malcompetchthong-dev/ITKuo/refs/heads/main/Kuohub-General%20map.lua"))()
-end                                                                                                                                                                                                                                                            
+elseif (MAPBLADEB or MAPAFS or MAPRGH or MAPHAZEP or MAPALS or DRIVEEMPIRE or SOLRNG or TITAN or MS or AV or PG or Fish or Jujutsu or AA or BL or AD or AC or HT or ARX or BS or GAG or ASTDX or days99 or ZOmBie or game.GameId == 6701277882 or BAZ or game.GameId == 7671049560 or game.GameId == 7394964165 or game.GameId == 8144728961 or game.GameId == 5130394318) then
+loadstring(game:HttpGet("https://raw.githubusercontent.com/malcompetchthong-dev/ITKuo/refs/heads/main/99%20Nights%20in%20the%20Forest.lua", true))()
+
+else
+loadstring(game:HttpGet("https://raw.githubusercontent.com/malcompetchthong-dev/ITKuo/refs/heads/main/Kuohub-General%20map.lua"))()
+end

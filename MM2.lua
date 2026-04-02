@@ -106,12 +106,12 @@ bill.StudsOffset = Vector3.new(0,2,0)
 bill.AlwaysOnTop = true
 bill.Parent = head
 
-local text = Instance.new("TextLabel")      
-text.Name = "Text"      
-text.Size = UDim2.new(1,0,1,0)      
-text.BackgroundTransparency = 1      
-text.TextScaled = true      
-text.Font = Enum.Font.GothamBold      
+local text = Instance.new("TextLabel")
+text.Name = "Text"
+text.Size = UDim2.new(1,0,1,0)
+text.BackgroundTransparency = 1
+text.TextScaled = true
+text.Font = Enum.Font.GothamBold
 text.Parent = bill
 
 end
@@ -124,21 +124,21 @@ if role == "Murderer" then
 hl.FillColor = Color3.fromRGB(255,0,0)
 hl.OutlineColor = Color3.fromRGB(255,0,0)
 
-text.Text = "ไอชั่ว"      
+text.Text = "ไอชั่ว 😈"
 text.TextColor3 = Color3.fromRGB(255,0,0)
 
 elseif role == "Sheriff" then
 hl.FillColor = Color3.fromRGB(170,0,255)
 hl.OutlineColor = Color3.fromRGB(170,0,255)
 
-text.Text = "นายอำเภอ"      
+text.Text = "นายอำเภอ 👮"
 text.TextColor3 = Color3.fromRGB(170,0,255)
 
 else
 hl.FillColor = Color3.fromRGB(0,255,0)
 hl.OutlineColor = Color3.fromRGB(0,255,0)
 
-text.Text = "ผู้บริสุทธิ์"      
+text.Text = "ผู้บริสุทธิ์ 🙂"
 text.TextColor3 = Color3.fromRGB(0,255,0)
 
 end
@@ -194,41 +194,52 @@ end
 end)
 end)
 -- =========================
--- FIND GUN (FINAL BEST)
+-- 🔍 หา Sheriff
 -- =========================
-local function findGun()
-for _, v in ipairs(workspace:GetDescendants()) do
+local function getSheriff()
+for _, plr in ipairs(Players:GetPlayers()) do
+if plr ~= player and plr.Character and getRole(plr) == "Sheriff" then
+return plr
+end
+end
+end
 
--- Tool (ดรอปจริง)
-if v:IsA("Tool") and v.Name == "Gun" then
+-- =========================
+-- 🔫 หา Gun ที่ตก
+-- =========================
+local function findDroppedGun()
+for _, v in ipairs(workspace:GetDescendants()) do
+if v:IsA("Tool") and v.Name == "Gun" and v.Parent == workspace then
 local handle = v:FindFirstChild("Handle")
 if handle then
 return handle
 end
 end
-
--- Model (บางแมพใช้)
-if v:IsA("Model") and v.Name:lower():find("gun") then
-local part = v:FindFirstChild("Handle") or v:FindFirstChildWhichIsA("BasePart")
-if part then
-return part
 end
 end
 
--- BasePart
-if v:IsA("BasePart") and v.Name:lower() == "gun" then
-return v
-end
+-- =========================
+-- 💀 เช็ค Sheriff ตาย
+-- =========================
+local function isSheriffDead()
+local sheriff = getSheriff()
+if not sheriff or not sheriff.Character then return false end
 
-end
+local hum = sheriff.Character:FindFirstChildOfClass("Humanoid")
+if not hum then return false end
+
+return hum.Health <= 0
 
 end
 
 -- =========================
--- AUTO WARP GUN (ULTRA STABLE)
+-- 🚀 AUTO WARP GUN (เฉพาะตอน Sheriff ตาย)
 -- =========================
 RunService.RenderStepped:Connect(function()
 if not AUTO_WARP_GUN then return end
+
+-- ❗ ต้อง Sheriff ตายก่อน
+if not isSheriffDead() then return end
 
 local char = player.Character
 local root = char and char:FindFirstChild("HumanoidRootPart")
@@ -239,28 +250,20 @@ local backpack = player:FindFirstChild("Backpack")
 -- มีปืนแล้ว = หยุด
 if backpack and backpack:FindFirstChild("Gun") then return end
 
-local gun = findGun()
+local gun = findDroppedGun()
+if not gun then return end
 
-if gun then
+-- 🔥 วาร์ป
 root.CFrame = gun.CFrame + Vector3.new(0, 2.5, 0)
 
-for i = 1, 10 do
--- Touch
+-- 🔥 เก็บ (Touch)
+for i = 1, 5 do
 firetouchinterest(root, gun, 0)
 firetouchinterest(root, gun, 1)
+task.wait(0.02)
 
--- ProximityPrompt          
-local prompt = gun:FindFirstChildOfClass("ProximityPrompt")          
-if prompt then          
-    fireproximityprompt(prompt)          
-end          
-
-task.wait(0.02)          
-
-if backpack and backpack:FindFirstChild("Gun") then          
-    break          
-end
-
+if backpack and backpack:FindFirstChild("Gun") then
+break
 end
 
 end
@@ -386,10 +389,10 @@ if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRoo
 local enemyRoot = plr.Character.HumanoidRootPart
 local dist = (enemyRoot.Position - root.Position).Magnitude
 
-if dist < shortest then      
-        shortest = dist      
-        closest = plr      
-    end      
+if dist < shortest then
+shortest = dist
+closest = plr
+end
 end
 
 end
@@ -421,21 +424,21 @@ local char = player.Character
 local knife = char and char:FindFirstChild("Knife")
 if not knife then continue end
 
-local event = knife:FindFirstChild("Events") and knife.Events:FindFirstChild("KnifeThrown")      
-local handle = knife:FindFirstChild("Handle")      
+local event = knife:FindFirstChild("Events") and knife.Events:FindFirstChild("KnifeThrown")
+local handle = knife:FindFirstChild("Handle")
 
-if not event or not handle then continue end      
+if not event or not handle then continue end
 
-local target = getClosestTarget()      
-if not target or not target.Character then continue end      
+local target = getClosestTarget()
+if not target or not target.Character then continue end
 
-local targetCF = getKnifeCF(target.Character)      
-if not targetCF then continue end      
+local targetCF = getKnifeCF(target.Character)
+if not targetCF then continue end
 
-local originCF = handle.CFrame      
+local originCF = handle.CFrame
 
-pcall(function()      
-    event:FireServer(originCF, targetCF)      
+pcall(function()
+event:FireServer(originCF, targetCF)
 end)
 
 end
@@ -443,46 +446,67 @@ end
 end)
 
 local function getAuraTarget()
-    local closest = nil
-    local shortest = KILL_AURA_RANGE
+local closest = nil
+local shortest = KILL_AURA_RANGE
 
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-            
-            local dist = (plr.Character.HumanoidRootPart.Position - root.Position).Magnitude
+for _, plr in ipairs(Players:GetPlayers()) do
+if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
 
-            if dist < shortest then
-                shortest = dist
-                closest = plr
-            end
-        end
-    end
+local dist = (plr.Character.HumanoidRootPart.Position - root.Position).Magnitude
 
-    return closest
+if dist < shortest then                
+    shortest = dist                
+    closest = plr                
+end
+
+end
+
+end
+
+return closest
+
 end
 
 task.spawn(function()
-    while task.wait(0.05) do
-        if not KILL_AURA then continue end
+while task.wait(0.01) do -- ⏱ เสถียร
+if not KILL_AURA then continue end
 
-        local char = player.Character
-        local knife = char and char:FindFirstChild("Knife")
-        if not knife then continue end
+local char = player.Character        
+    local root = char and char:FindFirstChild("HumanoidRootPart")        
+    local knife = char and char:FindFirstChild("Knife")        
+    if not root or not knife then continue end        
+    
+    local handle = knife:FindFirstChild("Handle")        
+    if not handle then continue end        
+    
+    local target = getAuraTarget()        
+    if not target or not target.Character then continue end        
+    
+    local enemyRoot = target.Character:FindFirstChild("HumanoidRootPart")        
+    if not enemyRoot then continue end        
+    
+    -- 💾 เซฟตำแหน่ง        
+    local oldCF = root.CFrame        
+    
+    -- 🔥 วาร์ปไป "ชนตัว" (สำคัญ)        
+    root.CFrame = enemyRoot.CFrame        
+    
+    task.wait(0.05) -- ⚠️ ให้ server sync        
+    
+    -- 🔪 ฟันจริง        
+    pcall(function()        
+        for i = 1,3 do -- 🔥 ฟันรัวกันพลาด        
+            knife:Activate()        
+            task.wait(0.02)        
+        end        
+    end)        
+    
+    task.wait(0.03)        
+    
+    -- 🔙 กลับที่เดิม        
+    root.CFrame = oldCF        
+end
 
-        local event = knife:FindFirstChild("Events") and knife.Events:FindFirstChild("KnifeThrown")
-        local handle = knife:FindFirstChild("Handle")
-        if not event or not handle then continue end
-
-        local target = getAuraTarget()
-        if not target or not target.Character then continue end
-
-        local head = target.Character:FindFirstChild("Head")
-        if not head then continue end
-
-        pcall(function()
-            event:FireServer(handle.CFrame, head.CFrame)
-        end)
-    end
 end)
 -- =========================
 -- UI
@@ -503,11 +527,11 @@ AUTO_KNIFE=v
 end
 })
 Combat:Toggle({
-    Title="Kill Aura",
-    Desc="มีดตีอัตโนมัติระยะใกล้",
-    Callback=function(v)
-        KILL_AURA=v
-    end
+Title="Kill Aura",
+Desc="มีดตีอัตโนมัติระยะใกล้",
+Callback=function(v)
+KILL_AURA=v
+end
 })
 -- KEY
 UIS.InputBegan:Connect(function(i,g)

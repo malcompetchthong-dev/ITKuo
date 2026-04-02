@@ -378,7 +378,7 @@ end
 end)
 
 local AUTO_KNIFE = false
-local KNIFE_RANGE = 1000
+local KNIFE_RANGE = 100
 
 local function getClosestTarget()
 local closest = nil

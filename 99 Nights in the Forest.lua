@@ -1,5 +1,9 @@
 local Window = loadstring(game:HttpGet("https://raw.githubusercontent.com/malcompetchthong-dev/ITKuo/refs/heads/main/KUOHUBUI.lua"))()
 
+Window:AddMinimizeButton({
+Button = { Image = "rbxassetid://78655725770640", BackgroundTransparency = 0 },
+Corner = { CornerRadius = UDim.new(35, 1) },
+})
 -- =========================
 -- UI
 -- =========================

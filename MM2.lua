@@ -454,9 +454,9 @@ if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRoo
 
 local dist = (plr.Character.HumanoidRootPart.Position - root.Position).Magnitude
 
-if dist < shortest then                
-    shortest = dist                
-    closest = plr                
+if dist < shortest then
+shortest = dist
+closest = plr
 end
 
 end
@@ -471,40 +471,41 @@ task.spawn(function()
 while task.wait(0.01) do -- ⏱ เสถียร
 if not KILL_AURA then continue end
 
-local char = player.Character        
-    local root = char and char:FindFirstChild("HumanoidRootPart")        
-    local knife = char and char:FindFirstChild("Knife")        
-    if not root or not knife then continue end        
-    
-    local handle = knife:FindFirstChild("Handle")        
-    if not handle then continue end        
-    
-    local target = getAuraTarget()        
-    if not target or not target.Character then continue end        
-    
-    local enemyRoot = target.Character:FindFirstChild("HumanoidRootPart")        
-    if not enemyRoot then continue end        
-    
-    -- 💾 เซฟตำแหน่ง        
-    local oldCF = root.CFrame        
-    
-    -- 🔥 วาร์ปไป "ชนตัว" (สำคัญ)        
-    root.CFrame = enemyRoot.CFrame        
-    
-    task.wait(0.05) -- ⚠️ ให้ server sync        
-    
-    -- 🔪 ฟันจริง        
-    pcall(function()        
-        for i = 1,3 do -- 🔥 ฟันรัวกันพลาด        
-            knife:Activate()        
-            task.wait(0.02)        
-        end        
-    end)        
-    
-    task.wait(0.03)        
-    
-    -- 🔙 กลับที่เดิม        
-    root.CFrame = oldCF        
+local char = player.Character
+local root = char and char:FindFirstChild("HumanoidRootPart")
+local knife = char and char:FindFirstChild("Knife")
+if not root or not knife then continue end
+
+local handle = knife:FindFirstChild("Handle")          
+if not handle then continue end          
+  
+local target = getAuraTarget()          
+if not target or not target.Character then continue end          
+  
+local enemyRoot = target.Character:FindFirstChild("HumanoidRootPart")          
+if not enemyRoot then continue end          
+  
+-- 💾 เซฟตำแหน่ง          
+local oldCF = root.CFrame          
+  
+-- 🔥 วาร์ปไป "ชนตัว" (สำคัญ)          
+root.CFrame = enemyRoot.CFrame          
+  
+task.wait(0.05) -- ⚠️ ให้ server sync          
+  
+-- 🔪 ฟันจริง          
+pcall(function()          
+    for i = 1,3 do -- 🔥 ฟันรัวกันพลาด          
+        knife:Activate()          
+        task.wait(0.02)          
+    end          
+end)          
+  
+task.wait(0.03)          
+  
+-- 🔙 กลับที่เดิม          
+root.CFrame = oldCF
+
 end
 
 end)
@@ -533,6 +534,62 @@ Callback=function(v)
 KILL_AURA=v
 end
 })
+
+Home:Toggle({
+Title="Anti-Fling",
+Desc="กันปลิง",
+Callback=function(v)
+Anti_Pling = v
+end
+})
+
+local Players = game:GetService("Players")
+
+-- =========================
+-- SYSTEM: ANTI PLING (NO COLLIDE)
+-- =========================
+
+local function setCollision(character, state)
+for _, part in ipairs(character:GetDescendants()) do
+if part:IsA("BasePart") then
+part.CanCollide = state
+end
+end
+end
+
+local function applyNoCollide(player)
+if not player.Character then return end
+
+setCollision(player.Character, false)          
+      
+player.Character.DescendantAdded:Connect(function(part)          
+    if part:IsA("BasePart") then          
+        part.CanCollide = false          
+    end          
+end)
+
+end
+
+-- =========================
+-- MAIN LOOP (TOGGLE CONTROL)
+-- =========================
+task.spawn(function()
+while task.wait(0.01) do
+if Anti_Pling then
+for _, plr in ipairs(Players:GetPlayers()) do
+if plr.Character then
+applyNoCollide(plr)
+end
+end
+else
+for _, plr in ipairs(Players:GetPlayers()) do
+if plr.Character then
+setCollision(plr.Character, true)
+end
+end
+end
+end
+end)
 -- KEY
 UIS.InputBegan:Connect(function(i,g)
 if not g and i.KeyCode == Enum.KeyCode.F then

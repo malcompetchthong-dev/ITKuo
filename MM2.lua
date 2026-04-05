@@ -38,6 +38,7 @@ local AUTO_KNIFE = false
 local KILL_AURA = false
 local KNIFE_RANGE = 1000
 local KILL_AURA_RANGE = 2000
+local AUTO_COIN_COLLECT = false
 
 -- =========================
 -- FLY
@@ -595,6 +596,134 @@ end
 end
 end
 end
+end)
+Home:Toggle({
+Title = "Auto Coin Collect",
+Desc = "ออโต้เก็บเหรียญ",
+Callback = function(v)
+AUTO_COIN_COLLECT = v
+end
+})
+
+-- =========================
+-- AUTO COIN PRO SYSTEM 🔥
+-- =========================
+
+local TweenService = game:GetService("TweenService")
+
+local COIN_SPEED = 30
+local SAFE_DISTANCE = 25
+local STUCK_TIME = 2
+
+local currentTarget = nil
+local lastMoveTime = tick()
+local lastPos = nil
+
+-- 🔍 หาเหรียญแบบฉลาด (หลบคน)
+local function getSmartCoin(root)
+local bestCoin = nil
+local bestScore = math.huge
+
+for _, coin in ipairs(workspace:GetDescendants()) do  
+    if (coin.Name == "Coin" or coin.Name == "Coin_Server") and coin:IsA("BasePart") then  
+          
+        local dist = (coin.Position - root.Position).Magnitude  
+          
+        -- 🧠 เช็คศัตรูใกล้เหรียญ  
+        local danger = 0  
+        for _, plr in ipairs(Players:GetPlayers()) do  
+            if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then  
+                local d = (plr.Character.HumanoidRootPart.Position - coin.Position).Magnitude  
+                if d < SAFE_DISTANCE then  
+                    danger = danger + (SAFE_DISTANCE - d)  
+                end  
+            end  
+        end  
+
+        -- 🎯 score ต่ำ = ดี  
+        local score = dist + (danger * 5)  
+
+        if score < bestScore then  
+            bestScore = score  
+            bestCoin = coin  
+        end  
+    end  
+end  
+
+return bestCoin
+
+end
+
+-- 🚀 Tween Fly (เนียน + กันแบน)
+local function tweenTo(root, pos)
+local dist = (root.Position - pos).Magnitude
+local time = dist / COIN_SPEED
+
+local tween = TweenService:Create(  
+    root,  
+    TweenInfo.new(time, Enum.EasingStyle.Linear),  
+    {CFrame = CFrame.new(pos)}  
+)  
+
+tween:Play()  
+return tween
+
+end
+
+-- 🔥 LOOP
+task.spawn(function()
+while task.wait(0.05) do
+if not AUTO_COIN_COLLECT then continue end
+
+local char = player.Character  
+    local root = char and char:FindFirstChild("HumanoidRootPart")  
+    if not root then continue end  
+
+    -- ❗ ปิด Fly ปกติ  
+    if flying then  
+        setFly(false)  
+    end  
+
+    -- 🎯 ล็อคเป้าหมาย  
+    if not currentTarget or not currentTarget.Parent then  
+        currentTarget = getSmartCoin(root)  
+    end  
+
+    if not currentTarget then continue end  
+
+    local targetPos = currentTarget.Position + Vector3.new(0, 2, 0)  
+
+    -- 🚀 Tween ไปหา  
+    local tween = tweenTo(root, targetPos)  
+
+    -- 🧠 Anti Stuck  
+    local startTime = tick()  
+    lastPos = root.Position  
+
+    while tween.PlaybackState == Enum.PlaybackState.Playing do  
+        task.wait(0.1)  
+
+        if not AUTO_COIN_COLLECT then  
+            tween:Cancel()  
+            break  
+        end  
+
+        -- 🧱 ติด = วาร์ป  
+        if (root.Position - lastPos).Magnitude < 1 then  
+            if tick() - startTime > STUCK_TIME then  
+                root.CFrame = CFrame.new(targetPos)  
+                break  
+            end  
+        else  
+            startTime = tick()  
+            lastPos = root.Position  
+        end  
+    end  
+
+    -- 🔄 รีเซ็ตเป้าหมาย  
+    currentTarget = nil  
+end
+
 end)
 -- KEY
 UIS.InputBegan:Connect(function(i,g)

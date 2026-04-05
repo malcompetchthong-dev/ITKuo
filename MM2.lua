@@ -1,7 +1,7 @@
 local Window = loadstring(game:HttpGet("https://raw.githubusercontent.com/malcompetchthong-dev/ITKuo/refs/heads/main/KUOHUBUI.lua"))()
 
 Window:AddMinimizeButton({
-Button = { Image = "rbxassetid://78655725770640", BackgroundTransparency = 0 },
+Button = { Image = "rbxassetid://103308551113442", BackgroundTransparency = 0 },
 Corner = { CornerRadius = UDim.new(35, 1) },
 })
 
@@ -476,34 +476,34 @@ local root = char and char:FindFirstChild("HumanoidRootPart")
 local knife = char and char:FindFirstChild("Knife")
 if not root or not knife then continue end
 
-local handle = knife:FindFirstChild("Handle")          
-if not handle then continue end          
-  
-local target = getAuraTarget()          
-if not target or not target.Character then continue end          
-  
-local enemyRoot = target.Character:FindFirstChild("HumanoidRootPart")          
-if not enemyRoot then continue end          
-  
--- 💾 เซฟตำแหน่ง          
-local oldCF = root.CFrame          
-  
--- 🔥 วาร์ปไป "ชนตัว" (สำคัญ)          
-root.CFrame = enemyRoot.CFrame          
-  
-task.wait(0.05) -- ⚠️ ให้ server sync          
-  
--- 🔪 ฟันจริง          
-pcall(function()          
-    for i = 1,3 do -- 🔥 ฟันรัวกันพลาด          
-        knife:Activate()          
-        task.wait(0.02)          
-    end          
-end)          
-  
-task.wait(0.03)          
-  
--- 🔙 กลับที่เดิม          
+local handle = knife:FindFirstChild("Handle")
+if not handle then continue end
+
+local target = getAuraTarget()
+if not target or not target.Character then continue end
+
+local enemyRoot = target.Character:FindFirstChild("HumanoidRootPart")
+if not enemyRoot then continue end
+
+-- 💾 เซฟตำแหน่ง
+local oldCF = root.CFrame
+
+-- 🔥 วาร์ปไป "ชนตัว" (สำคัญ)
+root.CFrame = enemyRoot.CFrame
+
+task.wait(0.05) -- ⚠️ ให้ server sync
+
+-- 🔪 ฟันจริง
+pcall(function()
+for i = 1,3 do -- 🔥 ฟันรัวกันพลาด
+knife:Activate()
+task.wait(0.02)
+end
+end)
+
+task.wait(0.03)
+
+-- 🔙 กลับที่เดิม
 root.CFrame = oldCF
 
 end
@@ -512,6 +512,12 @@ end)
 -- =========================
 -- UI
 -- =========================
+Home:AddDiscordInvite({
+Name = "Kuo Hub",
+Description = "Join server",
+Logo = "rbxassetid://103308551113442",
+Invite = "https://discord.gg/Apn2j9Fez",
+})
 Home:Toggle({Title="ESP",Desc="ไฮไลต์ผู้เล่น",Callback=function(v) ESP_ENABLED=v end})
 Home:Toggle({Title="Fly",Desc="บิน",Callback=function(v) setFly(v) end})
 Home:Toggle({Title="Auto Warp Gun",Desc="วาร์ปเก็บปืน",Callback=function(v) AUTO_WARP_GUN=v end})
@@ -560,12 +566,12 @@ end
 local function applyNoCollide(player)
 if not player.Character then return end
 
-setCollision(player.Character, false)          
-      
-player.Character.DescendantAdded:Connect(function(part)          
-    if part:IsA("BasePart") then          
-        part.CanCollide = false          
-    end          
+setCollision(player.Character, false)
+
+player.Character.DescendantAdded:Connect(function(part)
+if part:IsA("BasePart") then
+part.CanCollide = false
+end
 end)
 
 end

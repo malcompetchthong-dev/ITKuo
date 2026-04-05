@@ -1,7 +1,7 @@
 local Window = loadstring(game:HttpGet("https://raw.githubusercontent.com/malcompetchthong-dev/ITKuo/refs/heads/main/KUOHUBUI.lua"))()
 
 Window:AddMinimizeButton({
-Button = { Image = "rbxassetid://78655725770640", BackgroundTransparency = 0 },
+Button = { Image = "rbxassetid://103308551113442", BackgroundTransparency = 0 },
 Corner = { CornerRadius = UDim.new(35, 1) },
 })
 -- =========================
@@ -42,6 +42,13 @@ local HIT_DELAY = 0.1
 -- =========================
 -- UI TOGGLES
 -- =========================
+Home:AddDiscordInvite({
+    Name = "Kuo Hub",
+    Description = "Join server",
+    Logo = "rbxassetid://103308551113442",
+    Invite = "https://discord.gg/Apn2j9Fez",
+})
+
 Home:Toggle({
     Title = "Kill Aura",
     Desc = "ฆ่ามอนอัตโนมัติ",
@@ -52,7 +59,7 @@ Home:Toggle({
 
 Home:Toggle({
     Title = "Auto Farm Tree",
-    Desc = "ตัดไม้ทีละต้น (ดรอปจริง)",
+    Desc = "ตัดไม้ทีละต้น",
     Callback = function(v)
         FARM_TREE = v
     end

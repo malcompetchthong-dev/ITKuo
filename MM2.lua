@@ -510,104 +510,6 @@ root.CFrame = oldCF
 end
 
 end)
--- =========================
--- UI
--- =========================
-Home:AddDiscordInvite({
-Name = "Kuo Hub",
-Description = "Join server",
-Logo = "rbxassetid://103308551113442",
-Invite = "https://discord.gg/Apn2j9Fez",
-})
-Home:Toggle({Title="ESP",Desc="ไฮไลต์ผู้เล่น",Callback=function(v) ESP_ENABLED=v end})
-Home:Toggle({Title="Fly",Desc="บิน",Callback=function(v) setFly(v) end})
-Home:Toggle({Title="Auto Warp Gun",Desc="วาร์ปเก็บปืน",Callback=function(v) AUTO_WARP_GUN=v end})
-Home:Toggle({Title="Infinite Jump",Desc="กระโดดไม่จำกัด",Callback=function(v) INFINITE_JUMP=v end})
-Home:Toggle({Title="NoClip",Desc="ทะลุกำแพง",Callback=function(v) NOCLIP=v end})
-
-Combat:Toggle({Title="Aim Lock",Desc="ล็อคฆาตกร",Callback=function(v) AIMLOCK=v LOCK_TARGET=nil end})
-Combat:Toggle({Title="Auto Shoot",Desc="ยิงออโต้",Callback=function(v) AUTO_SHOOT=v end})
-Combat:Toggle({
-Title="Auto Knife",
-Desc="ปามีดอัตโนมัติ",
-Callback=function(v)
-AUTO_KNIFE=v
-end
-})
-Combat:Toggle({
-Title="Kill Aura",
-Desc="มีดตีอัตโนมัติระยะใกล้",
-Callback=function(v)
-KILL_AURA=v
-end
-})
-
-Home:Toggle({
-Title="Anti-Fling",
-Desc="กันปลิง",
-Callback=function(v)
-Anti_Pling = v
-end
-})
-
-local Players = game:GetService("Players")
-
--- =========================
--- SYSTEM: ANTI PLING (NO COLLIDE)
--- =========================
-
-local function setCollision(character, state)
-for _, part in ipairs(character:GetDescendants()) do
-if part:IsA("BasePart") then
-part.CanCollide = state
-end
-end
-end
-
-local function applyNoCollide(player)
-if not player.Character then return end
-
-setCollision(player.Character, false)
-
-player.Character.DescendantAdded:Connect(function(part)
-if part:IsA("BasePart") then
-part.CanCollide = false
-end
-end)
-
-end
-
--- =========================
--- MAIN LOOP (TOGGLE CONTROL)
--- =========================
-task.spawn(function()
-while task.wait(0.01) do
-if Anti_Pling then
-for _, plr in ipairs(Players:GetPlayers()) do
-if plr.Character then
-applyNoCollide(plr)
-end
-end
-else
-for _, plr in ipairs(Players:GetPlayers()) do
-if plr.Character then
-setCollision(plr.Character, true)
-end
-end
-end
-end
-end)
-Home:Toggle({
-Title = "Auto Coin Collect",
-Desc = "ออโต้เก็บเหรียญ",
-Callback = function(v)
-AUTO_COIN_COLLECT = v
-end
-})
-
--- =========================
--- AUTO COIN PRO SYSTEM 🔥
--- =========================
 
 local TweenService = game:GetService("TweenService")
 
@@ -725,6 +627,103 @@ local char = player.Character
 end
 
 end)
+
+local Players = game:GetService("Players")
+
+-- =========================
+-- SYSTEM: ANTI PLING (NO COLLIDE)
+-- =========================
+
+local function setCollision(character, state)
+for _, part in ipairs(character:GetDescendants()) do
+if part:IsA("BasePart") then
+part.CanCollide = state
+end
+end
+end
+
+local function applyNoCollide(player)
+if not player.Character then return end
+
+setCollision(player.Character, false)
+
+player.Character.DescendantAdded:Connect(function(part)
+if part:IsA("BasePart") then
+part.CanCollide = false
+end
+end)
+
+end
+
+-- =========================
+-- MAIN LOOP (TOGGLE CONTROL)
+-- =========================
+task.spawn(function()
+while task.wait(0.01) do
+if Anti_Pling then
+for _, plr in ipairs(Players:GetPlayers()) do
+if plr.Character then
+applyNoCollide(plr)
+end
+end
+else
+for _, plr in ipairs(Players:GetPlayers()) do
+if plr.Character then
+setCollision(plr.Character, true)
+end
+end
+end
+end
+end)
+
+-- =========================
+-- UI
+-- =========================
+Home:AddDiscordInvite({
+Name = "Kuo Hub",
+Description = "Join server",
+Logo = "rbxassetid://103308551113442",
+Invite = "https://discord.gg/Apn2j9Fez",
+})
+Home:Toggle({Title="ESP",Desc="ไฮไลต์ผู้เล่น",Callback=function(v) ESP_ENABLED=v end})
+Home:Toggle({Title="Fly",Desc="บิน",Callback=function(v) setFly(v) end})
+Home:Toggle({Title="Auto Warp Gun",Desc="วาร์ปเก็บปืน",Callback=function(v) AUTO_WARP_GUN=v end})
+Home:Toggle({Title="Infinite Jump",Desc="กระโดดไม่จำกัด",Callback=function(v) INFINITE_JUMP=v end})
+Home:Toggle({Title="NoClip",Desc="ทะลุกำแพง",Callback=function(v) NOCLIP=v end})
+
+Combat:Toggle({Title="Aim Lock",Desc="ล็อคฆาตกร",Callback=function(v) AIMLOCK=v LOCK_TARGET=nil end})
+Combat:Toggle({Title="Auto Shoot",Desc="ยิงออโต้",Callback=function(v) AUTO_SHOOT=v end})
+Combat:Toggle({
+Title="Auto Knife",
+Desc="ปามีดอัตโนมัติ",
+Callback=function(v)
+AUTO_KNIFE=v
+end
+})
+Combat:Toggle({
+Title="Kill Aura",
+Desc="มีดตีอัตโนมัติระยะใกล้",
+Callback=function(v)
+KILL_AURA=v
+end
+})
+
+Home:Toggle({
+Title = "Auto Coin Collect",
+Desc = "ออโต้เก็บเหรียญ",
+Callback = function(v)
+AUTO_COIN_COLLECT = v
+end
+})
+
+Home:Toggle({
+Title="Anti-Fling",
+Desc="กันปลิง",
+Callback=function(v)
+Anti_Pling = v
+end
+})
+
 -- KEY
 UIS.InputBegan:Connect(function(i,g)
 if not g and i.KeyCode == Enum.KeyCode.F then

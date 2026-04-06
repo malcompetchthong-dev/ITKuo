@@ -514,8 +514,8 @@ end)
 local TweenService = game:GetService("TweenService")
 
 local COIN_SPEED = 30
-local SAFE_DISTANCE = 25
-local STUCK_TIME = 2
+local SAFE_DISTANCE = 40
+local STUCK_TIME = 1
 
 local currentTarget = nil
 local lastMoveTime = tick()
@@ -574,7 +574,7 @@ end
 
 -- 🔥 LOOP
 task.spawn(function()
-while task.wait(0.05) do
+while task.wait(0.01) do
 if not AUTO_COIN_COLLECT then continue end
 
 local char = player.Character  
@@ -603,7 +603,7 @@ local char = player.Character
     lastPos = root.Position  
 
     while tween.PlaybackState == Enum.PlaybackState.Playing do  
-        task.wait(0.1)  
+        task.wait(0.01)  
 
         if not AUTO_COIN_COLLECT then  
             tween:Cancel()  

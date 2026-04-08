@@ -40,6 +40,7 @@ local KNIFE_RANGE = 1000
 local KILL_AURA_RANGE = 2000
 local AUTO_COIN_COLLECT = false
 local CHAT_ANNOUNCE = false
+local Anti_Pling = false
 
 -- =========================
 -- FLY
@@ -195,27 +196,14 @@ createESP(char, getRole(plr))
 end
 end)
 end)
+
 -- =========================
--- 🔍 หา Sheriff
+-- 🔍 หา Sheriff (ตัวเดียว)
 -- =========================
 local function getSheriff()
 for _, plr in ipairs(Players:GetPlayers()) do
 if plr ~= player and plr.Character and getRole(plr) == "Sheriff" then
 return plr
-end
-end
-end
-
--- =========================
--- 🔫 หา Gun ที่ตก
--- =========================
-local function findDroppedGun()
-for _, v in ipairs(workspace:GetDescendants()) do
-if v:IsA("Tool") and v.Name == "Gun" and v.Parent == workspace then
-local handle = v:FindFirstChild("Handle")
-if handle then
-return handle
-end
 end
 end
 end
@@ -227,48 +215,77 @@ local function isSheriffDead()
 local sheriff = getSheriff()
 if not sheriff or not sheriff.Character then return false end
 
-local hum = sheriff.Character:FindFirstChildOfClass("Humanoid")
-if not hum then return false end
-
+local hum = sheriff.Character:FindFirstChildOfClass("Humanoid")        
+if not hum then return false end        
+    
 return hum.Health <= 0
 
 end
 
 -- =========================
--- 🚀 AUTO WARP GUN (เฉพาะตอน Sheriff ตาย)
+-- 🔫 หา Gun ที่ตก
 -- =========================
+local function findDroppedGun()
+for _, v in ipairs(workspace:GetDescendants()) do
+if v:IsA("Tool") and v.Name == "Gun" and v.Parent == workspace then
+local handle = v:FindFirstChild("Handle")
+if handle and handle:IsA("BasePart") then
+return handle
+end
+end
+end
+end
+
+-- =========================
+-- 🚀 AUTO WARP GUN (FINAL)
+-- =========================
+local AUTO_WARP_GUN_RANGE = 150 -- ปรับได้
+
 RunService.RenderStepped:Connect(function()
 if not AUTO_WARP_GUN then return end
 
--- ❗ ต้อง Sheriff ตายก่อน
-if not isSheriffDead() then return end
-
-local char = player.Character
-local root = char and char:FindFirstChild("HumanoidRootPart")
-if not root then return end
-
-local backpack = player:FindFirstChild("Backpack")
-
--- มีปืนแล้ว = หยุด
-if backpack and backpack:FindFirstChild("Gun") then return end
-
-local gun = findDroppedGun()
-if not gun then return end
-
--- 🔥 วาร์ป
-root.CFrame = gun.CFrame + Vector3.new(0, 2.5, 0)
-
--- 🔥 เก็บ (Touch)
-for i = 1, 5 do
-firetouchinterest(root, gun, 0)
-firetouchinterest(root, gun, 1)
-task.wait(0.02)
-
-if backpack and backpack:FindFirstChild("Gun") then
-break
-end
-
-end
+-- ❗ ต้อง Sheriff ตายก่อน        
+if not isSheriffDead() then return end        
+    
+local char = player.Character        
+local root = char and char:FindFirstChild("HumanoidRootPart")        
+if not root then return end        
+    
+local backpack = player:FindFirstChild("Backpack")        
+    
+-- ✅ มีปืนแล้ว = หยุด        
+if backpack and backpack:FindFirstChild("Gun") then return end        
+    
+local gun = findDroppedGun()        
+if not gun then return end        
+    
+-- 🔥 เช็คระยะ (กันโป๊ะ)        
+local dist = (gun.Position - root.Position).Magnitude        
+if dist > AUTO_WARP_GUN_RANGE then return end        
+    
+-- 💾 เซฟตำแหน่ง        
+local oldCF = root.CFrame        
+    
+-- 🔥 วาร์ปไป        
+root.CFrame = gun.CFrame + Vector3.new(0, 2.5, 0)        
+    
+task.wait(0.05)        
+    
+-- 🔫 เก็บปืน        
+for i = 1, 6 do        
+    firetouchinterest(root, gun, 0)        
+    firetouchinterest(root, gun, 1)        
+    task.wait(0.02)        
+    
+    if backpack and backpack:FindFirstChild("Gun") then        
+        break        
+    end        
+end        
+    
+task.wait(0.02)        
+    
+-- 🔙 กลับที่เดิม        
+root.CFrame = oldCF
 
 end)
 -- =========================
@@ -527,31 +544,33 @@ local function getSmartCoin(root)
 local bestCoin = nil
 local bestScore = math.huge
 
-for _, coin in ipairs(workspace:GetDescendants()) do  
-    if (coin.Name == "Coin" or coin.Name == "Coin_Server") and coin:IsA("BasePart") then  
-          
-        local dist = (coin.Position - root.Position).Magnitude  
-          
-        -- 🧠 เช็คศัตรูใกล้เหรียญ  
-        local danger = 0  
-        for _, plr in ipairs(Players:GetPlayers()) do  
-            if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then  
-                local d = (plr.Character.HumanoidRootPart.Position - coin.Position).Magnitude  
-                if d < SAFE_DISTANCE then  
-                    danger = danger + (SAFE_DISTANCE - d)  
-                end  
-            end  
-        end  
+for _, coin in ipairs(workspace:GetDescendants()) do
+if (coin.Name == "Coin" or coin.Name == "Coin_Server") and coin:IsA("BasePart") then
 
-        -- 🎯 score ต่ำ = ดี  
-        local score = dist + (danger * 5)  
+local dist = (coin.Position - root.Position).Magnitude
 
-        if score < bestScore then  
-            bestScore = score  
-            bestCoin = coin  
-        end  
-    end  
-end  
+-- 🧠 เช็คศัตรูใกล้เหรียญ            
+local danger = 0            
+for _, plr in ipairs(Players:GetPlayers()) do            
+    if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then            
+        local d = (plr.Character.HumanoidRootPart.Position - coin.Position).Magnitude            
+        if d < SAFE_DISTANCE then            
+            danger = danger + (SAFE_DISTANCE - d)            
+        end            
+    end            
+end            
+    
+-- 🎯 score ต่ำ = ดี            
+local score = dist + (danger * 5)            
+    
+if score < bestScore then            
+    bestScore = score            
+    bestCoin = coin            
+end
+
+end
+
+end
 
 return bestCoin
 
@@ -562,13 +581,13 @@ local function tweenTo(root, pos)
 local dist = (root.Position - pos).Magnitude
 local time = dist / COIN_SPEED
 
-local tween = TweenService:Create(  
-    root,  
-    TweenInfo.new(time, Enum.EasingStyle.Linear),  
-    {CFrame = CFrame.new(pos)}  
-)  
+local tween = TweenService:Create(
+root,
+TweenInfo.new(time, Enum.EasingStyle.Linear),
+{CFrame = CFrame.new(pos)}
+)
 
-tween:Play()  
+tween:Play()
 return tween
 
 end
@@ -578,53 +597,55 @@ task.spawn(function()
 while task.wait(0.01) do
 if not AUTO_COIN_COLLECT then continue end
 
-local char = player.Character  
-    local root = char and char:FindFirstChild("HumanoidRootPart")  
-    if not root then continue end  
+local char = player.Character
+local root = char and char:FindFirstChild("HumanoidRootPart")
+if not root then continue end
 
-    -- ❗ ปิด Fly ปกติ  
-    if flying then  
-        setFly(false)  
-    end  
+-- ❗ ปิด Fly ปกติ
+if flying then
+setFly(false)
+end
 
-    -- 🎯 ล็อคเป้าหมาย  
-    if not currentTarget or not currentTarget.Parent then  
-        currentTarget = getSmartCoin(root)  
-    end  
+-- 🎯 ล็อคเป้าหมาย
+if not currentTarget or not currentTarget.Parent then
+currentTarget = getSmartCoin(root)
+end
 
-    if not currentTarget then continue end  
+if not currentTarget then continue end
 
-    local targetPos = currentTarget.Position + Vector3.new(0, 2, 0)  
+local targetPos = currentTarget.Position + Vector3.new(0, 2, 0)
 
-    -- 🚀 Tween ไปหา  
-    local tween = tweenTo(root, targetPos)  
+-- 🚀 Tween ไปหา
+local tween = tweenTo(root, targetPos)
 
-    -- 🧠 Anti Stuck  
-    local startTime = tick()  
-    lastPos = root.Position  
+-- 🧠 Anti Stuck
+local startTime = tick()
+lastPos = root.Position
 
-    while tween.PlaybackState == Enum.PlaybackState.Playing do  
-        task.wait(0.01)  
+while tween.PlaybackState == Enum.PlaybackState.Playing do
+task.wait(0.01)
 
-        if not AUTO_COIN_COLLECT then  
-            tween:Cancel()  
-            break  
-        end  
+if not AUTO_COIN_COLLECT then            
+    tween:Cancel()            
+    break            
+end            
+    
+-- 🧱 ติด = วาร์ป            
+if (root.Position - lastPos).Magnitude < 1 then            
+    if tick() - startTime > STUCK_TIME then            
+        root.CFrame = CFrame.new(targetPos)            
+        break            
+    end            
+else            
+    startTime = tick()            
+    lastPos = root.Position            
+end
 
-        -- 🧱 ติด = วาร์ป  
-        if (root.Position - lastPos).Magnitude < 1 then  
-            if tick() - startTime > STUCK_TIME then  
-                root.CFrame = CFrame.new(targetPos)  
-                break  
-            end  
-        else  
-            startTime = tick()  
-            lastPos = root.Position  
-        end  
-    end  
+end
 
-    -- 🔄 รีเซ็ตเป้าหมาย  
-    currentTarget = nil  
+-- 🔄 รีเซ็ตเป้าหมาย
+currentTarget = nil
+
 end
 
 end)
@@ -637,55 +658,57 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local function sendChat(msg)
-    pcall(function()
-        ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(msg, "All")
-    end)
+pcall(function()
+ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(msg, "All")
+end)
 end
 
 local function getMurderer()
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= player and getRole(plr) == "Murderer" then
-            return plr
-        end
-    end
+for _, plr in ipairs(Players:GetPlayers()) do
+if plr ~= player and getRole(plr) == "Murderer" then
+return plr
+end
+end
 end
 
 local function getSheriffPlayer()
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= player and getRole(plr) == "Sheriff" then
-            return plr
-        end
-    end
+for _, plr in ipairs(Players:GetPlayers()) do
+if plr ~= player and getRole(plr) == "Sheriff" then
+return plr
+end
+end
 end
 
 task.spawn(function()
-    local announced = false
+local announced = false
 
-    while task.wait(1) do
-        if not CHAT_ANNOUNCE then
-            announced = false
-            continue
-        end
+while task.wait(1) do
+if not CHAT_ANNOUNCE then
+announced = false
+continue
+end
 
-        if not announced then
-            local murderer = getMurderer()
-            local sheriff = getSheriffPlayer()
+if not announced then          
+    local murderer = getMurderer()          
+    local sheriff = getSheriffPlayer()          
+    
+    if murderer and sheriff then          
+        local msg = "🔪 Murderer: "..murderer.Name..          
+        " | 👮 Sheriff: "..sheriff.Name..          
+        " | Project Reverse Kuo Hub"          
+    
+        sendChat(msg)          
+        announced = true          
+    end          
+end          
+    
+-- รีรอบใหม่          
+if not getMurderer() and not getSheriffPlayer() then          
+    announced = false          
+end
 
-            if murderer and sheriff then
-                local msg = "🔪 Murderer: "..murderer.Name..
-                " | 👮 Sheriff: "..sheriff.Name..
-                " | Project Reverse Kuo Hub"
+end
 
-                sendChat(msg)
-                announced = true
-            end
-        end
-
-        -- รีรอบใหม่
-        if not getMurderer() and not getSheriffPlayer() then
-            announced = false
-        end
-    end
 end)
 
 -- =========================
@@ -775,11 +798,11 @@ end
 })
 
 Home:Toggle({
-    Title="Reveal Role",
-    Desc="เปิดเผยวายร้าย",
-    Callback=function(v)
-        CHAT_ANNOUNCE = v
-    end
+Title="Reveal Role",
+Desc="เปิดเผยวายร้าย",
+Callback=function(v)
+CHAT_ANNOUNCE = v
+end
 })
 
 Home:Toggle({

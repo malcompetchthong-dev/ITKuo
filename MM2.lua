@@ -215,9 +215,9 @@ local function isSheriffDead()
 local sheriff = getSheriff()
 if not sheriff or not sheriff.Character then return false end
 
-local hum = sheriff.Character:FindFirstChildOfClass("Humanoid")        
-if not hum then return false end        
-    
+local hum = sheriff.Character:FindFirstChildOfClass("Humanoid")
+if not hum then return false end
+
 return hum.Health <= 0
 
 end
@@ -244,47 +244,48 @@ local AUTO_WARP_GUN_RANGE = 150 -- ปรับได้
 RunService.RenderStepped:Connect(function()
 if not AUTO_WARP_GUN then return end
 
--- ❗ ต้อง Sheriff ตายก่อน        
-if not isSheriffDead() then return end        
-    
-local char = player.Character        
-local root = char and char:FindFirstChild("HumanoidRootPart")        
-if not root then return end        
-    
-local backpack = player:FindFirstChild("Backpack")        
-    
--- ✅ มีปืนแล้ว = หยุด        
-if backpack and backpack:FindFirstChild("Gun") then return end        
-    
-local gun = findDroppedGun()        
-if not gun then return end        
-    
--- 🔥 เช็คระยะ (กันโป๊ะ)        
-local dist = (gun.Position - root.Position).Magnitude        
-if dist > AUTO_WARP_GUN_RANGE then return end        
-    
--- 💾 เซฟตำแหน่ง        
-local oldCF = root.CFrame        
-    
--- 🔥 วาร์ปไป        
-root.CFrame = gun.CFrame + Vector3.new(0, 2.5, 0)        
-    
-task.wait(0.05)        
-    
--- 🔫 เก็บปืน        
-for i = 1, 6 do        
-    firetouchinterest(root, gun, 0)        
-    firetouchinterest(root, gun, 1)        
-    task.wait(0.02)        
-    
-    if backpack and backpack:FindFirstChild("Gun") then        
-        break        
-    end        
-end        
-    
-task.wait(0.02)        
-    
--- 🔙 กลับที่เดิม        
+-- ❗ ต้อง Sheriff ตายก่อน
+if not isSheriffDead() then return end
+
+local char = player.Character
+local root = char and char:FindFirstChild("HumanoidRootPart")
+if not root then return end
+
+local backpack = player:FindFirstChild("Backpack")
+
+-- ✅ มีปืนแล้ว = หยุด
+if backpack and backpack:FindFirstChild("Gun") then return end
+
+local gun = findDroppedGun()
+if not gun then return end
+
+-- 🔥 เช็คระยะ (กันโป๊ะ)
+local dist = (gun.Position - root.Position).Magnitude
+if dist > AUTO_WARP_GUN_RANGE then return end
+
+-- 💾 เซฟตำแหน่ง
+local oldCF = root.CFrame
+
+-- 🔥 วาร์ปไป
+root.CFrame = gun.CFrame + Vector3.new(0, 2.5, 0)
+
+task.wait(0.05)
+
+-- 🔫 เก็บปืน
+for i = 1, 6 do
+firetouchinterest(root, gun, 0)
+firetouchinterest(root, gun, 1)
+task.wait(0.02)
+
+if backpack and backpack:FindFirstChild("Gun") then          
+    break          
+end
+
+end
+
+task.wait(0.02)
+
+-- 🔙 กลับที่เดิม
 root.CFrame = oldCF
 
 end)
@@ -549,23 +550,23 @@ if (coin.Name == "Coin" or coin.Name == "Coin_Server") and coin:IsA("BasePart") 
 
 local dist = (coin.Position - root.Position).Magnitude
 
--- 🧠 เช็คศัตรูใกล้เหรียญ            
-local danger = 0            
-for _, plr in ipairs(Players:GetPlayers()) do            
-    if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then            
-        local d = (plr.Character.HumanoidRootPart.Position - coin.Position).Magnitude            
-        if d < SAFE_DISTANCE then            
-            danger = danger + (SAFE_DISTANCE - d)            
-        end            
-    end            
-end            
-    
--- 🎯 score ต่ำ = ดี            
-local score = dist + (danger * 5)            
-    
-if score < bestScore then            
-    bestScore = score            
-    bestCoin = coin            
+-- 🧠 เช็คศัตรูใกล้เหรียญ
+local danger = 0
+for _, plr in ipairs(Players:GetPlayers()) do
+if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+local d = (plr.Character.HumanoidRootPart.Position - coin.Position).Magnitude
+if d < SAFE_DISTANCE then
+danger = danger + (SAFE_DISTANCE - d)
+end
+end
+end
+
+-- 🎯 score ต่ำ = ดี
+local score = dist + (danger * 5)
+
+if score < bestScore then
+bestScore = score
+bestCoin = coin
 end
 
 end
@@ -625,20 +626,20 @@ lastPos = root.Position
 while tween.PlaybackState == Enum.PlaybackState.Playing do
 task.wait(0.01)
 
-if not AUTO_COIN_COLLECT then            
-    tween:Cancel()            
-    break            
-end            
-    
--- 🧱 ติด = วาร์ป            
-if (root.Position - lastPos).Magnitude < 1 then            
-    if tick() - startTime > STUCK_TIME then            
-        root.CFrame = CFrame.new(targetPos)            
-        break            
-    end            
-else            
-    startTime = tick()            
-    lastPos = root.Position            
+if not AUTO_COIN_COLLECT then
+tween:Cancel()
+break
+end
+
+-- 🧱 ติด = วาร์ป
+if (root.Position - lastPos).Magnitude < 1 then
+if tick() - startTime > STUCK_TIME then
+root.CFrame = CFrame.new(targetPos)
+break
+end
+else
+startTime = tick()
+lastPos = root.Position
 end
 
 end
@@ -650,19 +651,37 @@ end
 
 end)
 
-local Players = game:GetService("Players")
+-- =========================
+-- 📢 CHAT ANNOUNCE (FIXED)
+-- =========================
 
--- =========================
--- 📢 CHAT ANNOUNCE SYSTEM
--- =========================
+local TextChatService = game:GetService("TextChatService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+-- 🔥 ส่งแชท (โคตรเสถียร)
 local function sendChat(msg)
 pcall(function()
-ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(msg, "All")
+if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+
+local channels = TextChatService:WaitForChild("TextChannels", 2)  
+        local channel = channels and channels:FindFirstChild("RBXGeneral")  
+
+        if channel then  
+            channel:SendAsync(msg)  
+        else  
+            warn("No RBXGeneral channel")  
+        end  
+
+    else  
+        ReplicatedStorage:WaitForChild("DefaultChatSystemChatEvents")  
+            :WaitForChild("SayMessageRequest")  
+            :FireServer(msg, "All")  
+    end  
 end)
+
 end
 
+-- 🔪 หา Murderer
 local function getMurderer()
 for _, plr in ipairs(Players:GetPlayers()) do
 if plr ~= player and getRole(plr) == "Murderer" then
@@ -671,6 +690,7 @@ end
 end
 end
 
+-- 👮 หา Sheriff
 local function getSheriffPlayer()
 for _, plr in ipairs(Players:GetPlayers()) do
 if plr ~= player and getRole(plr) == "Sheriff" then
@@ -679,34 +699,36 @@ end
 end
 end
 
+-- 🔁 Loop ประกาศ
 task.spawn(function()
 local announced = false
 
-while task.wait(1) do
-if not CHAT_ANNOUNCE then
-announced = false
-continue
-end
+while task.wait(0.5) do  
+    if not CHAT_ANNOUNCE then    
+        announced = false    
+        continue    
+    end    
 
-if not announced then          
-    local murderer = getMurderer()          
-    local sheriff = getSheriffPlayer()          
-    
-    if murderer and sheriff then          
-        local msg = "🔪 Murderer: "..murderer.Name..          
-        " | 👮 Sheriff: "..sheriff.Name..          
-        " | Project Reverse Kuo Hub"          
-    
-        sendChat(msg)          
-        announced = true          
-    end          
-end          
-    
--- รีรอบใหม่          
-if not getMurderer() and not getSheriffPlayer() then          
-    announced = false          
-end
+    if not announced then              
+        local murderer = getMurderer()              
+        local sheriff = getSheriffPlayer()              
 
+        if murderer and sheriff then              
+            local msg = "Murderer: "..murderer.Name..  
+            " | Sheriff: "..sheriff.Name..  
+            " | Kuo Hub"  
+
+            sendChat(msg)              
+            announced = true    
+
+            task.wait(2) -- ✅ ต้อง 1-2 วิ ถึงจะเสถียร  
+        end              
+    end              
+
+    -- 🔄 รีรอบใหม่  
+    if not getMurderer() and not getSheriffPlayer() then              
+        announced = false              
+    end    
 end
 
 end)

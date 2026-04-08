@@ -39,6 +39,7 @@ local KILL_AURA = false
 local KNIFE_RANGE = 1000
 local KILL_AURA_RANGE = 2000
 local AUTO_COIN_COLLECT = false
+local CHAT_ANNOUNCE = false
 
 -- =========================
 -- FLY
@@ -631,6 +632,63 @@ end)
 local Players = game:GetService("Players")
 
 -- =========================
+-- 📢 CHAT ANNOUNCE SYSTEM
+-- =========================
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local function sendChat(msg)
+    pcall(function()
+        ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(msg, "All")
+    end)
+end
+
+local function getMurderer()
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= player and getRole(plr) == "Murderer" then
+            return plr
+        end
+    end
+end
+
+local function getSheriffPlayer()
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= player and getRole(plr) == "Sheriff" then
+            return plr
+        end
+    end
+end
+
+task.spawn(function()
+    local announced = false
+
+    while task.wait(1) do
+        if not CHAT_ANNOUNCE then
+            announced = false
+            continue
+        end
+
+        if not announced then
+            local murderer = getMurderer()
+            local sheriff = getSheriffPlayer()
+
+            if murderer and sheriff then
+                local msg = "🔪 Murderer: "..murderer.Name..
+                " | 👮 Sheriff: "..sheriff.Name..
+                " | Project Reverse Kuo Hub"
+
+                sendChat(msg)
+                announced = true
+            end
+        end
+
+        -- รีรอบใหม่
+        if not getMurderer() and not getSheriffPlayer() then
+            announced = false
+        end
+    end
+end)
+
+-- =========================
 -- SYSTEM: ANTI PLING (NO COLLIDE)
 -- =========================
 
@@ -714,6 +772,14 @@ Desc = "ออโต้เก็บเหรียญ",
 Callback = function(v)
 AUTO_COIN_COLLECT = v
 end
+})
+
+Home:Toggle({
+    Title="Reveal Role",
+    Desc="เปิดเผยวายร้าย",
+    Callback=function(v)
+        CHAT_ANNOUNCE = v
+    end
 })
 
 Home:Toggle({

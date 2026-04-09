@@ -874,10 +874,14 @@ Home:AddSlider({
 Home:AddSlider({
     Name = "Resize GUI/UI",
     Min = 50,
-    Max = 150,
+    Max = 200,
     Default = 100,
     Callback = function(v)
         UIScale.Scale = v / 100
+        
+        -- 🔥 บังคับ refresh UI
+        ScreenGui.Enabled = false
+        ScreenGui.Enabled = true
     end
 })
 

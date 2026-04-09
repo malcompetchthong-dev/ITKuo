@@ -877,11 +877,9 @@ Home:AddSlider({
     Max = 200,
     Default = 100,
     Callback = function(v)
-        UIScale.Scale = v / 100
+        local scale = v / 100
         
-        -- 🔥 บังคับ refresh UI
-        ScreenGui.Enabled = false
-        ScreenGui.Enabled = true
+        Main.Size = UDim2.new(0, 550 * scale, 0, 350 * scale)
     end
 })
 

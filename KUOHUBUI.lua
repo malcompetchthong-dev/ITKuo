@@ -8,7 +8,7 @@ ScreenGui.Name = "KuoHub"
 
 -- MAIN
 local Main = Instance.new("Frame", ScreenGui)
-local UIScale = Instance.new("UIScale", Main)
+local UIScale = Instance.new("UIScale", ScreenGui)
 UIScale.Scale = 1
 Main.Size = UDim2.new(0, 550, 0, 350)
 Main.Position = UDim2.new(0, 0, 0.5, -175) -- ฝั่งซ้าย

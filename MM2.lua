@@ -880,6 +880,7 @@ Home:AddSlider({
         UIScale.Scale = v / 100
     end
 })
+
 -- KEY      
 UIS.InputBegan:Connect(function(i,g)      
 if not g and i.KeyCode == Enum.KeyCode.F then      

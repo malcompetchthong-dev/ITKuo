@@ -870,6 +870,16 @@ Home:AddSlider({
         COIN_SPEED = v
     end
 })
+
+Home:AddSlider({
+    Name = "Resize GUI/UI",
+    Min = 50,
+    Max = 150,
+    Default = 100,
+    Callback = function(v)
+        UIScale.Scale = v / 100
+    end
+})
 -- KEY      
 UIS.InputBegan:Connect(function(i,g)      
 if not g and i.KeyCode == Enum.KeyCode.F then      

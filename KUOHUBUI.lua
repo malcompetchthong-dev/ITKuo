@@ -8,8 +8,6 @@ ScreenGui.Name = "KuoHub"
   
 -- MAIN  
 local Main = Instance.new("Frame", ScreenGui)  
-local UIScale = Instance.new("UIScale", Main)  
-UIScale.Scale = 1  
 Main.Size = UDim2.new(0, 550, 0, 350)  
 Main.Position = UDim2.new(0, 0, 0.5, -175) -- ฝั่งซ้าย  
 Main.BackgroundColor3 = Color3.fromRGB(15,15,15)  
@@ -123,7 +121,7 @@ Page.BackgroundTransparency = 1
 local Layout = Instance.new("UIListLayout", Page)  
 Layout.Padding = UDim.new(0,8)  
 Layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()  
-Page.CanvasSize = UDim2.new(0,0,0,Layout.AbsoluteContentSize.Y + 10)  
+    Page.CanvasSize = UDim2.new(0,0,0,Layout.AbsoluteContentSize.Y + 10)  
 end)  
   
 -- TAB BUTTON  
@@ -175,10 +173,10 @@ Btn.BackgroundColor3 = Color3.fromRGB(100,0,200)
 Btn.TextColor3 = Color3.new(1,1,1)  
 Instance.new("UICorner", Btn).CornerRadius = UDim.new(0,8)  
   
-Btn.MouseButton1Click:Connect(function()  
-if config.Callback then  
-config.Callback()  
-end  
+Btn.MouseButton1Click:Connect(function()          
+    if config.Callback then          
+        config.Callback()          
+    end          
 end)  
   
 end  
@@ -188,59 +186,59 @@ local Frame = Instance.new("Frame", Page)
 Frame.Size = UDim2.new(1,-10,0,45)  
 Frame.BackgroundTransparency = 1  
   
-local TitleLbl = Instance.new("TextLabel", Frame)  
-TitleLbl.Size = UDim2.new(1,-60,0,20)  
-TitleLbl.Text = config.Title or "Toggle"  
-TitleLbl.TextColor3 = Color3.fromRGB(220,220,220)  
-TitleLbl.Font = Enum.Font.GothamBold  
-TitleLbl.TextSize = 14  
-TitleLbl.BackgroundTransparency = 1  
-TitleLbl.TextXAlignment = Enum.TextXAlignment.Left  
-  
-local DescLbl = Instance.new("TextLabel", Frame)  
-DescLbl.Size = UDim2.new(1,-60,0,18)  
-DescLbl.Position = UDim2.new(0,0,0,20)  
-DescLbl.Text = config.Desc or ""  
-DescLbl.TextColor3 = Color3.fromRGB(150,150,150)  
-DescLbl.Font = Enum.Font.Gotham  
-DescLbl.TextSize = 12  
-DescLbl.BackgroundTransparency = 1  
-DescLbl.TextXAlignment = Enum.TextXAlignment.Left  
-  
-local ToggleFrame = Instance.new("Frame", Frame)  
-ToggleFrame.Size = UDim2.new(0,40,0,20)  
-ToggleFrame.Position = UDim2.new(1,-45,0.5,-10)  
-ToggleFrame.BackgroundColor3 = Color3.fromRGB(60,60,60)  
-ToggleFrame.Active = true  
-ToggleFrame.Selectable = true  
-Instance.new("UICorner", ToggleFrame).CornerRadius = UDim.new(1,0)  
-  
-local Circle = Instance.new("Frame", ToggleFrame)  
-Circle.Size = UDim2.new(0,18,0,18)  
-Circle.Position = UDim2.new(0,1,0.5,-9)  
-Circle.BackgroundColor3 = Color3.new(1,1,1)  
-Instance.new("UICorner", Circle).CornerRadius = UDim.new(1,0)  
-  
-local state = config.Value or false  
-  
-local function update()  
-TweenService:Create(Circle,TweenInfo.new(0.2),{  
-Position = state and UDim2.new(1,-19,0.5,-9) or UDim2.new(0,1,0.5,-9)  
-}):Play()  
-TweenService:Create(ToggleFrame,TweenInfo.new(0.2),{  
-BackgroundColor3 = state and Color3.fromRGB(170,0,255) or Color3.fromRGB(60,60,60)  
-}):Play()  
-end  
-  
-update()  
-  
-ToggleFrame.InputEnded:Connect(function(i)  
-if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then  
-state = not state  
-update()  
-if config.Callback then  
-config.Callback(state)  
-end  
+local TitleLbl = Instance.new("TextLabel", Frame)          
+TitleLbl.Size = UDim2.new(1,-60,0,20)          
+TitleLbl.Text = config.Title or "Toggle"          
+TitleLbl.TextColor3 = Color3.fromRGB(220,220,220)          
+TitleLbl.Font = Enum.Font.GothamBold          
+TitleLbl.TextSize = 14          
+TitleLbl.BackgroundTransparency = 1          
+TitleLbl.TextXAlignment = Enum.TextXAlignment.Left          
+    
+local DescLbl = Instance.new("TextLabel", Frame)          
+DescLbl.Size = UDim2.new(1,-60,0,18)          
+DescLbl.Position = UDim2.new(0,0,0,20)          
+DescLbl.Text = config.Desc or ""          
+DescLbl.TextColor3 = Color3.fromRGB(150,150,150)          
+DescLbl.Font = Enum.Font.Gotham          
+DescLbl.TextSize = 12          
+DescLbl.BackgroundTransparency = 1          
+DescLbl.TextXAlignment = Enum.TextXAlignment.Left          
+    
+local ToggleFrame = Instance.new("Frame", Frame)          
+ToggleFrame.Size = UDim2.new(0,40,0,20)          
+ToggleFrame.Position = UDim2.new(1,-45,0.5,-10)          
+ToggleFrame.BackgroundColor3 = Color3.fromRGB(60,60,60)          
+ToggleFrame.Active = true          
+ToggleFrame.Selectable = true          
+Instance.new("UICorner", ToggleFrame).CornerRadius = UDim.new(1,0)          
+    
+local Circle = Instance.new("Frame", ToggleFrame)          
+Circle.Size = UDim2.new(0,18,0,18)          
+Circle.Position = UDim2.new(0,1,0.5,-9)          
+Circle.BackgroundColor3 = Color3.new(1,1,1)          
+Instance.new("UICorner", Circle).CornerRadius = UDim.new(1,0)          
+    
+local state = config.Value or false          
+    
+local function update()          
+    TweenService:Create(Circle,TweenInfo.new(0.2),{          
+        Position = state and UDim2.new(1,-19,0.5,-9) or UDim2.new(0,1,0.5,-9)          
+    }):Play()          
+    TweenService:Create(ToggleFrame,TweenInfo.new(0.2),{          
+        BackgroundColor3 = state and Color3.fromRGB(170,0,255) or Color3.fromRGB(60,60,60)          
+    }):Play()          
+end          
+    
+update()          
+    
+ToggleFrame.InputEnded:Connect(function(i)      
+if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then        
+    state = not state        
+    update()        
+    if config.Callback then        
+        config.Callback(state)        
+    end        
 end  
   
 end)  
@@ -258,161 +256,156 @@ Frame.BackgroundColor3 = Color3.fromRGB(25,25,25)
 Frame.BackgroundTransparency = 0.2  
 Instance.new("UICorner", Frame).CornerRadius = UDim.new(0,10)  
   
--- LOGO  
-local Logo = Instance.new("ImageLabel", Frame)  
-Logo.Size = UDim2.new(0,40,0,40)  
-Logo.Position = UDim2.new(0,10,0.5,-20)  
-Logo.BackgroundTransparency = 1  
-Logo.Image = config.Logo or ""  
-  
--- NAME  
-local Name = Instance.new("TextLabel", Frame)  
-Name.Size = UDim2.new(1,-120,0,20)  
-Name.Position = UDim2.new(0,60,0,10)  
-Name.BackgroundTransparency = 1  
-Name.Text = config.Name or "Discord"  
-Name.TextColor3 = Color3.fromRGB(220,220,220)  
-Name.Font = Enum.Font.GothamBold  
-Name.TextSize = 14  
-Name.TextXAlignment = Enum.TextXAlignment.Left  
-  
--- DESC  
-local Desc = Instance.new("TextLabel", Frame)  
-Desc.Size = UDim2.new(1,-120,0,18)  
-Desc.Position = UDim2.new(0,60,0,30)  
-Desc.BackgroundTransparency = 1  
-Desc.Text = config.Description or ""  
-Desc.TextColor3 = Color3.fromRGB(150,150,150)  
-Desc.Font = Enum.Font.Gotham  
-Desc.TextSize = 12  
-Desc.TextXAlignment = Enum.TextXAlignment.Left  
-  
--- JOIN BUTTON  
-local Join = Instance.new("TextButton", Frame)  
-Join.Size = UDim2.new(0,60,0,30)  
-Join.Position = UDim2.new(1,-70,0.5,-15)  
-Join.Text = "Join"  
-Join.BackgroundColor3 = Color3.fromRGB(170,0,255)  
-Join.TextColor3 = Color3.new(1,1,1)  
-Join.Font = Enum.Font.GothamBold  
-Join.TextSize = 13  
-Instance.new("UICorner", Join).CornerRadius = UDim.new(0,8)  
-  
--- เอฟเฟกต์ Hover  
-Join.MouseEnter:Connect(function()  
-TweenService:Create(Join, TweenInfo.new(0.2), {  
-BackgroundColor3 = Color3.fromRGB(120,0,200)  
-}):Play()  
-end)  
-  
-Join.MouseLeave:Connect(function()  
-TweenService:Create(Join, TweenInfo.new(0.2), {  
-BackgroundColor3 = Color3.fromRGB(170,0,255)  
-}):Play()  
-end)  
-  
--- COPY LINK  
-Join.MouseButton1Click:Connect(function()  
-if setclipboard then  
-setclipboard(config.Invite or "")  
-end  
-  
-game:GetService("StarterGui"):SetCore("SendNotification", {                
-    Title = "KuoHub",                
-    Text = "📋 คัดลอกลิงก์ Discord แล้ว!",                
-    Duration = 3                
-})  
-  
+-- LOGO        
+local Logo = Instance.new("ImageLabel", Frame)        
+Logo.Size = UDim2.new(0,40,0,40)        
+Logo.Position = UDim2.new(0,10,0.5,-20)        
+Logo.BackgroundTransparency = 1        
+Logo.Image = config.Logo or ""        
+    
+-- NAME        
+local Name = Instance.new("TextLabel", Frame)        
+Name.Size = UDim2.new(1,-120,0,20)        
+Name.Position = UDim2.new(0,60,0,10)        
+Name.BackgroundTransparency = 1        
+Name.Text = config.Name or "Discord"        
+Name.TextColor3 = Color3.fromRGB(220,220,220)        
+Name.Font = Enum.Font.GothamBold        
+Name.TextSize = 14        
+Name.TextXAlignment = Enum.TextXAlignment.Left        
+    
+-- DESC        
+local Desc = Instance.new("TextLabel", Frame)        
+Desc.Size = UDim2.new(1,-120,0,18)        
+Desc.Position = UDim2.new(0,60,0,30)        
+Desc.BackgroundTransparency = 1        
+Desc.Text = config.Description or ""        
+Desc.TextColor3 = Color3.fromRGB(150,150,150)        
+Desc.Font = Enum.Font.Gotham        
+Desc.TextSize = 12        
+Desc.TextXAlignment = Enum.TextXAlignment.Left        
+    
+-- JOIN BUTTON        
+local Join = Instance.new("TextButton", Frame)        
+Join.Size = UDim2.new(0,60,0,30)        
+Join.Position = UDim2.new(1,-70,0.5,-15)        
+Join.Text = "Join"        
+Join.BackgroundColor3 = Color3.fromRGB(170,0,255)        
+Join.TextColor3 = Color3.new(1,1,1)        
+Join.Font = Enum.Font.GothamBold        
+Join.TextSize = 13        
+Instance.new("UICorner", Join).CornerRadius = UDim.new(0,8)        
+    
+-- เอฟเฟกต์ Hover        
+Join.MouseEnter:Connect(function()        
+    TweenService:Create(Join, TweenInfo.new(0.2), {        
+        BackgroundColor3 = Color3.fromRGB(120,0,200)        
+    }):Play()        
+end)        
+    
+Join.MouseLeave:Connect(function()        
+    TweenService:Create(Join, TweenInfo.new(0.2), {        
+        BackgroundColor3 = Color3.fromRGB(170,0,255)        
+    }):Play()        
+end)        
+    
+-- COPY LINK        
+Join.MouseButton1Click:Connect(function()        
+    if setclipboard then        
+        setclipboard(config.Invite or "")        
+    end        
+    
+    game:GetService("StarterGui"):SetCore("SendNotification", {        
+        Title = "KuoHub",        
+        Text = "📋 คัดลอกลิงก์ Discord แล้ว!",        
+        Duration = 3        
+    })        
 end)  
   
 end  
   
 function Tab:AddSlider(config)  
-local Frame = Instance.new("Frame", Page)  
-Frame.Size = UDim2.new(1,-10,0,55)  
-Frame.BackgroundTransparency = 1  
+    local Frame = Instance.new("Frame", Page)  
+    Frame.Size = UDim2.new(1,-10,0,55)  
+    Frame.BackgroundTransparency = 1  
   
-local Title = Instance.new("TextLabel", Frame)          
-Title.Size = UDim2.new(1,0,0,20)          
-Title.BackgroundTransparency = 1          
-Title.Text = (config.Name or "Slider") .. ": " .. (config.Default or 0)          
-Title.TextColor3 = Color3.fromRGB(220,220,220)          
-Title.Font = Enum.Font.GothamBold          
-Title.TextSize = 14          
-Title.TextXAlignment = Enum.TextXAlignment.Left          
-      
-local Bar = Instance.new("Frame", Frame)          
-Bar.Size = UDim2.new(1,0,0,6)          
-Bar.Position = UDim2.new(0,0,0,30)          
-Bar.BackgroundColor3 = Color3.fromRGB(60,60,60)          
-Instance.new("UICorner", Bar).CornerRadius = UDim.new(1,0)          
-      
-local Fill = Instance.new("Frame", Bar)          
-Fill.Size = UDim2.new(0,0,1,0)          
-Fill.BackgroundColor3 = Color3.fromRGB(170,0,255)          
-Instance.new("UICorner", Fill).CornerRadius = UDim.new(1,0)          
-      
-local Drag = Instance.new("TextButton", Bar)          
-Drag.Size = UDim2.new(1,0,1,0)          
-Drag.BackgroundTransparency = 1          
-Drag.Text = ""          
-      
-local min = config.Min or 0          
-local max = config.Max or 100          
-local value = config.Default or min          
-      
-local dragging = false          
-      
-local function updateFromX(x)          
-    local percent = math.clamp((x - Bar.AbsolutePosition.X) / Bar.AbsoluteSize.X, 0, 1)          
-    value = math.floor(min + (max - min) * percent)          
-      
-    Fill.Size = UDim2.new(percent,0,1,0)          
-    Title.Text = (config.Name or "Slider") .. ": " .. value          
-      
-    if config.Callback then          
-        config.Callback(value)          
-    end          
-end          
-      
--- เริ่มลาก (รองรับมือถือ + PC)          
-Drag.InputBegan:Connect(function(input)          
-    if input.UserInputType == Enum.UserInputType.MouseButton1          
-    or input.UserInputType == Enum.UserInputType.Touch then          
-        dragging = true          
-        updateFromX(input.Position.X)          
-    end          
-end)          
-      
--- ปล่อยลาก          
-UIS.InputEnded:Connect(function(input)          
-    if input.UserInputType == Enum.UserInputType.MouseButton1          
-    or input.UserInputType == Enum.UserInputType.Touch then          
-        dragging = false          
-    end          
-end)          
-      
--- ลากแบบ realtime (ลื่นมาก)          
-UIS.InputChanged:Connect(function(input)          
-    if dragging and (          
-        input.UserInputType == Enum.UserInputType.MouseMovement          
-        or input.UserInputType == Enum.UserInputType.Touch          
-    ) then          
-        updateFromX(input.Position.X)          
-    end          
-end)          
-      
--- set default          
-task.defer(function()  
-    local percent = (value - min) / (max - min)  
-    Fill.Size = UDim2.new(percent,0,1,0)  
+    local Title = Instance.new("TextLabel", Frame)  
+    Title.Size = UDim2.new(1,0,0,20)  
+    Title.BackgroundTransparency = 1  
+    Title.Text = (config.Name or "Slider") .. ": " .. (config.Default or 0)  
+    Title.TextColor3 = Color3.fromRGB(220,220,220)  
+    Title.Font = Enum.Font.GothamBold  
+    Title.TextSize = 14  
+    Title.TextXAlignment = Enum.TextXAlignment.Left  
   
-    -- 🔥 เพิ่มอันนี้  
-    if config.Callback then  
-        config.Callback(value)  
+    local Bar = Instance.new("Frame", Frame)  
+    Bar.Size = UDim2.new(1,0,0,6)  
+    Bar.Position = UDim2.new(0,0,0,30)  
+    Bar.BackgroundColor3 = Color3.fromRGB(60,60,60)  
+    Instance.new("UICorner", Bar).CornerRadius = UDim.new(1,0)  
+  
+    local Fill = Instance.new("Frame", Bar)  
+    Fill.Size = UDim2.new(0,0,1,0)  
+    Fill.BackgroundColor3 = Color3.fromRGB(170,0,255)  
+    Instance.new("UICorner", Fill).CornerRadius = UDim.new(1,0)  
+  
+    local Drag = Instance.new("TextButton", Bar)  
+    Drag.Size = UDim2.new(1,0,1,0)  
+    Drag.BackgroundTransparency = 1  
+    Drag.Text = ""  
+  
+    local min = config.Min or 0  
+    local max = config.Max or 100  
+    local value = config.Default or min  
+  
+    local dragging = false  
+  
+    local function updateFromX(x)  
+        local percent = math.clamp((x - Bar.AbsolutePosition.X) / Bar.AbsoluteSize.X, 0, 1)  
+        value = math.floor(min + (max - min) * percent)  
+  
+        Fill.Size = UDim2.new(percent,0,1,0)  
+        Title.Text = (config.Name or "Slider") .. ": " .. value  
+  
+        if config.Callback then  
+            config.Callback(value)  
+        end  
     end  
-end)  
   
+    -- เริ่มลาก (รองรับมือถือ + PC)  
+    Drag.InputBegan:Connect(function(input)  
+        if input.UserInputType == Enum.UserInputType.MouseButton1  
+        or input.UserInputType == Enum.UserInputType.Touch then  
+            dragging = true  
+            updateFromX(input.Position.X)  
+        end  
+    end)  
+  
+    -- ปล่อยลาก  
+    UIS.InputEnded:Connect(function(input)  
+        if input.UserInputType == Enum.UserInputType.MouseButton1  
+        or input.UserInputType == Enum.UserInputType.Touch then  
+            dragging = false  
+        end  
+    end)  
+  
+    -- ลากแบบ realtime (ลื่นมาก)  
+    UIS.InputChanged:Connect(function(input)  
+        if dragging and (  
+            input.UserInputType == Enum.UserInputType.MouseMovement  
+            or input.UserInputType == Enum.UserInputType.Touch  
+        ) then  
+            updateFromX(input.Position.X)  
+        end  
+    end)  
+  
+    -- set default  
+    task.defer(function()  
+        local percent = (value - min) / (max - min)  
+        Fill.Size = UDim2.new(percent,0,1,0)  
+    end)  
+    end  
+      
 return Tab  
   
 end  

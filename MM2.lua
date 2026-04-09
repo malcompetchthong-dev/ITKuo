@@ -874,12 +874,10 @@ Home:AddSlider({
 Home:AddSlider({
     Name = "Resize GUI/UI",
     Min = 50,
-    Max = 200,
+    Max = 150,
     Default = 100,
     Callback = function(v)
-        local scale = v / 100
-        
-        Main.Size = UDim2.new(0, 550 * scale, 0, 350 * scale)
+        UIScale.Scale = v / 100
     end
 })
 

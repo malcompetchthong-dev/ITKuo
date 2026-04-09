@@ -807,7 +807,7 @@ end
 })      
 Combat:Toggle({      
 Title="Kill Aura",      
-Desc="มีดตีอัตโนมัติระยะใกล้",      
+Desc="ฆ่าคนทุกคนอัตโมมัส",      
 Callback=function(v)      
 KILL_AURA=v      
 end      
@@ -830,7 +830,7 @@ end
 })      
       
 Home:Toggle({      
-Title="Anti-Fling",      
+Title="Anti-Pling",      
 Desc="กันปลิง",      
 Callback=function(v)      
 Anti_Pling = v      
@@ -868,16 +868,6 @@ Home:AddSlider({
     Default = 30,
     Callback = function(v)
         COIN_SPEED = v
-    end
-})
-
-Home:AddSlider({
-    Name = "Resize GUI/UI",
-    Min = 50,
-    Max = 200,
-    Default = 100,
-    Callback = function(v)
-        UIScale.Scale = v / 100
     end
 })
 

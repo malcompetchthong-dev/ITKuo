@@ -127,21 +127,21 @@ if role == "Murderer" then
 hl.FillColor = Color3.fromRGB(255,0,0)      
 hl.OutlineColor = Color3.fromRGB(255,0,0)      
       
-text.Text = "ไอชั่ว 😈"      
+text.Text = "ฆ่าตกร"      
 text.TextColor3 = Color3.fromRGB(255,0,0)      
       
 elseif role == "Sheriff" then      
 hl.FillColor = Color3.fromRGB(170,0,255)      
 hl.OutlineColor = Color3.fromRGB(170,0,255)      
       
-text.Text = "นายอำเภอ 👮"      
+text.Text = "นายอำเภอ"      
 text.TextColor3 = Color3.fromRGB(170,0,255)      
       
 else      
 hl.FillColor = Color3.fromRGB(0,255,0)      
 hl.OutlineColor = Color3.fromRGB(0,255,0)      
       
-text.Text = "ผู้บริสุทธิ์ 🙂"      
+text.Text = "ผู้บริสุทธิ์"      
 text.TextColor3 = Color3.fromRGB(0,255,0)      
       
 end      
@@ -487,48 +487,57 @@ return closest
       
 end      
       
-task.spawn(function()      
-while task.wait(0.01) do -- ⏱ เสถียร      
-if not KILL_AURA then continue end      
-      
-local char = player.Character      
-local root = char and char:FindFirstChild("HumanoidRootPart")      
-local knife = char and char:FindFirstChild("Knife")      
-if not root or not knife then continue end      
-      
-local handle = knife:FindFirstChild("Handle")      
-if not handle then continue end      
-      
-local target = getAuraTarget()      
-if not target or not target.Character then continue end      
-      
-local enemyRoot = target.Character:FindFirstChild("HumanoidRootPart")      
-if not enemyRoot then continue end      
-      
--- 💾 เซฟตำแหน่ง      
-local oldCF = root.CFrame      
-      
--- 🔥 วาร์ปไป "ชนตัว" (สำคัญ)      
-root.CFrame = enemyRoot.CFrame      
-      
-task.wait(0.05) -- ⚠️ ให้ server sync      
-      
--- 🔪 ฟันจริง      
-pcall(function()      
-for i = 1,3 do -- 🔥 ฟันรัวกันพลาด      
-knife:Activate()      
-task.wait(0.02)      
-end      
-end)      
-      
-task.wait(0.03)      
-      
--- 🔙 กลับที่เดิม      
-root.CFrame = oldCF      
-      
-end      
-      
-end)      
+task.spawn(function()
+    while task.wait(0.05) do
+        if not KILL_AURA then continue end
+
+        -- ❗ ต้องเป็น Murderer เท่านั้น
+        if getRole(player) ~= "Murderer" then continue end
+
+        local char = player.Character
+        local root = char and char:FindFirstChild("HumanoidRootPart")
+        local knife = char and char:FindFirstChild("Knife")
+        if not root or not knife then continue end
+
+        local handle = knife:FindFirstChild("Handle")
+        if not handle then continue end
+
+        local target = getAuraTarget()
+        if not target or not target.Character then continue end
+
+        local enemyChar = target.Character
+        local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
+        local hum = enemyChar:FindFirstChildOfClass("Humanoid")
+
+        -- ❗ กัน lobby / ตัวตาย
+        if not enemyRoot or not hum or hum.Health <= 0 then continue end
+
+        -- ❗ เช็คระยะจริง
+        local dist = (enemyRoot.Position - root.Position).Magnitude
+        if dist > KILL_AURA_RANGE then continue end
+
+        -- 💾 เซฟตำแหน่ง
+        local oldCF = root.CFrame
+
+        -- 🔥 วาร์ปไปตี
+        root.CFrame = enemyRoot.CFrame
+
+        task.wait(0.05)
+
+        -- 🔪 ฟัน
+        pcall(function()
+            for i = 1, 3 do
+                knife:Activate()
+                task.wait(0.02)
+            end
+        end)
+
+        task.wait(0.03)
+
+        -- 🔙 กลับ
+        root.CFrame = oldCF
+    end
+end)
       
 local TweenService = game:GetService("TweenService")      
       

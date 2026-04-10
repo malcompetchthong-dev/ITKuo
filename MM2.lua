@@ -816,7 +816,7 @@ end
 })      
 Combat:Toggle({      
 Title="Kill Aura",      
-Desc="ฆ่าคนทุกคนอัตโมมัส",      
+Desc="ฆ่าทุกคนอัตโนมัติ",      
 Callback=function(v)      
 KILL_AURA=v      
 end      

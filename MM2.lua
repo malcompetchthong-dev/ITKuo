@@ -127,7 +127,7 @@ if role == "Murderer" then
 hl.FillColor = Color3.fromRGB(255,0,0)      
 hl.OutlineColor = Color3.fromRGB(255,0,0)      
       
-text.Text = "ฆ่าตกร"      
+text.Text = "ฆาตกร"      
 text.TextColor3 = Color3.fromRGB(255,0,0)      
       
 elseif role == "Sheriff" then      

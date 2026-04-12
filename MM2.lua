@@ -713,7 +713,7 @@ end
 task.spawn(function()      
 local announced = false      
       
-while task.wait(0.5) do      
+while task.wait(0.1) do      
 if not CHAT_ANNOUNCE then      
 announced = false      
 continue      
@@ -731,7 +731,7 @@ if not announced then
         sendChat(msg)                      
         announced = true            
       
-        task.wait(2) -- ✅ ต้อง 1-2 วิ ถึงจะเสถียร          
+        task.wait(0.01) -- ✅ ต้อง 1-2 วิ ถึงจะเสถียร          
     end                      
 end                      
       
@@ -801,7 +801,7 @@ Invite = "https://discord.gg/Apn2j9Fez",
 })      
 Home:Toggle({Title="ESP",Desc="ไฮไลต์ผู้เล่น",Callback=function(v) ESP_ENABLED=v end})      
 Home:Toggle({Title="Fly",Desc="บิน",Callback=function(v) setFly(v) end})    
-Home:Toggle({Title="Auto Warp Gun",Desc="วาร์ปเก็บปืน",Callback=function(v) AUTO_WARP_GUN=v end})      
+Home:Toggle({Title="Auto Warp Gun(Bug)",Desc="วาร์ปเก็บปืน(บัค)",Callback=function(v) AUTO_WARP_GUN=v end})      
 Home:Toggle({Title="Infinite Jump",Desc="กระโดดไม่จำกัด",Callback=function(v) INFINITE_JUMP=v end})      
 Home:Toggle({Title="NoClip",Desc="ทะลุกำแพง",Callback=function(v) NOCLIP=v end})      
       

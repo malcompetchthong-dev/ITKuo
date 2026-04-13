@@ -849,7 +849,7 @@ end
 Home:AddSlider({      
     Name = "Adjust walking speed",      
     Min = 16,      
-    Max = 200,      
+    Mtarge 1000,      
     Default = 16,      
     Callback = function(v)      
         local char = player.Character      

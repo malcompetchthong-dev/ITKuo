@@ -846,81 +846,19 @@ Anti_Pling = v
 end      
 })      
       
---// SPEED SYSTEM ADVANCED (FULL MERGED)
-
-getgenv().SpeedValue = 16
-
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local lp = Players.LocalPlayer
-
---========================
--- FUNCTION
---========================
-local function getChar()
-    return lp.Character or lp.CharacterAdded:Wait()
-end
-
-local function applySpeed(v)
-    local char = getChar()
-    if not char then return end
-
-    local hum = char:FindFirstChildOfClass("Humanoid")
-    if hum then
-        hum.WalkSpeed = v
-    end
-end
-
---========================
--- SLIDER UI
---========================
 Home:AddSlider({
     Name = "Adjust walking speed",
     Min = 16,
     Max = 200,
     Default = 16,
     Callback = function(v)
-        getgenv().SpeedValue = v
-        applySpeed(v)
-    end
-})
-
---========================
--- MAIN LOOP (ANTI RESET)
---========================
-task.spawn(function()
-    while task.wait(0.1) do
-        applySpeed(getgenv().SpeedValue)
-    end
-end)
-
---========================
--- RESPWAN SUPPORT
---========================
-lp.CharacterAdded:Connect(function()
-    task.wait(0.05)
-    applySpeed(getgenv().SpeedValue)
-end)
-
---========================
--- ADVANCED PHYSICS BOOST (OPTIONAL)
---========================
-task.spawn(function()
-    while task.wait(0.05) do
-        local char = lp.Character
-        if char then
-            local hrp = char:FindFirstChild("HumanoidRootPart")
-            local hum = char:FindFirstChildOfClass("Humanoid")
-
-            if hrp and hum then
-                local dir = hum.MoveDirection
-                if dir.Magnitude > 0 then
-                    hrp.Velocity = dir * getgenv().SpeedValue
-                end
-            end
+        local char = getChar()
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if hum then
+            hum.WalkSpeed = v
         end
     end
-end)
+})
     
 Home:AddSlider({    
     Name = "Adjust flight speed",    

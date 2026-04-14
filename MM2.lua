@@ -846,19 +846,68 @@ Anti_Pling = v
 end      
 })      
       
+getgenv().SpeedValue = 16
+
+local Players = game:GetService("Players")
+local lp = Players.LocalPlayer
+
+local function getChar()
+    return lp.Character or lp.CharacterAdded:Wait()
+end
+
+local function applySpeed(v)
+    local char = getChar()
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if hum then
+        hum.WalkSpeed = v
+    end
+end
+
+--========================
+-- SLIDER
+--========================
 Home:AddSlider({
     Name = "Adjust walking speed",
     Min = 16,
     Max = 200,
     Default = 16,
     Callback = function(v)
-        local char = getChar()
-        local hum = char:FindFirstChildOfClass("Humanoid")
-        if hum then
-            hum.WalkSpeed = v
-        end
+        getgenv().SpeedValue = v
+        applySpeed(v)
     end
 })
+
+--========================
+-- MAIN MOVEMENT LOOP (FIXED)
+--========================
+task.spawn(function()
+    while task.wait(0.05) do
+        local char = lp.Character
+        if char then
+            local hrp = char:FindFirstChild("HumanoidRootPart")
+            local hum = char:FindFirstChildOfClass("Humanoid")
+
+            if hrp and hum then
+                local dir = hum.MoveDirection
+
+                if dir.Magnitude > 0 then
+                    hrp.AssemblyLinearVelocity = dir * getgenv().SpeedValue
+                else
+                    -- 🔥 stop clean (กันลื่น)
+                    hrp.AssemblyLinearVelocity = Vector3.new(0, hrp.AssemblyLinearVelocity.Y, 0)
+                end
+            end
+        end
+    end
+end)
+
+--========================
+-- RESPWAN FIX
+--========================
+lp.CharacterAdded:Connect(function()
+    task.wait(0.5)
+    applySpeed(getgenv().SpeedValue)
+end)
     
 Home:AddSlider({    
     Name = "Adjust flight speed",    

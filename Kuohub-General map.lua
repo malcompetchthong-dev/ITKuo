@@ -105,6 +105,74 @@ UIS.JumpRequest:Connect(function()
         end
     end
 end)
+-- =========================      
+-- ร่องหน      
+-- =========================
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+
+local invisible = false
+local bodyParts = {}
+local character, humanoid, rootPart
+
+local function setupCharacter()
+    character = player.Character or player.CharacterAdded:Wait()
+    humanoid = character:WaitForChild("Humanoid")
+    rootPart = character:WaitForChild("HumanoidRootPart")
+
+    bodyParts = {}
+
+    for _, v in pairs(character:GetDescendants()) do
+        if v:IsA("BasePart") and v.Transparency == 0 then
+            table.insert(bodyParts, v)
+        end
+    end
+end
+
+local function setInvisible(state)
+    invisible = state
+
+    for _, v in pairs(bodyParts) do
+        v.Transparency = invisible and 0.5 or 0
+    end
+end
+
+-- 🔥 ตัวนี้เอาไปใช้กับ Toggle
+function applyInvisible(state)
+    setInvisible(state)
+end
+
+-- setup ครั้งแรก
+setupCharacter()
+
+-- ระบบล่องหน (ของเดิม 100%)
+RunService.Heartbeat:Connect(function()
+    if invisible and rootPart and humanoid then
+        local cf = rootPart.CFrame
+        local camOff = humanoid.CameraOffset
+
+        rootPart.CFrame = cf * CFrame.new(0, -200000, 0)
+        humanoid.CameraOffset = Vector3.new(
+            camOff.X,
+            camOff.Y + 200000,
+            camOff.Z
+        )
+
+        RunService.RenderStepped:Wait()
+
+        rootPart.CFrame = cf
+        humanoid.CameraOffset = camOff
+    end
+end)
+
+-- กันตายแล้วพัง
+player.CharacterAdded:Connect(function()
+    invisible = false
+    setupCharacter()
+end)
 
 -- =========================
 -- UI
@@ -148,6 +216,14 @@ Home:Toggle({
     end
 })
 
+Home:Toggle({
+    Title = "Invisible Mode",
+    Desc = "ร่องหน",
+    Callback = function(v)
+        applyInvisible(v)
+    end
+})
+
 Home:AddSlider({
     Name = "Adjust walking speed",
     Min = 16,
@@ -161,6 +237,7 @@ Home:AddSlider({
         end
     end
 })
+
 
 Home:AddSlider({
     Name = "Adjust flight speed",

@@ -447,118 +447,88 @@ return DiscordInvite
 
 end
 
-function Tab:AddSlider(config)
-
-local min = config.Min or 0  
-local max = config.Max or 100  
-local value = config.Default or min  
-
-local Frame = Instance.new("Frame", Page)  
-Frame.Size = UDim2.new(1,-10,0,60)  
-Frame.BackgroundTransparency = 1  
-
--- TITLE  
-local Title = Instance.new("TextLabel", Frame)  
-Title.Size = UDim2.new(1,0,0,20)  
-Title.BackgroundTransparency = 1  
-Title.Text = (config.Name or "Slider") .. ": " .. value  
-Title.TextColor3 = Color3.fromRGB(220,220,220)  
-Title.Font = Enum.Font.GothamBold  
-Title.TextSize = 14  
-Title.TextXAlignment = Enum.TextXAlignment.Left  
-
--- BAR  
-local Bar = Instance.new("Frame", Frame)  
-Bar.Size = UDim2.new(1,0,0,6)  
-Bar.Position = UDim2.new(0,0,0,35)  
-Bar.BackgroundColor3 = Color3.fromRGB(50,50,50)  
-Instance.new("UICorner", Bar).CornerRadius = UDim.new(1,0)  
-
--- FILL  
-local Fill = Instance.new("Frame", Bar)  
-Fill.Size = UDim2.new(0,0,1,0)  
-Fill.BackgroundColor3 = Color3.fromRGB(170,0,255)  
-Instance.new("UICorner", Fill).CornerRadius = UDim.new(1,0)  
-
--- CIRCLE (🔥 จุดลาก)  
-local Circle = Instance.new("Frame", Bar)  
-Circle.Size = UDim2.new(0,14,0,14)  
-Circle.AnchorPoint = Vector2.new(0.5,0.5)  
-Circle.Position = UDim2.new(0,0,0.5,0)  
-Circle.BackgroundColor3 = Color3.fromRGB(255,255,255)  
-Instance.new("UICorner", Circle).CornerRadius = UDim.new(1,0)  
-
-local dragging = false  
-
-local function setValue(v)  
-    value = math.clamp(v, min, max)  
-    local percent = (value - min)/(max-min)  
-
-    -- 🔥 Smooth animation  
-    TweenService:Create(Fill, TweenInfo.new(0.15), {  
-        Size = UDim2.new(percent,0,1,0)  
-    }):Play()  
-
-    TweenService:Create(Circle, TweenInfo.new(0.15), {  
-        Position = UDim2.new(percent,0,0.5,0)  
-    }):Play()  
-
-    Title.Text = (config.Name or "Slider") .. ": " .. value  
-
-    if config.Callback then  
-        config.Callback(value)  
-    end  
-end  
-
-local function updateFromX(x)  
-    local percent = math.clamp((x - Bar.AbsolutePosition.X)/Bar.AbsoluteSize.X,0,1)  
-    local v = math.floor(min + (max-min)*percent)  
-    setValue(v)  
-end  
-
--- INPUT  
-Bar.InputBegan:Connect(function(i)  
-    if i.UserInputType == Enum.UserInputType.MouseButton1  
-    or i.UserInputType == Enum.UserInputType.Touch then  
-        dragging = true  
-        updateFromX(i.Position.X)  
-    end  
-end)  
-
-UIS.InputChanged:Connect(function(i)  
-    if dragging and (i.UserInputType == Enum.UserInputType.MouseMovement  
-    or i.UserInputType == Enum.UserInputType.Touch) then  
-        updateFromX(i.Position.X)  
-    end  
-end)  
-
-UIS.InputEnded:Connect(function(i)  
-    if i.UserInputType == Enum.UserInputType.MouseButton1  
-    or i.UserInputType == Enum.UserInputType.Touch then  
-        dragging = false  
-    end  
-end)  
-
--- DEFAULT  
-task.defer(function()  
-    setValue(value)  
-end)  
-
--- 🔥 RETURN CONTROL (เหมือน Redz)  
-local Slider = {}  
-
-function Slider:Set(v)  
-    setValue(v)  
-end  
-
-function Slider:Get()  
-    return value  
-end  
-
-return Slider
-
-end
-
+function Tab:AddSlider(config)          
+    local Frame = Instance.new("Frame", Page)          
+    Frame.Size = UDim2.new(1,-10,0,55)          
+    Frame.BackgroundTransparency = 1          
+          
+    local Title = Instance.new("TextLabel", Frame)          
+    Title.Size = UDim2.new(1,0,0,20)          
+    Title.BackgroundTransparency = 1          
+    Title.Text = (config.Name or "Slider") .. ": " .. (config.Default or 0)          
+    Title.TextColor3 = Color3.fromRGB(220,220,220)          
+    Title.Font = Enum.Font.GothamBold          
+    Title.TextSize = 14          
+    Title.TextXAlignment = Enum.TextXAlignment.Left          
+          
+    local Bar = Instance.new("Frame", Frame)          
+    Bar.Size = UDim2.new(1,0,0,6)          
+    Bar.Position = UDim2.new(0,0,0,30)          
+    Bar.BackgroundColor3 = Color3.fromRGB(60,60,60)          
+    Instance.new("UICorner", Bar).CornerRadius = UDim.new(1,0)          
+          
+    local Fill = Instance.new("Frame", Bar)          
+    Fill.Size = UDim2.new(0,0,1,0)          
+    Fill.BackgroundColor3 = Color3.fromRGB(170,0,255)          
+    Instance.new("UICorner", Fill).CornerRadius = UDim.new(1,0)          
+          
+    local Drag = Instance.new("TextButton", Bar)          
+    Drag.Size = UDim2.new(1,0,1,0)          
+    Drag.BackgroundTransparency = 1          
+    Drag.Text = ""          
+          
+    local min = config.Min or 0          
+    local max = config.Max or 100          
+    local value = config.Default or min          
+          
+    local dragging = false          
+          
+    local function updateFromX(x)          
+        local percent = math.clamp((x - Bar.AbsolutePosition.X) / Bar.AbsoluteSize.X, 0, 1)          
+        value = math.floor(min + (max - min) * percent)          
+          
+        Fill.Size = UDim2.new(percent,0,1,0)          
+        Title.Text = (config.Name or "Slider") .. ": " .. value          
+          
+        if config.Callback then          
+            config.Callback(value)          
+        end          
+    end          
+          
+    -- เริ่มลาก (รองรับมือถือ + PC)          
+    Drag.InputBegan:Connect(function(input)          
+        if input.UserInputType == Enum.UserInputType.MouseButton1          
+        or input.UserInputType == Enum.UserInputType.Touch then          
+            dragging = true          
+            updateFromX(input.Position.X)          
+        end          
+    end)          
+          
+    -- ปล่อยลาก          
+    UIS.InputEnded:Connect(function(input)          
+        if input.UserInputType == Enum.UserInputType.MouseButton1          
+        or input.UserInputType == Enum.UserInputType.Touch then          
+            dragging = false          
+        end          
+    end)          
+          
+    -- ลากแบบ realtime (ลื่นมาก)          
+    UIS.InputChanged:Connect(function(input)          
+        if dragging and (          
+            input.UserInputType == Enum.UserInputType.MouseMovement          
+            or input.UserInputType == Enum.UserInputType.Touch          
+        ) then          
+            updateFromX(input.Position.X)          
+        end          
+    end)          
+          
+    -- set default          
+    task.defer(function()          
+        local percent = (value - min) / (max - min)          
+        Fill.Size = UDim2.new(percent,0,1,0)          
+    end)          
+    end          
+    
 return Tab
 
 end

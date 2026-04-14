@@ -2,29 +2,21 @@
 
 local TweenService = game:GetService("TweenService")
 local UIS = game:GetService("UserInputService")
---// CORE SYSTEM (RedzHub Style)
 
-local Theme = {
-["Color Hub 2"] = Color3.fromRGB(25,25,25),
-["Color Text"] = Color3.fromRGB(220,220,220),
-["Color Dark Text"] = Color3.fromRGB(150,150,150)
-}
+-- =========================
+-- 🔥 KUOHUB CORE FUNCTIONS
+-- =========================
 
 local Funcs = {}
+local ThemeObjects = {}
 
--- CREATE
 function Create(class, parent, props)
 local obj = Instance.new(class)
-
-if parent then
-obj.Parent = parent
-end
+if parent then obj.Parent = parent end
 
 if props then
 for i,v in pairs(props) do
-pcall(function()
 obj[i] = v
-end)
 end
 end
 
@@ -32,58 +24,42 @@ return obj
 
 end
 
--- SET PROPS
 function SetProps(obj, props)
 for i,v in pairs(props) do
-pcall(function()
 obj[i] = v
-end)
 end
 end
 
--- MAKE (Corner / Stroke / Gradient)
-function Make(type, parent, ...)
-if type == "Corner" then
-local radius = ...
+function InsertTheme(obj, themeType)
+table.insert(ThemeObjects, {Object = obj, Type = themeType})
+
+-- ตัวอย่างธีม
+if themeType == "Frame" then
+obj.BackgroundColor3 = Color3.fromRGB(25,25,25)
+
+elseif themeType == "Text" then
+obj.TextColor3 = Color3.fromRGB(220,220,220)
+
+elseif themeType == "DarkText" then
+obj.TextColor3 = Color3.fromRGB(150,150,150)
+end
+
+end
+
+function Make(typeName, parent, value)
+if typeName == "Corner" then
 local c = Instance.new("UICorner", parent)
-c.CornerRadius = radius or UDim.new(0,8)
-return c
+c.CornerRadius = value or UDim.new(0,8)
 
-elseif type == "Stroke" then
+elseif typeName == "Stroke" then
 local s = Instance.new("UIStroke", parent)
 s.Color = Color3.fromRGB(170,0,255)
-s.Thickness = 1
+s.Thickness = 1.5
 s.Transparency = 0.3
-return s
-
-elseif type == "Gradient" then
-local g = Instance.new("UIGradient", parent)
-g.Color = ColorSequence.new{
-ColorSequenceKeypoint.new(0, Color3.fromRGB(170,0,255)),
-ColorSequenceKeypoint.new(1, Color3.fromRGB(0,200,255))
-}
-return g
 end
 
 end
 
--- INSERT THEME
-function InsertTheme(obj, mode)
-if mode == "Frame" then
-obj.BackgroundColor3 = Theme["Color Hub 2"]
-
-elseif mode == "Text" then
-obj.TextColor3 = Theme["Color Text"]
-
-elseif mode == "DarkText" then
-obj.TextColor3 = Theme["Color Dark Text"]
-end
-
-return obj
-
-end
-
--- FUNCS
 function Funcs:ToggleVisible(obj, state)
 if state == nil then
 obj.Visible = not obj.Visible
@@ -344,72 +320,72 @@ local Desc = Configs.Desc or Configs.Description or ""
 local Logo = Configs[2] or Configs.Logo or ""
 local Invite = Configs[3] or Configs.Invite or ""
 
--- HOLDER        
-local InviteHolder = Create("Frame", Page, {        
-    Size = UDim2.new(1, -10, 0, 85),        
-    BackgroundTransparency = 1        
-})        
-    
--- INVITE TEXT        
-local InviteLabel = Create("TextLabel", InviteHolder, {        
-    Size = UDim2.new(1, 0, 0, 15),        
-    Position = UDim2.new(0, 5, 0, 0),        
-    Text = Invite,        
-    Font = Enum.Font.GothamBold,        
-    TextSize = 10,        
-    TextXAlignment = Enum.TextXAlignment.Left,        
-    BackgroundTransparency = 1,        
-    TextColor3 = Color3.fromRGB(0,170,255)        
-})        
-    
--- MAIN BOX        
-local FrameHolder = Create("Frame", InviteHolder, {        
-    Size = UDim2.new(1, 0, 0, 65),        
-    Position = UDim2.new(0, 0, 0, 20)        
-})        
-InsertTheme(FrameHolder, "Frame")        
-Make("Corner", FrameHolder)        
-Make("Stroke", FrameHolder)        
-    
--- LOGO        
-local ImageLabel = Create("ImageLabel", FrameHolder, {        
-    Size = UDim2.new(0, 32, 0, 32),        
-    Position = UDim2.new(0, 8, 0, 8),        
-    Image = Logo,        
-    BackgroundTransparency = 1        
-})        
-Make("Corner", ImageLabel, UDim.new(0,6))        
-Make("Stroke", ImageLabel)        
-    
--- TITLE        
-local LTitle = Create("TextLabel", FrameHolder, {        
-    Size = UDim2.new(1, -60, 0, 16),        
-    Position = UDim2.new(0, 48, 0, 6),        
-    Text = Title,        
-    Font = Enum.Font.GothamBold,        
-    TextSize = 12,        
-    TextXAlignment = Enum.TextXAlignment.Left,        
-    BackgroundTransparency = 1        
-})        
-InsertTheme(LTitle, "Text")        
-    
--- DESC        
-local LDesc = Create("TextLabel", FrameHolder, {        
-    Size = UDim2.new(1, -60, 0, 0),        
-    Position = UDim2.new(0, 48, 0, 22),        
-    Text = Desc,        
-    Font = Enum.Font.Gotham,        
-    TextSize = 10,        
-    TextWrapped = true,        
-    AutomaticSize = Enum.AutomaticSize.Y,        
-    TextXAlignment = Enum.TextXAlignment.Left,        
-    BackgroundTransparency = 1        
-})        
-InsertTheme(LDesc, "DarkText")        
-    
--- JOIN BUTTON        
-local JoinButton = Create("TextButton", FrameHolder, {        
-    Size = UDim2.new(0, 80, 0, 22),
+-- HOLDER
+local InviteHolder = Create("Frame", Page, {
+Size = UDim2.new(1, -10, 0, 85),
+BackgroundTransparency = 1
+})
+
+-- INVITE TEXT
+local InviteLabel = Create("TextLabel", InviteHolder, {
+Size = UDim2.new(1, 0, 0, 15),
+Position = UDim2.new(0, 5, 0, 0),
+Text = Invite,
+Font = Enum.Font.GothamBold,
+TextSize = 10,
+TextXAlignment = Enum.TextXAlignment.Left,
+BackgroundTransparency = 1,
+TextColor3 = Color3.fromRGB(0,170,255)
+})
+
+-- MAIN BOX
+local FrameHolder = Create("Frame", InviteHolder, {
+Size = UDim2.new(1, 0, 0, 65),
+Position = UDim2.new(0, 0, 0, 20)
+})
+InsertTheme(FrameHolder, "Frame")
+Make("Corner", FrameHolder)
+Make("Stroke", FrameHolder)
+
+-- LOGO
+local ImageLabel = Create("ImageLabel", FrameHolder, {
+Size = UDim2.new(0, 32, 0, 32),
+Position = UDim2.new(0, 8, 0, 8),
+Image = Logo,
+BackgroundTransparency = 1
+})
+Make("Corner", ImageLabel, UDim.new(0,6))
+Make("Stroke", ImageLabel)
+
+-- TITLE
+local LTitle = Create("TextLabel", FrameHolder, {
+Size = UDim2.new(1, -60, 0, 16),
+Position = UDim2.new(0, 48, 0, 6),
+Text = Title,
+Font = Enum.Font.GothamBold,
+TextSize = 12,
+TextXAlignment = Enum.TextXAlignment.Left,
+BackgroundTransparency = 1
+})
+InsertTheme(LTitle, "Text")
+
+-- DESC
+local LDesc = Create("TextLabel", FrameHolder, {
+Size = UDim2.new(1, -60, 0, 0),
+Position = UDim2.new(0, 48, 0, 22),
+Text = Desc,
+Font = Enum.Font.Gotham,
+TextSize = 10,
+TextWrapped = true,
+AutomaticSize = Enum.AutomaticSize.Y,
+TextXAlignment = Enum.TextXAlignment.Left,
+BackgroundTransparency = 1
+})
+InsertTheme(LDesc, "DarkText")
+
+-- JOIN BUTTON
+local JoinButton = Create("TextButton", FrameHolder, {
+Size = UDim2.new(0, 80, 0, 22),
 
 AnchorPoint = Vector2.new(1,1),
 Position = UDim2.new(1, -10, 1, -10) ,
@@ -421,188 +397,166 @@ TextColor3 = Color3.fromRGB(255,255,255)
 })
 Make("Corner", JoinButton, UDim.new(0,6))
 
--- HOVER        
-JoinButton.MouseEnter:Connect(function()        
-    SetProps(JoinButton, {BackgroundColor3 = Color3.fromRGB(70,180,70)})        
-end)        
-    
-JoinButton.MouseLeave:Connect(function()        
-    SetProps(JoinButton, {BackgroundColor3 = Color3.fromRGB(50,150,50)})        
-end)        
-    
--- CLICK COPY        
-local ClickDelay = false        
-JoinButton.Activated:Connect(function()        
-    if setclipboard then        
-        setclipboard(Invite)        
-    end        
-    
-    if ClickDelay then return end        
-    ClickDelay = true        
-    
-    SetProps(JoinButton, {        
-        Text = "Copied!",        
-        BackgroundColor3 = Color3.fromRGB(100,100,100)        
-    })        
-    
-    task.wait(3)        
-    
-    SetProps(JoinButton, {        
-        Text = "Join",        
-        BackgroundColor3 = Color3.fromRGB(50,150,50)        
-    })        
-    
-    ClickDelay = false        
-end)        
-    
--- CONTROL        
-local DiscordInvite = {}        
-    
-function DiscordInvite:Destroy()        
-    InviteHolder:Destroy()        
-end        
-    
-function DiscordInvite:Visible(...)        
-    Funcs:ToggleVisible(InviteHolder, ...)        
-end        
-    
+-- HOVER
+JoinButton.MouseEnter:Connect(function()
+SetProps(JoinButton, {BackgroundColor3 = Color3.fromRGB(70,180,70)})
+end)
+
+JoinButton.MouseLeave:Connect(function()
+SetProps(JoinButton, {BackgroundColor3 = Color3.fromRGB(50,150,50)})
+end)
+
+-- CLICK COPY
+local ClickDelay = false
+JoinButton.Activated:Connect(function()
+if setclipboard then
+setclipboard(Invite)
+end
+
+if ClickDelay then return end
+ClickDelay = true
+
+SetProps(JoinButton, {
+Text = "Copied!",
+BackgroundColor3 = Color3.fromRGB(100,100,100)
+})
+
+task.wait(3)
+
+SetProps(JoinButton, {
+Text = "Join",
+BackgroundColor3 = Color3.fromRGB(50,150,50)
+})
+
+ClickDelay = false
+
+end)
+
+-- CONTROL
+local DiscordInvite = {}
+
+function DiscordInvite:Destroy()
+InviteHolder:Destroy()
+end
+
+function DiscordInvite:Visible(...)
+Funcs:ToggleVisible(InviteHolder, ...)
+end
+
 return DiscordInvite
 
 end
 
-function Tab:AddSlider(Configs)
-    local Name = Configs[1] or Configs.Name or "Slider"
-    local Desc = Configs.Desc or ""
-    local Min = Configs.Min or 0
-    local Max = Configs.Max or 100
-    local Default = Configs.Default or Min
-    local Callback = Configs.Callback or function() end
+function Tab:AddSlider(config)
 
-    local Value = Default
-    local Dragging = false
+local min = config.Min or 0  
+local max = config.Max or 100  
+local value = config.Default or min  
 
-    -- HOLDER
-    local Holder = Create("Frame", Page, {
-        Size = UDim2.new(1, -10, 0, 60),
-        BackgroundTransparency = 1
-    })
+local Frame = Instance.new("Frame", Page)  
+Frame.Size = UDim2.new(1,-10,0,60)  
+Frame.BackgroundTransparency = 1  
 
-    -- TITLE
-    local Title = Create("TextLabel", Holder, {
-        Size = UDim2.new(1, 0, 0, 18),
-        Text = Name .. ": " .. tostring(Value),
-        Font = Enum.Font.GothamBold,
-        TextSize = 13,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        BackgroundTransparency = 1
-    })
-    InsertTheme(Title, "Text")
+-- TITLE  
+local Title = Instance.new("TextLabel", Frame)  
+Title.Size = UDim2.new(1,0,0,20)  
+Title.BackgroundTransparency = 1  
+Title.Text = (config.Name or "Slider") .. ": " .. value  
+Title.TextColor3 = Color3.fromRGB(220,220,220)  
+Title.Font = Enum.Font.GothamBold  
+Title.TextSize = 14  
+Title.TextXAlignment = Enum.TextXAlignment.Left  
 
-    -- DESC
-    local DescLbl = Create("TextLabel", Holder, {
-        Size = UDim2.new(1, 0, 0, 14),
-        Position = UDim2.new(0, 0, 0, 18),
-        Text = Desc,
-        Font = Enum.Font.Gotham,
-        TextSize = 11,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        BackgroundTransparency = 1
-    })
-    InsertTheme(DescLbl, "DarkText")
+-- BAR  
+local Bar = Instance.new("Frame", Frame)  
+Bar.Size = UDim2.new(1,0,0,6)  
+Bar.Position = UDim2.new(0,0,0,35)  
+Bar.BackgroundColor3 = Color3.fromRGB(50,50,50)  
+Instance.new("UICorner", Bar).CornerRadius = UDim.new(1,0)  
 
-    -- BAR
-    local Bar = Create("Frame", Holder, {
-        Size = UDim2.new(1, 0, 0, 6),
-        Position = UDim2.new(0, 0, 1, -12)
-    })
-    InsertTheme(Bar, "Frame")
-    Make("Corner", Bar)
+-- FILL  
+local Fill = Instance.new("Frame", Bar)  
+Fill.Size = UDim2.new(0,0,1,0)  
+Fill.BackgroundColor3 = Color3.fromRGB(170,0,255)  
+Instance.new("UICorner", Fill).CornerRadius = UDim.new(1,0)  
 
-    -- FILL
-    local Fill = Create("Frame", Bar, {
-        Size = UDim2.new(0, 0, 1, 0),
-        BackgroundColor3 = Color3.fromRGB(170,0,255)
-    })
-    Make("Corner", Fill)
+-- CIRCLE (🔥 จุดลาก)  
+local Circle = Instance.new("Frame", Bar)  
+Circle.Size = UDim2.new(0,14,0,14)  
+Circle.AnchorPoint = Vector2.new(0.5,0.5)  
+Circle.Position = UDim2.new(0,0,0.5,0)  
+Circle.BackgroundColor3 = Color3.fromRGB(255,255,255)  
+Instance.new("UICorner", Circle).CornerRadius = UDim.new(1,0)  
 
-    -- KNOB
-    local Knob = Create("Frame", Bar, {
-        Size = UDim2.new(0, 10, 0, 10),
-        AnchorPoint = Vector2.new(0.5,0.5),
-        Position = UDim2.new(0, 0, 0.5, 0),
-        BackgroundColor3 = Color3.fromRGB(255,255,255)
-    })
-    Make("Corner", Knob)
+local dragging = false  
 
-    -- UPDATE
-    local function Update(x)
-        local percent = math.clamp((x - Bar.AbsolutePosition.X) / Bar.AbsoluteSize.X, 0, 1)
-        Value = math.floor(Min + (Max - Min) * percent)
+local function setValue(v)  
+    value = math.clamp(v, min, max)  
+    local percent = (value - min)/(max-min)  
 
-        Fill.Size = UDim2.new(percent,0,1,0)
-        Knob.Position = UDim2.new(percent,0,0.5,0)
-        Title.Text = Name .. ": " .. tostring(Value)
+    -- 🔥 Smooth animation  
+    TweenService:Create(Fill, TweenInfo.new(0.15), {  
+        Size = UDim2.new(percent,0,1,0)  
+    }):Play()  
 
-        Callback(Value)
-    end
+    TweenService:Create(Circle, TweenInfo.new(0.15), {  
+        Position = UDim2.new(percent,0,0.5,0)  
+    }):Play()  
 
-    -- INPUT
-    Bar.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1
-        or input.UserInputType == Enum.UserInputType.Touch then
-            Dragging = true
-            Update(input.Position.X)
-        end
-    end)
+    Title.Text = (config.Name or "Slider") .. ": " .. value  
 
-    UIS.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1
-        or input.UserInputType == Enum.UserInputType.Touch then
-            Dragging = false
-        end
-    end)
+    if config.Callback then  
+        config.Callback(value)  
+    end  
+end  
 
-    UIS.InputChanged:Connect(function(input)
-        if Dragging and (
-            input.UserInputType == Enum.UserInputType.MouseMovement
-            or input.UserInputType == Enum.UserInputType.Touch
-        ) then
-            Update(input.Position.X)
-        end
-    end)
+local function updateFromX(x)  
+    local percent = math.clamp((x - Bar.AbsolutePosition.X)/Bar.AbsoluteSize.X,0,1)  
+    local v = math.floor(min + (max-min)*percent)  
+    setValue(v)  
+end  
 
-    -- DEFAULT
-    task.defer(function()
-        local percent = (Value - Min) / (Max - Min)
-        Fill.Size = UDim2.new(percent,0,1,0)
-        Knob.Position = UDim2.new(percent,0,0.5,0)
-    end)
+-- INPUT  
+Bar.InputBegan:Connect(function(i)  
+    if i.UserInputType == Enum.UserInputType.MouseButton1  
+    or i.UserInputType == Enum.UserInputType.Touch then  
+        dragging = true  
+        updateFromX(i.Position.X)  
+    end  
+end)  
 
-    -- API
-    local Slider = {}
+UIS.InputChanged:Connect(function(i)  
+    if dragging and (i.UserInputType == Enum.UserInputType.MouseMovement  
+    or i.UserInputType == Enum.UserInputType.Touch) then  
+        updateFromX(i.Position.X)  
+    end  
+end)  
 
-    function Slider:Set(v)
-        if type(v) == "number" then
-            Value = math.clamp(v, Min, Max)
-            local percent = (Value - Min) / (Max - Min)
+UIS.InputEnded:Connect(function(i)  
+    if i.UserInputType == Enum.UserInputType.MouseButton1  
+    or i.UserInputType == Enum.UserInputType.Touch then  
+        dragging = false  
+    end  
+end)  
 
-            Fill.Size = UDim2.new(percent,0,1,0)
-            Knob.Position = UDim2.new(percent,0,0.5,0)
-            Title.Text = Name .. ": " .. tostring(Value)
+-- DEFAULT  
+task.defer(function()  
+    setValue(value)  
+end)  
 
-            Callback(Value)
-        end
-    end
+-- 🔥 RETURN CONTROL (เหมือน Redz)  
+local Slider = {}  
 
-    function Slider:Visible(...)
-        Funcs:ToggleVisible(Holder, ...)
-    end
+function Slider:Set(v)  
+    setValue(v)  
+end  
 
-    function Slider:Destroy()
-        Holder:Destroy()
-    end
+function Slider:Get()  
+    return value  
+end  
 
-    return Slider
+return Slider
+
 end
 
 return Tab

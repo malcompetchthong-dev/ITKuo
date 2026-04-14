@@ -421,49 +421,50 @@ return closest
       
 end      
       
-local function getKnifeCF(targetChar)      
-local head = targetChar:FindFirstChild("Head")      
-local rootPart = targetChar:FindFirstChild("HumanoidRootPart")      
-if not head or not rootPart then return end      
-      
-local velocity = rootPart.AssemblyLinearVelocity      
-local distance = (head.Position - root.Position).Magnitude      
-      
-local predictTime = math.clamp(distance / 200, 0.1, 0.3)      
-local predicted = head.Position + (velocity * predictTime)      
-      
-return CFrame.new(predicted)      
-      
-end      
-      
-task.spawn(function()      
-while task.wait(0.1) do      
-if not AUTO_KNIFE then continue end      
-      
-local char = player.Character      
-local knife = char and char:FindFirstChild("Knife")      
-if not knife then continue end      
-      
-local event = knife:FindFirstChild("Events") and knife.Events:FindFirstChild("KnifeThrown")      
-local handle = knife:FindFirstChild("Handle")      
-      
-if not event or not handle then continue end      
-      
-local target = getClosestTarget()      
-if not target or not target.Character then continue end      
-      
-local targetCF = getKnifeCF(target.Character)      
-if not targetCF then continue end      
-      
-local originCF = handle.CFrame      
-      
-pcall(function()      
-event:FireServer(originCF, targetCF)      
-end)      
-      
-end      
-      
-end)      
+local function fireKnife(targetPart)
+    local char = player.Character
+    if not char then return end
+
+    local knife = char:FindFirstChild("Knife")
+    if not knife then return end
+
+    local events = knife:FindFirstChild("Events")
+    if not events then return end
+
+    local remote = events:FindFirstChild("HandleTouched")
+    if not remote then return end
+
+    pcall(function()
+        remote:FireServer(targetPart)
+    end)
+end
+
+
+task.spawn(function()
+    while task.wait(0.1) do
+        if not AUTO_KNIFE then continue end
+        if getRole(player) ~= "Murderer" then continue end
+
+        local target = getClosestTarget()
+        if not target or not target.Character then continue end
+
+        local enemyRoot = target.Character:FindFirstChild("HumanoidRootPart")
+        local hum = target.Character:FindFirstChildOfClass("Humanoid")
+
+        if not enemyRoot or not hum or hum.Health <= 0 then continue end
+
+        -- ระยะกันมั่ว
+        local char = player.Character
+        local root = char and char:FindFirstChild("HumanoidRootPart")
+        if not root then continue end
+
+        if (enemyRoot.Position - root.Position).Magnitude > KNIFE_RANGE then
+            continue
+        end
+
+        fireKnife(enemyRoot)
+    end
+end)
       
 local function getAuraTarget()      
 local closest = nil      
@@ -488,19 +489,13 @@ return closest
 end      
       
 task.spawn(function()
-    while task.wait(0.05) do
+    while task.wait(0.1) do
         if not KILL_AURA then continue end
-
-        -- ❗ ต้องเป็น Murderer เท่านั้น
         if getRole(player) ~= "Murderer" then continue end
 
         local char = player.Character
         local root = char and char:FindFirstChild("HumanoidRootPart")
-        local knife = char and char:FindFirstChild("Knife")
-        if not root or not knife then continue end
-
-        local handle = knife:FindFirstChild("Handle")
-        if not handle then continue end
+        if not root then continue end
 
         local target = getAuraTarget()
         if not target or not target.Character then continue end
@@ -509,32 +504,21 @@ task.spawn(function()
         local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
         local hum = enemyChar:FindFirstChildOfClass("Humanoid")
 
-        -- ❗ กัน lobby / ตัวตาย
+        -- 🔥 กัน lobby / ตาย
         if not enemyRoot or not hum or hum.Health <= 0 then continue end
 
-        -- ❗ เช็คระยะจริง
-        local dist = (enemyRoot.Position - root.Position).Magnitude
-        if dist > KILL_AURA_RANGE then continue end
+        -- 🔥 ระยะ
+        if (enemyRoot.Position - root.Position).Magnitude > KILL_AURA_RANGE then continue end
 
-        -- 💾 เซฟตำแหน่ง
         local oldCF = root.CFrame
-
-        -- 🔥 วาร์ปไปตี
         root.CFrame = enemyRoot.CFrame
 
         task.wait(0.05)
 
-        -- 🔪 ฟัน
-        pcall(function()
-            for i = 1, 3 do
-                knife:Activate()
-                task.wait(0.02)
-            end
-        end)
+        -- 🔪 ใช้ Remote ใหม่แทน Activate
+        fireKnife(enemyRoot)
 
         task.wait(0.03)
-
-        -- 🔙 กลับ
         root.CFrame = oldCF
     end
 end)

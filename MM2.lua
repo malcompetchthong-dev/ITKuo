@@ -846,19 +846,19 @@ Anti_Pling = v
 end      
 })      
       
-Home:AddSlider({      
-    Name = "Adjust walking speed",      
-    Min = 16,      
-    Mtarge 1000,      
-    Default = 16,      
-    Callback = function(v)      
-        local char = player.Character      
-        local hum = char and char:FindFirstChildOfClass("Humanoid")      
-        if hum then      
-            hum.WalkSpeed = v      
-        end      
-    end      
-})      
+Home:AddSlider({
+    Name = "Adjust walking speed",
+    Min = 16,
+    Max = 200,
+    Default = 16,
+    Callback = function(v)
+        local char = getChar()
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if hum then
+            hum.WalkSpeed = v
+        end
+    end
+})
     
 Home:AddSlider({    
     Name = "Adjust flight speed",    

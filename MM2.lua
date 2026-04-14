@@ -37,7 +37,8 @@ local AUTO_SHOOT = false
 local AUTO_KNIFE = false      
 local KILL_AURA = false      
 local KNIFE_RANGE = 1000      
-local KILL_AURA_RANGE = 2000      
+local KILL_AURA_RANGE = 2000  
+local MAX_DISTANCE = 1000    
 local AUTO_COIN_COLLECT = false      
 local CHAT_ANNOUNCE = false      
 local Anti_Pling = false      
@@ -421,108 +422,157 @@ return closest
       
 end      
       
-local function fireKnife(targetPart)
-    local char = player.Character
-    if not char then return end
+local function getKnifeCF(targetChar)      
+local head = targetChar:FindFirstChild("Head")      
+local rootPart = targetChar:FindFirstChild("HumanoidRootPart")      
+if not head or not rootPart then return end      
+      
+local velocity = rootPart.AssemblyLinearVelocity      
+local distance = (head.Position - root.Position).Magnitude      
+      
+local predictTime = math.clamp(distance / 200, 0.1, 0.3)      
+local predicted = head.Position + (velocity * predictTime)      
+      
+return CFrame.new(predicted)      
+      
+end      
+      
+task.spawn(function()      
+while task.wait(0.1) do      
+if not AUTO_KNIFE then continue end      
+      
+local char = player.Character      
+local knife = char and char:FindFirstChild("Knife")      
+if not knife then continue end      
+      
+local event = knife:FindFirstChild("Events") and knife.Events:FindFirstChild("KnifeThrown")      
+local handle = knife:FindFirstChild("Handle")      
+      
+if not event or not handle then continue end      
+      
+local target = getClosestTarget()      
+if not target or not target.Character then continue end      
+      
+local targetCF = getKnifeCF(target.Character)      
+if not targetCF then continue end      
+      
+local originCF = handle.CFrame      
+      
+pcall(function()      
+event:FireServer(originCF, targetCF)      
+end)      
+      
+end      
+      
+end)      
+      
+local Players = game:GetService("Players")
+local lp = Players.LocalPlayer
 
-    local knife = char:FindFirstChild("Knife")
-    if not knife then return end
+local LOOP_DELAY = 0.1
 
-    local events = knife:FindFirstChild("Events")
-    if not events then return end
-
-    local remote = events:FindFirstChild("HandleTouched")
-    if not remote then return end
-
-    pcall(function()
-        remote:FireServer(targetPart)
-    end)
+local function getChar()
+return lp.Character or lp.CharacterAdded:Wait()
 end
 
+local function getHRP()
+local char = getChar()
+if not char then return nil end
+return char:FindFirstChild("HumanoidRootPart")
+end
 
+local function getKnife()
+local char = getChar()
+if not char then return nil end
+return char:FindFirstChild("Knife")
+end
+
+local function fireKnife(enemyRoot)
+local knife = getKnife()
+if not knife or not enemyRoot then return end
+
+local events = knife:FindFirstChild("Events")  
+if not events then return end  
+
+local handleTouched = events:FindFirstChild("HandleTouched")  
+local stabbed = events:FindFirstChild("KnifeStabbed")  
+
+if handleTouched then  
+    handleTouched:FireServer(enemyRoot)  
+end  
+
+if stabbed then  
+    stabbed:FireServer()  
+end
+
+end
+
+local function getNearestEnemy()
+local hrp = getHRP()
+if not hrp then return nil end
+
+local closest = nil  
+local distMin = MAX_DISTANCE  
+
+for _, plr in pairs(Players:GetPlayers()) do  
+    if plr ~= lp and plr.Character then  
+        local root = plr.Character:FindFirstChild("HumanoidRootPart")  
+
+        if root then  
+            local dist = (hrp.Position - root.Position).Magnitude  
+            if dist < distMin then  
+                distMin = dist  
+                closest = plr  
+            end  
+        end  
+    end  
+end  
+
+return closest
+
+end
+
+local function attack(plr)
+local hrp = getHRP()
+if not hrp or not plr.Character then return end
+
+local enemyRoot = plr.Character:FindFirstChild("HumanoidRootPart")  
+if not enemyRoot then return end  
+
+local old = hrp.CFrame  
+
+-- 🔥 หันหน้าเข้าหาเป้าหมายก่อน  
+hrp.CFrame = CFrame.lookAt(hrp.Position, enemyRoot.Position)  
+
+-- ⚡ วาปใกล้ตัว  
+hrp.CFrame = enemyRoot.CFrame * CFrame.new(0, 0, -2)  
+
+task.wait(0.05)  
+
+-- 🔪 ยิงซ้ำให้ติดง่ายขึ้น  
+for i = 1, 3 do  
+    fireKnife(enemyRoot)  
+    task.wait(0.03)  
+end  
+
+task.wait(0.05)  
+
+-- ↩️ กลับ  
+hrp.CFrame = old
+
+end
+-- 🔁 Loop หลัก (safe)
 task.spawn(function()
-    while task.wait(0.1) do
-        if not AUTO_KNIFE then continue end
-        if getRole(player) ~= "Murderer" then continue end
-
-        local target = getClosestTarget()
-        if not target or not target.Character then continue end
-
-        local enemyRoot = target.Character:FindFirstChild("HumanoidRootPart")
-        local hum = target.Character:FindFirstChildOfClass("Humanoid")
-
-        if not enemyRoot or not hum or hum.Health <= 0 then continue end
-
-        -- ระยะกันมั่ว
-        local char = player.Character
-        local root = char and char:FindFirstChild("HumanoidRootPart")
-        if not root then continue end
-
-        if (enemyRoot.Position - root.Position).Magnitude > KNIFE_RANGE then
-            continue
-        end
-
-        fireKnife(enemyRoot)
-    end
+while task.wait(LOOP_DELAY) do
+if KILL_AURA then
+local target = getNearestEnemy()
+if target then
+attack(target)
+end
+end
+end
 end)
-      
-local function getAuraTarget()      
-local closest = nil      
-local shortest = KILL_AURA_RANGE      
-      
-for _, plr in ipairs(Players:GetPlayers()) do      
-if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then      
-      
-local dist = (plr.Character.HumanoidRootPart.Position - root.Position).Magnitude      
-      
-if dist < shortest then      
-shortest = dist      
-closest = plr      
-end      
-      
-end      
-      
-end      
-      
-return closest      
-      
-end      
-      
-task.spawn(function()
-    while task.wait(0.1) do
-        if not KILL_AURA then continue end
-        if getRole(player) ~= "Murderer" then continue end
-
-        local char = player.Character
-        local root = char and char:FindFirstChild("HumanoidRootPart")
-        if not root then continue end
-
-        local target = getAuraTarget()
-        if not target or not target.Character then continue end
-
-        local enemyChar = target.Character
-        local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
-        local hum = enemyChar:FindFirstChildOfClass("Humanoid")
-
-        -- 🔥 กัน lobby / ตาย
-        if not enemyRoot or not hum or hum.Health <= 0 then continue end
-
-        -- 🔥 ระยะ
-        if (enemyRoot.Position - root.Position).Magnitude > KILL_AURA_RANGE then continue end
-
-        local oldCF = root.CFrame
-        root.CFrame = enemyRoot.CFrame
-
-        task.wait(0.05)
-
-        -- 🔪 ใช้ Remote ใหม่แทน Activate
-        fireKnife(enemyRoot)
-
-        task.wait(0.03)
-        root.CFrame = oldCF
-    end
-end)
-      
+     
 local TweenService = game:GetService("TweenService")      
       
 local COIN_SPEED = 30      

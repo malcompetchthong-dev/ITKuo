@@ -824,6 +824,10 @@ end
 end      
 end)
 
+-- =========================      
+-- ร่องหน      
+-- =========================
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
@@ -841,50 +845,52 @@ local function setupCharacter()
     bodyParts = {}
 
     for _, v in pairs(character:GetDescendants()) do
-        if v:IsA("BasePart") then
+        if v:IsA("BasePart") and v.Transparency == 0 then
             table.insert(bodyParts, v)
         end
     end
 end
 
-local function applyInvisible(state)
+local function setInvisible(state)
     invisible = state
 
     for _, v in pairs(bodyParts) do
-        if v and v:IsA("BasePart") then
-            if invisible then
-                v.Transparency = 0.5
-                v.LocalTransparencyModifier = 0.5
-            else
-                v.Transparency = 0
-                v.LocalTransparencyModifier = 0
-            end
-        end
+        v.Transparency = invisible and 0.5 or 0
     end
 end
 
--- กันรีเซ็ตตอนเกิดใหม่
-player.CharacterAdded:Connect(function()
-    invisible = false
-    setupCharacter()
-end)
+-- 🔥 ตัวนี้เอาไปใช้กับ Toggle
+function applyInvisible(state)
+    setInvisible(state)
+end
 
+-- setup ครั้งแรก
 setupCharacter()
 
--- ระบบหลอกเฟรม (optional แต่ช่วยให้เนียนขึ้น)
+-- ระบบล่องหน (ของเดิม 100%)
 RunService.Heartbeat:Connect(function()
     if invisible and rootPart and humanoid then
         local cf = rootPart.CFrame
         local camOff = humanoid.CameraOffset
 
         rootPart.CFrame = cf * CFrame.new(0, -200000, 0)
-        humanoid.CameraOffset = Vector3.new(camOff.X, camOff.Y + 200000, camOff.Z)
+        humanoid.CameraOffset = Vector3.new(
+            camOff.X,
+            camOff.Y + 200000,
+            camOff.Z
+        )
 
         RunService.RenderStepped:Wait()
 
         rootPart.CFrame = cf
         humanoid.CameraOffset = camOff
     end
+end)
+
+-- กันตายแล้วพัง
+player.CharacterAdded:Connect(function()
+    invisible = false
+    setupCharacter()
 end)
       
 -- =========================      

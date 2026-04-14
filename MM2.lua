@@ -822,7 +822,70 @@ end
 end      
 end      
 end      
-end)      
+end)
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+
+local invisible = false
+local bodyParts = {}
+local character, humanoid, rootPart
+
+local function setupCharacter()
+    character = player.Character or player.CharacterAdded:Wait()
+    humanoid = character:WaitForChild("Humanoid")
+    rootPart = character:WaitForChild("HumanoidRootPart")
+
+    bodyParts = {}
+
+    for _, v in pairs(character:GetDescendants()) do
+        if v:IsA("BasePart") then
+            table.insert(bodyParts, v)
+        end
+    end
+end
+
+local function applyInvisible(state)
+    invisible = state
+
+    for _, v in pairs(bodyParts) do
+        if v and v:IsA("BasePart") then
+            if invisible then
+                v.Transparency = 0.5
+                v.LocalTransparencyModifier = 0.5
+            else
+                v.Transparency = 0
+                v.LocalTransparencyModifier = 0
+            end
+        end
+    end
+end
+
+-- กันรีเซ็ตตอนเกิดใหม่
+player.CharacterAdded:Connect(function()
+    invisible = false
+    setupCharacter()
+end)
+
+setupCharacter()
+
+-- ระบบหลอกเฟรม (optional แต่ช่วยให้เนียนขึ้น)
+RunService.Heartbeat:Connect(function()
+    if invisible and rootPart and humanoid then
+        local cf = rootPart.CFrame
+        local camOff = humanoid.CameraOffset
+
+        rootPart.CFrame = cf * CFrame.new(0, -200000, 0)
+        humanoid.CameraOffset = Vector3.new(camOff.X, camOff.Y + 200000, camOff.Z)
+
+        RunService.RenderStepped:Wait()
+
+        rootPart.CFrame = cf
+        humanoid.CameraOffset = camOff
+    end
+end)
       
 -- =========================      
 -- UI      
@@ -878,7 +941,15 @@ Desc="กันปลิง",
 Callback=function(v)      
 Anti_Pling = v      
 end      
-})      
+})
+
+Combat:Toggle({
+    Title = "Invisible Mode",
+    Desc = "ร่องหน",
+    Callback = function(v)
+        applyInvisible(v)
+    end
+})
       
 getgenv().SpeedValue = 16
 

@@ -397,8 +397,7 @@ cam.CFrame = CFrame.new(cam.CFrame.Position, LOCK_TARGET.Position)
 end      
 end      
 end)      
-      
-local AUTO_KNIFE = false      
+            
 local KNIFE_RANGE = 100      
       
 local function getClosestTarget()      
@@ -422,49 +421,62 @@ return closest
       
 end      
       
-local function getKnifeCF(targetChar)      
-local head = targetChar:FindFirstChild("Head")      
-local rootPart = targetChar:FindFirstChild("HumanoidRootPart")      
-if not head or not rootPart then return end      
-      
-local velocity = rootPart.AssemblyLinearVelocity      
-local distance = (head.Position - root.Position).Magnitude      
-      
-local predictTime = math.clamp(distance / 200, 0.1, 0.3)      
-local predicted = head.Position + (velocity * predictTime)      
-      
-return CFrame.new(predicted)      
-      
-end      
-      
-task.spawn(function()      
-while task.wait(0.1) do      
-if not AUTO_KNIFE then continue end      
-      
-local char = player.Character      
-local knife = char and char:FindFirstChild("Knife")      
-if not knife then continue end      
-      
-local event = knife:FindFirstChild("Events") and knife.Events:FindFirstChild("KnifeThrown")      
-local handle = knife:FindFirstChild("Handle")      
-      
-if not event or not handle then continue end      
-      
-local target = getClosestTarget()      
-if not target or not target.Character then continue end      
-      
-local targetCF = getKnifeCF(target.Character)      
-if not targetCF then continue end      
-      
-local originCF = handle.CFrame      
-      
-pcall(function()      
-event:FireServer(originCF, targetCF)      
-end)      
-      
-end      
-      
-end)      
+-- =========================
+-- 🔪 AUTO KNIFE PRO (CLEAN)
+-- =========================
+
+local LOOP_DELAY = 0.1
+
+local function getChar()
+    return player.Character or player.CharacterAdded:Wait()
+end
+
+local function getHRP(char)
+    return char and char:FindFirstChild("HumanoidRootPart")
+end
+
+local function throwKnife(targetRoot)
+    local char = getChar()
+    local myRoot = getHRP(char)
+    local knife = char and char:FindFirstChild("Knife")
+
+    if not knife or not targetRoot or not myRoot then return end
+
+    local events = knife:FindFirstChild("Events")
+    local throw = events and events:FindFirstChild("KnifeThrown")
+    if not throw then return end
+
+    -- 🧠 Predict อัจฉริยะ
+    local distance = (myRoot.Position - targetRoot.Position).Magnitude
+    local prediction = math.clamp(distance / 200, 0.1, 0.3)
+
+    local velocity = targetRoot.AssemblyLinearVelocity
+    local predictedPos = targetRoot.Position + (velocity * prediction)
+
+    local args = {
+        CFrame.new(myRoot.Position),
+        CFrame.new(predictedPos)
+    }
+
+    throw:FireServer(unpack(args))
+end
+
+-- 🔁 Loop เดียวพอ (สำคัญ)
+task.spawn(function()
+    while task.wait(LOOP_DELAY) do
+        if AUTO_KNIFE then
+            for _, plr in ipairs(Players:GetPlayers()) do
+                if plr ~= player and plr.Character then
+                    local root = getHRP(plr.Character)
+                    if root then
+                        throwKnife(root)
+                        task.wait(0.02)
+                    end
+                end
+            end
+        end
+    end
+end)   
       
 local Players = game:GetService("Players")
 local lp = Players.LocalPlayer

@@ -831,74 +831,73 @@ end)
 -- INVISIBLE (MM2 FIX)
 -- =========================
 
-local Invis_Enabled = false
-local InvisChar, InvisHum, InvisRoot
-
-local function InvisSetup()
-InvisChar = player.Character or player.CharacterAdded:Wait()
-InvisHum = InvisChar:WaitForChild("Humanoid")
-InvisRoot = InvisChar:WaitForChild("HumanoidRootPart")
-end
-
-local function applyToCharacter(char)
-for _, v in pairs(char:GetDescendants()) do
-if v:IsA("BasePart") then
-v.Transparency = Invis_Enabled and 0.5 or 0
-v.LocalTransparencyModifier = Invis_Enabled and 1 or 0 -- 🔥 สำคัญใน MM2
-end
-end
-end
-
-function applyInvisible(state)
-Invis_Enabled = state
-
-local char = player.Character  
-if char then  
-    applyToCharacter(char)  
-end
-
-end
-
--- setup ครั้งแรก
-InvisSetup()
-
--- 🔥 LOOP บังคับ (กัน MM2 รีเซ็ต)
-RunService.Heartbeat:Connect(function()
-if Invis_Enabled and InvisRoot and InvisHum then
-local cf = InvisRoot.CFrame
-local camOff = InvisHum.CameraOffset
-
-InvisRoot.CFrame = cf * CFrame.new(0, -200000, 0)  
-    InvisHum.CameraOffset = Vector3.new(  
-        camOff.X,  
-        camOff.Y + 200000,  
-        camOff.Z  
-    )  
-
-    RunService.RenderStepped:Wait()  
-
-    InvisRoot.CFrame = cf  
-    InvisHum.CameraOffset = camOff  
-
-    -- 🔥 กัน MM2 รีเซ็ต transparency  
-    applyToCharacter(InvisChar)  
-end
-
-end)
-
--- 🔥 เกิดใหม่ก็ยังล่องหน
-player.CharacterAdded:Connect(function(char)
-char:WaitForChild("HumanoidRootPart")
-
-task.wait(0.3) -- MM2 โหลดช้า  
-
-InvisSetup()  
-
-if Invis_Enabled then  
-    applyToCharacter(char)  
-end
-
-end)
+local Players = game:GetService("Players")  
+local RunService = game:GetService("RunService")  
+  
+local player = Players.LocalPlayer  
+  
+local invisible = false  
+local bodyParts = {}  
+local character, humanoid, rootPart  
+  
+local function setupCharacter()  
+character = player.Character or player.CharacterAdded:Wait()  
+humanoid = character:WaitForChild("Humanoid")  
+rootPart = character:WaitForChild("HumanoidRootPart")  
+  
+bodyParts = {}    
+  
+for _, v in pairs(character:GetDescendants()) do    
+    if v:IsA("BasePart") and v.Transparency == 0 then    
+        table.insert(bodyParts, v)    
+    end    
+end  
+  
+end  
+  
+local function setInvisible(state)  
+invisible = state  
+  
+for _, v in pairs(bodyParts) do    
+    v.Transparency = invisible and 0.5 or 0    
+end  
+  
+end  
+  
+-- 🔥 ตัวนี้เอาไปใช้กับ Toggle  
+function applyInvisible(state)  
+setInvisible(state)  
+end  
+  
+-- setup ครั้งแรก  
+setupCharacter()  
+  
+-- ระบบล่องหน (ของเดิม 100%)  
+RunService.Heartbeat:Connect(function()  
+if invisible and rootPart and humanoid then  
+local cf = rootPart.CFrame  
+local camOff = humanoid.CameraOffset  
+  
+rootPart.CFrame = cf * CFrame.new(0, -200000, 0)    
+    humanoid.CameraOffset = Vector3.new(    
+        camOff.X,    
+        camOff.Y + 200000,    
+        camOff.Z    
+    )    
+  
+    RunService.RenderStepped:Wait()    
+  
+    rootPart.CFrame = cf    
+    humanoid.CameraOffset = camOff    
+end  
+  
+end)  
+  
+-- กันตายแล้วพัง  
+player.CharacterAdded:Connect(function()  
+invisible = false  
+setupCharacter()  
+end)  
 
 -- =========================
 -- UI

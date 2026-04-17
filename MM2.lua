@@ -197,99 +197,34 @@ createESP(char, getRole(plr))
 end
 end)
 end)
-
 -- =========================
--- 🔍 หา Sheriff (ตัวเดียว)
+-- 🚀 AUTO WARP GUN 
 -- =========================
-local function getSheriff()
-for _, plr in ipairs(Players:GetPlayers()) do
-if plr ~= player and plr.Character and getRole(plr) == "Sheriff" then
-return plr
-end
-end
-end
 
--- =========================
--- 💀 เช็ค Sheriff ตาย
--- =========================
-local function isSheriffDead()
-local sheriff = getSheriff()
-if not sheriff or not sheriff.Character then return false end
+task.spawn(function()
+    while task.wait(0.5) do
+        if AUTO_WARP_GUN then
+            local player = game.Players.LocalPlayer
+            local char = player.Character
+            local hrp = char and char:FindFirstChild("HumanoidRootPart")
+            local gun = workspace:FindFirstChild("GunDrop")
 
-local hum = sheriff.Character:FindFirstChildOfClass("Humanoid")
-if not hum then return false end
+            if hrp and gun then
+                -- 📌 เก็บตำแหน่งเดิม
+                local oldPos = hrp.CFrame
 
-return hum.Health <= 0
+                -- 🚀 วาร์ปไปปืน
+                hrp.CFrame = CFrame.new(gun.Position + Vector3.new(0, 3, 0))
 
-end
+                task.wait(0.2) -- หน่วงนิดนึงให้เกมจับปืนทัน
 
--- =========================
--- 🔫 หา Gun ที่ตก
--- =========================
-local function findDroppedGun()
-for _, v in ipairs(workspace:GetDescendants()) do
-if v:IsA("Tool") and v.Name == "Gun" and v.Parent == workspace then
-local handle = v:FindFirstChild("Handle")
-if handle and handle:IsA("BasePart") then
-return handle
-end
-end
-end
-end
-
--- =========================
--- 🚀 AUTO WARP GUN (FINAL)
--- =========================
-local AUTO_WARP_GUN_RANGE = 150 -- ปรับได้
-
-RunService.RenderStepped:Connect(function()
-if not AUTO_WARP_GUN then return end
-
--- ❗ ต้อง Sheriff ตายก่อน
-if not isSheriffDead() then return end
-
-local char = player.Character
-local root = char and char:FindFirstChild("HumanoidRootPart")
-if not root then return end
-
-local backpack = player:FindFirstChild("Backpack")
-
--- ✅ มีปืนแล้ว = หยุด
-if backpack and backpack:FindFirstChild("Gun") then return end
-
-local gun = findDroppedGun()
-if not gun then return end
-
--- 🔥 เช็คระยะ (กันโป๊ะ)
-local dist = (gun.Position - root.Position).Magnitude
-if dist > AUTO_WARP_GUN_RANGE then return end
-
--- 💾 เซฟตำแหน่ง
-local oldCF = root.CFrame
-
--- 🔥 วาร์ปไป
-root.CFrame = gun.CFrame + Vector3.new(0, 2.5, 0)
-
-task.wait(0.05)
-
--- 🔫 เก็บปืน
-for i = 1, 6 do
-firetouchinterest(root, gun, 0)
-firetouchinterest(root, gun, 1)
-task.wait(0.02)
-
-if backpack and backpack:FindFirstChild("Gun") then
-break
-end
-
-end
-
-task.wait(0.02)
-
--- 🔙 กลับที่เดิม
-root.CFrame = oldCF
-
+                -- 🔙 วาร์ปกลับ
+                hrp.CFrame = oldPos
+            end
+        end
+    end
 end)
+
 -- =========================
 -- AUTO SHOOT (FIXED)
 -- =========================
@@ -910,7 +845,7 @@ Invite = "https://discord.gg/Apn2j9Fez",
 })
 Home:Toggle({Title="ESP",Desc="ไฮไลต์ผู้เล่น",Callback=function(v) ESP_ENABLED=v end})
 Home:Toggle({Title="Fly",Desc="บิน",Callback=function(v) setFly(v) end})
-Home:Toggle({Title="Auto Warp Gun(Bug)",Desc="วาร์ปเก็บปืน(บัค)",Callback=function(v) AUTO_WARP_GUN=v end})
+Home:Toggle({Title="Auto Warp Gun",Desc="วาร์ปเก็บปืน",Callback=function(v) AUTO_WARP_GUN=v end})
 Home:Toggle({Title="Infinite Jump",Desc="กระโดดไม่จำกัด",Callback=function(v) INFINITE_JUMP=v end})
 Home:Toggle({Title="NoClip",Desc="ทะลุกำแพง",Callback=function(v) NOCLIP=v end})
 

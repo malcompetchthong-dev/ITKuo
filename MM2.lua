@@ -202,24 +202,35 @@ end)
 -- =========================
 
 task.spawn(function()
-    while task.wait(0.5) do
+    while task.wait(0.3) do
         if AUTO_WARP_GUN then
             local player = game.Players.LocalPlayer
             local char = player.Character
             local hrp = char and char:FindFirstChild("HumanoidRootPart")
-            local gun = workspace:FindFirstChild("GunDrop")
+
+            local gun = workspace:FindFirstChild("GunDrop", true) 
+                     or workspace:FindFirstChild("Gun", true)
 
             if hrp and gun then
+
                 -- 📌 เก็บตำแหน่งเดิม
                 local oldPos = hrp.CFrame
 
-                -- 🚀 วาร์ปไปปืน
-                hrp.CFrame = CFrame.new(gun.Position + Vector3.new(0, 3, 0))
+                -- 🚀 วาร์ปไปปืน (แบบ BasePart หรือ Model ก็ได้)
+                local targetPart = gun:IsA("BasePart") and gun 
+                                or gun:FindFirstChildWhichIsA("BasePart", true)
 
-                task.wait(0.2) -- หน่วงนิดนึงให้เกมจับปืนทัน
+                if targetPart then
+                    hrp.CFrame = targetPart.CFrame
 
-                -- 🔙 วาร์ปกลับ
-                hrp.CFrame = oldPos
+                    task.wait(0.2) -- ให้เกมจับปืนทัน
+
+                    -- 🔙 วาร์ปกลับ
+                    hrp.CFrame = oldPos
+                end
+
+                -- ปิดหลังใช้ (ตามแบบของคุณ)
+                AUTO_WARP_GUN = false
             end
         end
     end

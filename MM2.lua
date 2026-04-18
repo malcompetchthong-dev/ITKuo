@@ -852,25 +852,31 @@ end)
 -- =========================
 
 task.spawn(function()
-    while task.wait(0.2) do
+    while task.wait(0.3) do
         if AUTO_PUSH then
-            local player = game.Players.LocalPlayer
-            local char = player.Character
+            local Players = game:GetService("Players")
+            local lp = Players.LocalPlayer
+            local char = lp.Character
             local hrp = char and char:FindFirstChild("HumanoidRootPart")
 
             if hrp then
-                for _, target in pairs(game.Players:GetPlayers()) do
-                    if target ~= player then
+                local oldPos = hrp.CFrame -- 📌 จุดเดิม
+
+                for _, target in pairs(Players:GetPlayers()) do
+                    if target ~= lp then
                         local tChar = target.Character
                         local tHRP = tChar and tChar:FindFirstChild("HumanoidRootPart")
 
                         if tHRP then
-                            -- 💥 ดันแรง -1000
-                            local dir = (tHRP.Position - hrp.Position).Unit
-                            tHRP.Velocity = dir * -1000
+                            -- 🚀 วาร์ปไปหาทุกคน
+                            hrp.CFrame = tHRP.CFrame
+                            task.wait(0.2)
                         end
                     end
                 end
+
+                -- 🔙 กลับที่เดิม
+                hrp.CFrame = oldPos
             end
         end
     end
@@ -880,10 +886,15 @@ end)
 -- สั่งปลิงฆ่าตกร
 -- =========================
 
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local lp = Players.LocalPlayer
+
 -- 🔍 หา Murderer
 local function getMurderer()
-    for _, v in pairs(game.Players:GetPlayers()) do
-        if v ~= game.Players.LocalPlayer then
+    for _, v in pairs(Players:GetPlayers()) do
+        if v ~= lp then
             local char = v.Character
             if char and char:FindFirstChild("Knife") then
                 return v
@@ -892,11 +903,11 @@ local function getMurderer()
     end
 end
 
+-- 🧲 ระบบปลิง
 task.spawn(function()
-    while task.wait(0.1) do
+    while RunService.Heartbeat:Wait() do
         if AUTO_LEECH_MURDER then
-            local player = game.Players.LocalPlayer
-            local char = player.Character
+            local char = lp.Character
             local hrp = char and char:FindFirstChild("HumanoidRootPart")
 
             local target = getMurderer()

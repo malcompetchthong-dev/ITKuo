@@ -860,7 +860,7 @@ task.spawn(function()
             local hrp = char and char:FindFirstChild("HumanoidRootPart")
 
             if hrp then
-                local oldPos = hrp.CFrame -- 📌 จุดเดิม
+                local oldPos = hrp.CFrame
 
                 for _, target in pairs(Players:GetPlayers()) do
                     if target ~= lp then
@@ -868,14 +868,13 @@ task.spawn(function()
                         local tHRP = tChar and tChar:FindFirstChild("HumanoidRootPart")
 
                         if tHRP then
-                            -- 🚀 วาร์ปไปหาทุกคน
+                            -- 🧲 ติดตัวแบบเป๊ะ (ตำแหน่ง + มุมเดียวกัน)
                             hrp.CFrame = tHRP.CFrame
                             task.wait(0.2)
                         end
                     end
                 end
 
-                -- 🔙 กลับที่เดิม
                 hrp.CFrame = oldPos
             end
         end

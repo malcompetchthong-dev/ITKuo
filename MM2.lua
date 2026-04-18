@@ -42,6 +42,9 @@ local MAX_DISTANCE = 1000
 local AUTO_COIN_COLLECT = false
 local CHAT_ANNOUNCE = false
 local Anti_Pling = false
+local AUTO_PUSH = false
+local AUTO_LEECH_MURDER = false
+
 
 -- =========================
 -- FLY
@@ -843,7 +846,70 @@ end)
 player.CharacterAdded:Connect(function()  
 invisible = false  
 setupCharacter()  
-end)  
+end)
+-- =========================
+-- สั่งปลิงทุกคน
+-- =========================
+
+task.spawn(function()
+    while task.wait(0.2) do
+        if AUTO_PUSH then
+            local player = game.Players.LocalPlayer
+            local char = player.Character
+            local hrp = char and char:FindFirstChild("HumanoidRootPart")
+
+            if hrp then
+                for _, target in pairs(game.Players:GetPlayers()) do
+                    if target ~= player then
+                        local tChar = target.Character
+                        local tHRP = tChar and tChar:FindFirstChild("HumanoidRootPart")
+
+                        if tHRP then
+                            -- 💥 ดันแรง -1000
+                            local dir = (tHRP.Position - hrp.Position).Unit
+                            tHRP.Velocity = dir * -1000
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
+
+-- =========================
+-- สั่งปลิงฆ่าตกร
+-- =========================
+
+-- 🔍 หา Murderer
+local function getMurderer()
+    for _, v in pairs(game.Players:GetPlayers()) do
+        if v ~= game.Players.LocalPlayer then
+            local char = v.Character
+            if char and char:FindFirstChild("Knife") then
+                return v
+            end
+        end
+    end
+end
+
+task.spawn(function()
+    while task.wait(0.1) do
+        if AUTO_LEECH_MURDER then
+            local player = game.Players.LocalPlayer
+            local char = player.Character
+            local hrp = char and char:FindFirstChild("HumanoidRootPart")
+
+            local target = getMurderer()
+            local tChar = target and target.Character
+            local tHRP = tChar and tChar:FindFirstChild("HumanoidRootPart")
+
+            if hrp and tHRP then
+                -- 🧲 ติดหลังฆาตกร
+                hrp.CFrame = tHRP.CFrame * CFrame.new(0, 0, 2)
+            end
+        end
+    end
+end)
 
 -- =========================
 -- UI
@@ -908,6 +974,25 @@ Callback = function(v)
 applyInvisible(v)
 end
 })
+
+
+Home:Toggle({
+    Title = "Push All",
+    Desc = "สั่งปลิงทุกคน",
+    Callback = function(v)
+        AUTO_PUSH = v
+    end
+})
+
+Home:Toggle({
+    Title = "Leech Murderer",
+    Desc = "สั่งปลิงฆ่าตกร",
+    Callback = function(v)
+        AUTO_LEECH_MURDER = v
+    end
+})
+
+
 
 getgenv().SpeedValue = 16
 

@@ -556,6 +556,7 @@ end
 function Window:MakeWindow(config)
     config = config or {}
 
+    -- TITLE
     if config.Title then
         local text = config.Title
 
@@ -566,24 +567,31 @@ function Window:MakeWindow(config)
         Title.Text = text
         Title.TextSize = 18
         Title.TextTruncate = Enum.TextTruncate.AtEnd
+        Title.Position = UDim2.new(0,10,0,2) -- 🔥 ขยับขึ้นนิด
     end
 
+    -- SUBTITLE
     if config.SubTitle then
+        local sub
+
         if not Top:FindFirstChild("SubTitle") then
-            local sub = Instance.new("TextLabel")
+            sub = Instance.new("TextLabel")
             sub.Name = "SubTitle"
             sub.Parent = Top
-            sub.Size = UDim2.new(1,-100,0,15)
-            sub.Position = UDim2.new(0,10,0,22)
             sub.BackgroundTransparency = 1
             sub.Font = Enum.Font.Gotham
             sub.TextSize = 12
             sub.TextXAlignment = Enum.TextXAlignment.Left
             sub.TextColor3 = Color3.fromRGB(150,150,150)
-            sub.Text = config.SubTitle
         else
-            Top.SubTitle.Text = config.SubTitle
+            sub = Top.SubTitle
         end
+
+        sub.Text = config.SubTitle
+
+        -- 🔥 ดันลงให้ไม่ทับ Title อัตโนมัติ
+        sub.Position = UDim2.new(0,10,0,22)
+        sub.Size = UDim2.new(1,-100,0,15)
     end
 
     Window.Config = config

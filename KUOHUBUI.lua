@@ -1,3 +1,4 @@
+
 --// KUOHUB FULL ADVANCED + FUTURISTIC + MINIMIZE FIX (Tab หายจริง)
 
 local TweenService = game:GetService("TweenService")
@@ -565,30 +566,9 @@ end
 function Window:MakeWindow(config)
 config = config or {}
 
-if config.Title then      
-    Title.Text = config.Title      
-end      
-  
-if config.SubTitle then      
-    if not Top:FindFirstChild("SubTitle") then      
-        local sub = Instance.new("TextLabel")      
-        sub.Name = "SubTitle"      
-        sub.Parent = Top      
-        sub.Size = UDim2.new(1,-100,0,15)      
-        sub.Position = UDim2.new(0,10,0,22)      
-        sub.BackgroundTransparency = 1      
-        sub.Font = Enum.Font.Gotham      
-        sub.TextSize = 12      
-        sub.TextXAlignment = Enum.TextXAlignment.Left      
-        sub.TextColor3 = Color3.fromRGB(150,150,150)      
-        sub.Text = config.SubTitle      
-    else      
-        Top.SubTitle.Text = config.SubTitle      
-    end      
-end      
-  
-Window.Config = config      
-  
+-- ตั้ง Title อย่างเดียว  
+Title.Text = config.Title or "KuoHub"  
+
 return Window
 
 end

@@ -557,7 +557,15 @@ function Window:MakeWindow(config)
     config = config or {}
 
     if config.Title then
-        Title.Text = config.Title
+        local text = config.Title
+
+        if #text > 18 then
+            text = string.sub(text, 1, 18) .. "..."
+        end
+
+        Title.Text = text
+        Title.TextSize = 18
+        Title.TextTruncate = Enum.TextTruncate.AtEnd
     end
 
     if config.SubTitle then
@@ -579,8 +587,7 @@ function Window:MakeWindow(config)
     end
 
     Window.Config = config
-
     return Window
 end
 
-return Window
+return Window   

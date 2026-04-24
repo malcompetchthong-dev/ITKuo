@@ -5,7 +5,7 @@ Title = "Kuo Hub [MM2]",
 })
 
 Window:AddMinimizeButton({
-Button = { Image = "rbxassetid://126460540157931", BackgroundTransparency = 0 },
+Button = { Image = "rbxassetid://118191114217317", BackgroundTransparency = 0 },
 Corner = { CornerRadius = UDim.new(35, 1) },
 })
 
@@ -951,7 +951,7 @@ end)
 Home:AddDiscordInvite({
 Name = "Kuo Hub",
 Description = "Join server",
-Logo = "rbxassetid://126460540157931",
+Logo = "rbxassetid://118191114217317",
 Invite = "https://discord.gg/Apn2j9Fez",
 })
 Home:Toggle({Title="ESP",Desc="ไฮไลต์ผู้เล่น",Callback=function(v) ESP_ENABLED=v end})
@@ -961,7 +961,7 @@ Home:Toggle({Title="Infinite Jump",Desc="กระโดดไม่จำกั
 Home:Toggle({Title="NoClip",Desc="ทะลุกำแพง",Callback=function(v) NOCLIP=v end})
 
 Combat:Toggle({Title="Aim Lock",Desc="ล็อคฆาตกร",Callback=function(v) AIMLOCK=v LOCK_TARGET=nil end})
-Combat:Toggle({Title="Auto Shoot",Desc="ยิงออโต้(ยิงเนียนขึ้น)",Callback=function(v) AUTO_SHOOT=v end})
+Combat:Toggle({Title="Auto Shoot",Desc="ยิงออโต้",Callback=function(v) AUTO_SHOOT=v end})
 Combat:Toggle({
 Title="Auto Knife",
 Desc="ปามีดอัตโนมัติ",
@@ -971,7 +971,7 @@ end
 })
 Combat:Toggle({
 Title="Kill Aura",
-Desc="ฆ่าทุกคนอัตโนมัติ(เปิดไว้ได้เลยไม่บัค)",
+Desc="ฆ่าทุกคนอัตโนมัติ",
 Callback=function(v)
 KILL_AURA=v
 end

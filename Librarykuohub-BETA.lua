@@ -1454,8 +1454,8 @@ if lastBtn and not lastBtn:FindFirstChild("AutoIcon") then
     icon.Image = GetAutoIcon(name)            
           
     -- ปรับ text            
-    lastBtn.TextXAlignment = Enum.TextXAlignment.Right
-lastBtn.Text = " "..name.."   "        
+    lastBtn.TextXAlignment = Enum.TextXAlignment.Center
+lastBtn.Text = name        
 end       
 	
 return Tab          

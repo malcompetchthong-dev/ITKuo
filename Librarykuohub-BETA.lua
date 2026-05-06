@@ -909,7 +909,8 @@ Main.Size = UDim2.new(0, 550, 0, 350)
 Main.Position = UDim2.new(0, 0, 0.5, -175) -- ฝั่งซ้าย          
 Main.BackgroundColor3 = Color3.fromRGB(15,15,15)          
 Main.BackgroundTransparency = 0.15          
-Main.Active = true          
+Main.Active = true
+Main.Draggable = true
 Instance.new("UICorner", Main).CornerRadius = UDim.new(0,16)              
           
 -- GLOW BORDER          
@@ -923,59 +924,6 @@ local Top = Instance.new("Frame", Main)
 Top.Size = UDim2.new(1,0,0,45)        
 Top.BackgroundTransparency = 1        
         
--- 🔥 DRAG SYSTEM (ย้ายมาหลัง Top)        
-local RunService = game:GetService("RunService")    
-local dragging = false      
-local dragInput      
-local startPos      
-local startFramePos      
-local velocity = Vector2.new(0,0)      
-      
-Top.InputBegan:Connect(function(input)      
-    if input.UserInputType == Enum.UserInputType.MouseButton1      
-    or input.UserInputType == Enum.UserInputType.Touch then      
-              
-        dragging = true      
-        startPos = input.Position      
-        startFramePos = Main.Position      
-        velocity = Vector2.new(0,0)      
-      
-        input.Changed:Connect(function()      
-            if input.UserInputState == Enum.UserInputState.End then      
-                dragging = false      
-            end      
-        end)      
-    end      
-end)      
-      
-Top.InputChanged:Connect(function(input)      
-    if input.UserInputType == Enum.UserInputType.MouseMovement      
-    or input.UserInputType == Enum.UserInputType.Touch then      
-        dragInput = input      
-    end      
-end)      
-      
-RunService.RenderStepped:Connect(function(dt)      
-    if dragging and dragInput then      
-        local delta = dragInput.Position - startPos      
-      
-        local target = UDim2.new(      
-            startFramePos.X.Scale,      
-            startFramePos.X.Offset + delta.X,      
-            startFramePos.Y.Scale,      
-            startFramePos.Y.Offset + delta.Y      
-        )      
-      
-        Main.Position = Main.Position:Lerp(target, 0.25)      
-        velocity = delta / dt      
-    else      
-        if velocity.Magnitude > 0.1 then      
-            local offset = velocity * dt      
-            Main.Position = Main.Position + UDim2.new(0, offset.X, 0, offset.Y)      
-            velocity = velocity * 0.85      
-        end      
-    end      
-end)      
           
 -- TITLE + GRADIENT          
 local Title = Instance.new("TextLabel", Top)          

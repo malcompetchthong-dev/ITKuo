@@ -1423,55 +1423,21 @@ local key = string.lower(title or "")
 return Icons[key] or GetRandomIcon()          
 end          
           
--- ดัก Tab เดิม          
-local OldTab = Window.Tab          
-          
-function Window:Tab(name)          
-local Tab = OldTab(self, name)          
-          
--- ✅ ใช้ Side ตรง ๆ ไม่ต้องหา            
-local SideFrame = Side            
-          
--- 🔥 หา "ปุ่มล่าสุด" แบบง่าย (ตัวสุดท้ายจริง)            
-local buttons = {}            
-          
-for _,v in ipairs(SideFrame:GetChildren()) do            
-    if v:IsA("TextButton") then            
-        table.insert(buttons, v)            
-    end            
-end            
-          
-local lastBtn = buttons[#buttons]            
-          
-if lastBtn and not lastBtn:FindFirstChild("AutoIcon") then            
-    local icon = Instance.new("ImageLabel")            
-    icon.Name = "AutoIcon"            
-    icon.Parent = lastBtn            
-          
-    icon.Size = UDim2.new(0,18,0,18)            
-    icon.Position = UDim2.new(0,8,0.5,-9)            
-    icon.BackgroundTransparency = 1            
-    icon.Image = GetAutoIcon(name)            
-          
-    -- ปรับ text            
-    lastBtn.TextXAlignment = Enum.TextXAlignment.Center
-lastBtn.Text = name        
-end       
-	
-return Tab          
-          
-end 
+-- ดัก Tab เดิม
+local OldTab = Window.Tab
 
-function Window:MakeTab(data)
-    local name = data[1] or "Tab"
-    local iconName = data[2]
+function Window:Tab(name, skipAutoIcon)
+    local Tab = OldTab(self, name)
 
-    local Tab = self:Tab(name)
+    -- ถ้า skipAutoIcon = true ให้ข้ามการสร้าง icon (ใช้กรณี MakeTab จะสร้างเอง)
+    if skipAutoIcon then
+        return Tab
+    end
 
-    -- หา button ล่าสุด
+    local SideFrame = Side
+
     local buttons = {}
-
-    for _,v in ipairs(Side:GetChildren()) do
+    for _, v in ipairs(SideFrame:GetChildren()) do
         if v:IsA("TextButton") then
             table.insert(buttons, v)
         end
@@ -1479,20 +1445,57 @@ function Window:MakeTab(data)
 
     local lastBtn = buttons[#buttons]
 
-    if lastBtn and iconName and Icons[string.lower(iconName)] then
-        local old = lastBtn:FindFirstChild("AutoIcon")
-        if old then old:Destroy() end
-
+    if lastBtn and not lastBtn:FindFirstChild("AutoIcon") then
         local icon = Instance.new("ImageLabel")
         icon.Name = "AutoIcon"
         icon.Parent = lastBtn
-        icon.Size = UDim2.new(0,18,0,18)
-        icon.Position = UDim2.new(0,8,0.5,-9)
+        icon.Size = UDim2.new(0, 18, 0, 18)
+        icon.Position = UDim2.new(0, 8, 0.5, -9)
+        icon.BackgroundTransparency = 1
+        icon.Image = GetAutoIcon(name)
+
+        lastBtn.TextXAlignment = Enum.TextXAlignment.Center
+        lastBtn.Text = name
+    end
+
+    return Tab
+end
+
+function Window:MakeTab(data)
+    local name = data[1] or "Tab"
+    local iconName = data[2]
+
+    -- เรียก Tab ปกติ (ไม่ต้องหา button เอง เพราะ Window:Tab ทำไปแล้ว)
+    local Tab = self:Tab(name)
+
+    -- หา button ล่าสุดที่ Window:Tab สร้างไป
+    local buttons = {}
+    for _, v in ipairs(Side:GetChildren()) do
+        if v:IsA("TextButton") then
+            table.insert(buttons, v)
+        end
+    end
+
+    local lastBtn = buttons[#buttons]
+
+    -- ถ้ามี iconName ที่ถูกต้อง ให้แทนที่ AutoIcon เดิม
+    if lastBtn and iconName and Icons[string.lower(iconName)] then
+        -- ลบ AutoIcon เดิมที่ Window:Tab สร้างไป (ถ้ามี)
+        local old = lastBtn:FindFirstChild("AutoIcon")
+        if old then old:Destroy() end
+
+        -- สร้าง AutoIcon ใหม่ด้วย icon ที่ผู้ใช้ระบุ
+        local icon = Instance.new("ImageLabel")
+        icon.Name = "AutoIcon"
+        icon.Parent = lastBtn
+        icon.Size = UDim2.new(0, 18, 0, 18)
+        icon.Position = UDim2.new(0, 8, 0.5, -9)
         icon.BackgroundTransparency = 1
         icon.Image = Icons[string.lower(iconName)]
 
-        lastBtn.TextXAlignment = Enum.TextXAlignment.Left
-        lastBtn.Text = "   "..name
+        -- ปรับ text alignment และเว้นที่ให้ icon
+        lastBtn.TextXAlignment = Enum.TextXAlignment.Center
+lastBtn.Text = name
     end
 
     return Tab

@@ -10,7 +10,9 @@ Corner = { CornerRadius = UDim.new(35, 1) },
 })
 
 local Home = Window:Tab("Home")
-local Combat = Window:Tab("Combat")
+
+local Combat = Window:MakeTab({"Combat","sword"})
+
 
 Home:Section("Main")
 

@@ -1460,6 +1460,42 @@ end
 	
 return Tab          
           
-end          
+end 
+
+function Window:MakeTab(data)
+    local name = data[1] or "Tab"
+    local iconName = data[2]
+
+    local Tab = self:Tab(name)
+
+    -- หา button ล่าสุด
+    local buttons = {}
+
+    for _,v in ipairs(Side:GetChildren()) do
+        if v:IsA("TextButton") then
+            table.insert(buttons, v)
+        end
+    end
+
+    local lastBtn = buttons[#buttons]
+
+    if lastBtn and iconName and Icons[string.lower(iconName)] then
+        local old = lastBtn:FindFirstChild("AutoIcon")
+        if old then old:Destroy() end
+
+        local icon = Instance.new("ImageLabel")
+        icon.Name = "AutoIcon"
+        icon.Parent = lastBtn
+        icon.Size = UDim2.new(0,18,0,18)
+        icon.Position = UDim2.new(0,8,0.5,-9)
+        icon.BackgroundTransparency = 1
+        icon.Image = Icons[string.lower(iconName)]
+
+        lastBtn.TextXAlignment = Enum.TextXAlignment.Left
+        lastBtn.Text = "   "..name
+    end
+
+    return Tab
+end
           
 return Window

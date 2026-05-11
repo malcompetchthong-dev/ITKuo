@@ -1298,7 +1298,7 @@ Min = 16,
 Max = 200,
 Default = 60,
 Callback = function(v)
-setFly = v
+speed = v
 end
 })
 

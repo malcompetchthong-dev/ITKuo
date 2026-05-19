@@ -1500,8 +1500,7 @@ lastBtn.Text = name
 
     return Tab
 end
-          
-return Window
+
 -- =========================
 -- WARNING GUI
 -- =========================
@@ -1730,3 +1729,5 @@ task.wait(0.45)
 ScreenGui:Destroy()
 
 end)
+
+return Window

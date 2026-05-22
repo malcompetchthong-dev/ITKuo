@@ -1500,4 +1500,261 @@ lastBtn.Text = name
 
     return Tab
 end
+
+-- =========================
+-- 🌌 KUOHUB WELCOME
+-- =========================
+
+local TweenService =
+    game:GetService("TweenService")
+
+local CoreGui =
+    game:GetService("CoreGui")
+
+pcall(function()
+    CoreGui:FindFirstChild("KUOHUB_WELCOME"):Destroy()
+end)
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "KUOHUB_WELCOME"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = CoreGui
+
+-- =========================
+-- MAIN
+-- =========================
+local Main = Instance.new("Frame")
+Main.Parent = ScreenGui
+Main.AnchorPoint = Vector2.new(0.5,0.5)
+Main.Position = UDim2.new(0.5,0,0.5,0)
+Main.Size = UDim2.new(0,0,0,0)
+
+Main.BackgroundColor3 =
+    Color3.fromRGB(10,10,15)
+
+Main.BorderSizePixel = 0
+
+Instance.new("UICorner", Main).CornerRadius =
+    UDim.new(0,24)
+
+-- =========================
+-- GRADIENT
+-- =========================
+local Gradient = Instance.new("UIGradient")
+Gradient.Parent = Main
+
+Gradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(
+        0,
+        Color3.fromRGB(0,170,255)
+    ),
+
+    ColorSequenceKeypoint.new(
+        0.5,
+        Color3.fromRGB(170,0,255)
+    ),
+
+    ColorSequenceKeypoint.new(
+        1,
+        Color3.fromRGB(255,0,170)
+    )
+}
+
+Gradient.Rotation = 25
+
+-- =========================
+-- STROKE
+-- =========================
+local Stroke = Instance.new("UIStroke")
+Stroke.Parent = Main
+Stroke.Thickness = 2
+
+Stroke.Color =
+    Color3.fromRGB(255,255,255)
+
+Stroke.Transparency = 0.15
+
+-- =========================
+-- GLOW
+-- =========================
+local Glow = Instance.new("ImageLabel")
+Glow.Parent = Main
+
+Glow.BackgroundTransparency = 1
+
+Glow.Size = UDim2.new(1,100,1,100)
+Glow.Position = UDim2.new(0,-50,0,-50)
+
+Glow.Image =
+    "rbxassetid://5028857084"
+
+Glow.ImageTransparency = 0.45
+
+Glow.ScaleType =
+    Enum.ScaleType.Slice
+
+Glow.SliceCenter =
+    Rect.new(24,24,276,276)
+
+Glow.ImageColor3 =
+    Color3.fromRGB(0,170,255)
+
+-- =========================
+-- TEXT
+-- =========================
+local Title = Instance.new("TextLabel")
+Title.Parent = Main
+
+Title.BackgroundTransparency = 1
+
+Title.Size = UDim2.new(1,-40,1,-40)
+Title.Position = UDim2.new(0,20,0,20)
+
+Title.Font = Enum.Font.GothamBlack
+
+Title.Text = "Welcome to KuoHub"
+
+Title.TextScaled = true
+Title.TextWrapped = true
+
+Title.TextColor3 =
+    Color3.fromRGB(255,255,255)
+
+-- TEXT GRADIENT
+local TextGradient = Instance.new("UIGradient")
+TextGradient.Parent = Title
+
+TextGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(
+        0,
+        Color3.fromRGB(0,255,255)
+    ),
+
+    ColorSequenceKeypoint.new(
+        0.5,
+        Color3.fromRGB(255,255,255)
+    ),
+
+    ColorSequenceKeypoint.new(
+        1,
+        Color3.fromRGB(255,0,255)
+    )
+}
+
+-- =========================
+-- OPEN ANIMATION
+-- =========================
+TweenService:Create(
+    Main,
+    TweenInfo.new(
+        0.6,
+        Enum.EasingStyle.Back,
+        Enum.EasingDirection.Out
+    ),
+    {
+        Size = UDim2.new(0,460,0,120)
+    }
+):Play()
+
+-- =========================
+-- GLOW EFFECT
+-- =========================
+task.spawn(function()
+
+    while Main.Parent do
+
+        TweenService:Create(
+            Glow,
+            TweenInfo.new(
+                1.5,
+                Enum.EasingStyle.Sine,
+                Enum.EasingDirection.InOut
+            ),
+            {
+                ImageTransparency = 0.7
+            }
+        ):Play()
+
+        task.wait(1.5)
+
+        TweenService:Create(
+            Glow,
+            TweenInfo.new(
+                1.5,
+                Enum.EasingStyle.Sine,
+                Enum.EasingDirection.InOut
+            ),
+            {
+                ImageTransparency = 0.35
+            }
+        ):Play()
+
+        task.wait(1.5)
+    end
+end)
+
+-- =========================
+-- FLOAT EFFECT
+-- =========================
+task.spawn(function()
+
+    while Main.Parent do
+
+        TweenService:Create(
+            Main,
+            TweenInfo.new(
+                2,
+                Enum.EasingStyle.Sine,
+                Enum.EasingDirection.InOut
+            ),
+            {
+                Position =
+                    UDim2.new(0.5,0,0.5,-5)
+            }
+        ):Play()
+
+        task.wait(2)
+
+        TweenService:Create(
+            Main,
+            TweenInfo.new(
+                2,
+                Enum.EasingStyle.Sine,
+                Enum.EasingDirection.InOut
+            ),
+            {
+                Position =
+                    UDim2.new(0.5,0,0.5,5)
+            }
+        ):Play()
+
+        task.wait(2)
+    end
+end)
+
+-- =========================
+-- REMOVE
+-- =========================
+task.delay(4,function()
+
+    TweenService:Create(
+        Main,
+        TweenInfo.new(
+            0.5,
+            Enum.EasingStyle.Quint,
+            Enum.EasingDirection.In
+        ),
+        {
+            Size = UDim2.new(0,0,0,0),
+            Rotation = 6,
+            BackgroundTransparency = 1
+        }
+    ):Play()
+
+    task.wait(0.55)
+
+    ScreenGui:Destroy()
+
+end)
+
 return Window

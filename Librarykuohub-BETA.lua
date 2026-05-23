@@ -938,42 +938,45 @@ local startPos
 local smoothness = 0.18
 local targetPos = Main.Position
 
-local function EnableDrag(frame)
+-- 🔥 พื้นที่ลากเพิ่ม
+local DragArea = Instance.new("Frame", Main)
+DragArea.Size = UDim2.new(1,0,1,0)
+DragArea.BackgroundTransparency = 1
+DragArea.ZIndex = 0
+DragArea.Active = false
 
-    frame.Active = true
-    frame.Selectable = true
+-- ใช้ Top ลากหลัก
+Top.Active = true
 
-    frame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1
-        or input.UserInputType == Enum.UserInputType.Touch then
+local function StartDrag(input)
+    dragging = true
+    dragStart = input.Position
+    startPos = Main.Position
+    targetPos = Main.Position
 
-            dragging = true
-            dragStart = input.Position
-            startPos = Main.Position
-            targetPos = Main.Position
-
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
-        end
-    end)
-
-    frame.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement
-        or input.UserInputType == Enum.UserInputType.Touch then
-            dragInput = input
+    input.Changed:Connect(function()
+        if input.UserInputState == Enum.UserInputState.End then
+            dragging = false
         end
     end)
 end
 
--- 🔥 เปิดลากหลายจุด
-EnableDrag(Top)
-EnableDrag(Side)
+Top.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+    or input.UserInputType == Enum.UserInputType.Touch then
+        StartDrag(input)
+    end
+end)
+
+Top.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement
+    or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
 
 UIS.InputChanged:Connect(function(input)
-    if input == dragInput and dragging then
+    if dragging and input == dragInput then
 
         local delta = input.Position - dragStart
 

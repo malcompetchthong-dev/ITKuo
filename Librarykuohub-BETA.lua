@@ -927,61 +927,69 @@ Top.Selectable = true
   
 --Draggable  
   
-local UIS = game:GetService("UserInputService")  
-local RunService = game:GetService("RunService")  
-  
-local dragging = false  
-local dragInput  
-local dragStart  
-local startPos  
-  
-local smoothness = 0.18  
-local targetPos = Main.Position  
-  
-Top.InputBegan:Connect(function(input)  
-if input.UserInputType == Enum.UserInputType.MouseButton1  
-or input.UserInputType == Enum.UserInputType.Touch then  
-  
-dragging = true      
-    dragStart = input.Position      
-    startPos = Main.Position      
-    targetPos = Main.Position      
-  
-    input.Changed:Connect(function()      
-        if input.UserInputState == Enum.UserInputState.End then      
-            dragging = false      
-        end      
-    end)      
-end  
-  
-end)  
-  
-Top.InputChanged:Connect(function(input)  
-if input.UserInputType == Enum.UserInputType.MouseMovement  
-or input.UserInputType == Enum.UserInputType.Touch then  
-dragInput = input  
-end  
-end)  
-  
-UIS.InputChanged:Connect(function(input)  
-if input == dragInput and dragging then  
-  
-local delta = input.Position - dragStart      
-  
-    targetPos = UDim2.new(      
-        startPos.X.Scale,      
-        startPos.X.Offset + delta.X,      
-  
-        startPos.Y.Scale,      
-        startPos.Y.Offset + delta.Y      
-    )      
-end  
-  
-end)  
-  
-RunService.RenderStepped:Connect(function()  
-Main.Position = Main.Position:Lerp(targetPos, smoothness)  
-end)  
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local dragging = false
+local dragInput
+local dragStart
+local startPos
+
+local smoothness = 0.18
+local targetPos = Main.Position
+
+local function EnableDrag(frame)
+
+    frame.Active = true
+    frame.Selectable = true
+
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+
+            dragging = true
+            dragStart = input.Position
+            startPos = Main.Position
+            targetPos = Main.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    frame.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement
+        or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+end
+
+-- 🔥 เปิดลากหลายจุด
+EnableDrag(Top)
+EnableDrag(Side)
+
+UIS.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+
+        local delta = input.Position - dragStart
+
+        targetPos = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+RunService.RenderStepped:Connect(function()
+    Main.Position = Main.Position:Lerp(targetPos, smoothness)
+end)
                   
 -- TITLE + GRADIENT          
 local Title = Instance.new("TextLabel", Top)          

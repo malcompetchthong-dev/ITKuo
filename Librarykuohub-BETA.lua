@@ -1023,12 +1023,6 @@ local Side = Instance.new("Frame", Main)
 Side.Size = UDim2.new(0,140,1,-45)          
 Side.Position = UDim2.new(0,0,0,45)          
 Side.BackgroundTransparency = 1  
-
-local SideLayout = Instance.new("UIListLayout")
-SideLayout.Parent = Side
-SideLayout.Padding = UDim.new(0,5)
-SideLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-SideLayout.SortOrder = Enum.SortOrder.LayoutOrder
           
 -- PAGES FOLDER          
 local Pages = Instance.new("Folder", Main)          
@@ -1112,8 +1106,7 @@ for _,v in pairs(Side:GetChildren()) do
     end
 end
 
-Btn.Position = UDim2.new(0,0,0,0)
-Btn.LayoutOrder = #Side:GetChildren()	
+Btn.Position = UDim2.new(0,5,0,#Side:GetChildren()*45)
 
 Btn.MouseEnter:Connect(function()          
 TweenService:Create(Btn,TweenInfo.new(0.2),{BackgroundColor3=Color3.fromRGB(120,0,200)}):Play()          

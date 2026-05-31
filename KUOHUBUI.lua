@@ -1129,16 +1129,25 @@ end)
 -- TAB SYSTEM          
 local Tab = {}          
           
-function Tab:Section(text)          
-local Label = Instance.new("TextLabel", Page)          
-Label.Size = UDim2.new(1,-10,0,25)          
-Label.BackgroundTransparency = 1          
-Label.Text = text          
-Label.TextColor3 = Color3.fromRGB(170,0,255)          
-Label.Font = Enum.Font.GothamBold          
-Label.TextSize = 16          
-Label.TextXAlignment = Enum.TextXAlignment.Left          
-end          
+ function Tab:Section(text)
+
+    local Holder = Instance.new("Frame")
+    Holder.Parent = Page
+    Holder.Size = UDim2.new(1,-10,0,30)
+    Holder.BackgroundTransparency = 1
+    Holder.BorderSizePixel = 0
+
+    local Label = Instance.new("TextLabel")
+    Label.Parent = Holder
+    Label.Size = UDim2.new(1,0,1,0)
+    Label.BackgroundTransparency = 1
+
+    Label.Text = text
+    Label.TextColor3 = Color3.fromRGB(170,0,255)
+    Label.Font = Enum.Font.GothamBold
+    Label.TextSize = 16
+    Label.TextXAlignment = Enum.TextXAlignment.Left
+	end
           
 function Tab:Button(config)          
 local Btn = Instance.new("TextButton", Page)          

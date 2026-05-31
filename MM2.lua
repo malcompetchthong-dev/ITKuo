@@ -12,6 +12,8 @@ Corner = { CornerRadius = UDim.new(35, 1) },
 local Home = Window:Tab("Home")  
   
 local Combat = Window:MakeTab({"Combat","sword"})  
+
+local Info = Window:MakeTab({"System", "terminal"})
   
 Home:Section("Main")  
   
@@ -1878,7 +1880,37 @@ while task.wait(
 end  
   
 end)  
-  
+
+-- =========================  
+-- Info  
+-- =========================  
+
+Info:Section("📌 KuoHub Information | ข้อมูลสคริปต์")
+
+Info:Button({
+Title = "📅 Last Update | อัปเดตล่าสุด : 28/05/2026",
+Callback = function()
+end
+})
+
+Info:Button({
+Title = "🇹🇭 Developed By Thai | พัฒนาโดยคนไทย",
+Callback = function()
+end
+})
+
+Info:Button({
+Title = "⚡ Script Version | เวอร์ชันสคริปต์ : v9.0 FUTURISTIC",
+Callback = function()
+end
+})
+
+Info:Button({
+Title = "🛠 Status | สถานะ : Stable",
+Callback = function()
+end
+})
+
 -- =========================  
 -- UI  
 -- =========================  

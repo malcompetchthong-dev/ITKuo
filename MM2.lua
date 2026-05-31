@@ -13,7 +13,7 @@ local Home = Window:Tab("Home")
   
 local Combat = Window:MakeTab({"Combat","sword"})  
 
-local Info = Window:MakeTab({"System", "terminal"})
+local Info = Window:MakeTab({"System", "history"})
   
 Home:Section("Main")  
   

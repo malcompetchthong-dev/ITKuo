@@ -1888,7 +1888,7 @@ end)
 Info:Section("📌 KuoHub Information | ข้อมูลสคริปต์")
 
 Info:Button({
-Title = "📅 Last Update | อัปเดตล่าสุด : 28/05/2026",
+Title = "📅 Last Update | อัปเดตล่าสุด : 19/06/2026",
 Callback = function()
 end
 })
@@ -1900,7 +1900,7 @@ end
 })
 
 Info:Button({
-Title = "⚡ Script Version | เวอร์ชันสคริปต์ : v9.0 FUTURISTIC",
+Title = "⚡ Script Version | เวอร์ชันสคริปต์ : v9.0.1 FUTURISTIC",
 Callback = function()
 end
 })
@@ -1911,6 +1911,11 @@ Callback = function()
 end
 })
 
+Info:Button({
+Title = "📃  สถานะพังค์ชั้น | สถานะพังค์ชั้น : ยังใช้งานได้",
+Callback = function()
+end
+})
 -- =========================  
 -- UI  
 -- =========================  

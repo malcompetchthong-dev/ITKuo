@@ -1906,13 +1906,13 @@ end
 })
 
 Info:Button({
-Title = "🛠 Status | สถานะ : Stable",
+Title = "🛠 Status : ✔️| สถานะ : Stable✔️",
 Callback = function()
 end
 })
 
 Info:Button({
-Title = "📃  สถานะพังค์ชั้น | สถานะพังค์ชั้น : ยังใช้งานได้",
+Title = "📃 Punk status : Yes | สถานะพังค์ชั้น : ยังใช้งานได้",
 Callback = function()
 end
 })

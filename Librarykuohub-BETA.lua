@@ -1045,8 +1045,159 @@ Close.Text = "X"
 Close.BackgroundTransparency = 1          
 Close.TextColor3 = Color3.fromRGB(255,80,80)          
           
-Close.MouseButton1Click:Connect(function()          
-ScreenGui:Destroy()          
+-- =========================
+-- ADVANCED CLOSE CONFIRM
+-- =========================
+
+local Overlay = Instance.new("Frame")
+Overlay.Parent = ScreenGui
+Overlay.Size = UDim2.new(1,0,1,0)
+Overlay.BackgroundColor3 = Color3.new(0,0,0)
+Overlay.BackgroundTransparency = 0.4
+Overlay.BorderSizePixel = 0
+Overlay.Visible = false
+Overlay.ZIndex = 998
+Overlay.Active = true
+
+local ConfirmFrame = Instance.new("Frame")
+ConfirmFrame.Parent = ScreenGui
+ConfirmFrame.AnchorPoint = Vector2.new(0.5,0.5)
+ConfirmFrame.Position = UDim2.new(0.5,0,0.5,0)
+ConfirmFrame.Size = UDim2.new(0,0,0,0)
+ConfirmFrame.BackgroundColor3 = Color3.fromRGB(20,20,20)
+ConfirmFrame.Visible = false
+ConfirmFrame.ZIndex = 999
+ConfirmFrame.ClipsDescendants = true
+
+Instance.new("UICorner", ConfirmFrame).CornerRadius = UDim.new(0,12)
+
+local ConfirmStroke = Instance.new("UIStroke")
+ConfirmStroke.Parent = ConfirmFrame
+ConfirmStroke.Color = Color3.fromRGB(170,0,255)
+ConfirmStroke.Thickness = 2
+
+local ConfirmTitle = Instance.new("TextLabel")
+ConfirmTitle.Parent = ConfirmFrame
+ConfirmTitle.Size = UDim2.new(1,0,0,30)
+ConfirmTitle.BackgroundTransparency = 1
+ConfirmTitle.Text = "⚠ Close Window?"
+ConfirmTitle.Font = Enum.Font.GothamBold
+ConfirmTitle.TextSize = 18
+ConfirmTitle.TextColor3 = Color3.new(1,1,1)
+ConfirmTitle.ZIndex = 1000
+
+local ConfirmText = Instance.new("TextLabel")
+ConfirmText.Parent = ConfirmFrame
+ConfirmText.Size = UDim2.new(1,-20,0,40)
+ConfirmText.Position = UDim2.new(0,10,0,35)
+ConfirmText.BackgroundTransparency = 1
+ConfirmText.TextWrapped = true
+ConfirmText.Text = "Do you want to close KuoHub?\nคุณต้องการปิด KuoHub หรือไม่?"
+ConfirmText.Font = Enum.Font.Gotham
+ConfirmText.TextSize = 13
+ConfirmText.TextColor3 = Color3.fromRGB(200,200,200)
+ConfirmText.ZIndex = 1000
+
+local YesBtn = Instance.new("TextButton")
+YesBtn.Parent = ConfirmFrame
+YesBtn.Size = UDim2.new(0,90,0,30)
+YesBtn.Position = UDim2.new(0,20,1,-40)
+YesBtn.Text = "Yes"
+YesBtn.Font = Enum.Font.GothamBold
+YesBtn.TextColor3 = Color3.new(1,1,1)
+YesBtn.BackgroundColor3 = Color3.fromRGB(170,0,255)
+YesBtn.ZIndex = 1000
+Instance.new("UICorner", YesBtn).CornerRadius = UDim.new(0,8)
+
+local NoBtn = Instance.new("TextButton")
+NoBtn.Parent = ConfirmFrame
+NoBtn.Size = UDim2.new(0,90,0,30)
+NoBtn.Position = UDim2.new(1,-110,1,-40)
+NoBtn.Text = "No"
+NoBtn.Font = Enum.Font.GothamBold
+NoBtn.TextColor3 = Color3.new(1,1,1)
+NoBtn.BackgroundColor3 = Color3.fromRGB(45,45,45)
+NoBtn.ZIndex = 1000
+Instance.new("UICorner", NoBtn).CornerRadius = UDim.new(0,8)
+
+-- เปิด Popup
+Close.MouseButton1Click:Connect(function()
+
+    Overlay.Visible = true
+    ConfirmFrame.Visible = true
+    ConfirmFrame.Size = UDim2.new(0,0,0,0)
+
+    TweenService:Create(
+        ConfirmFrame,
+        TweenInfo.new(
+            0.25,
+            Enum.EasingStyle.Back,
+            Enum.EasingDirection.Out
+        ),
+        {
+            Size = UDim2.new(0,260,0,130)
+        }
+    ):Play()
+
+end)
+
+-- กดพื้นหลัง = ยกเลิก
+Overlay.InputEnded:Connect(function(input)
+
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+    or input.UserInputType == Enum.UserInputType.Touch then
+
+        if ConfirmFrame.Visible then
+
+            local tw = TweenService:Create(
+                ConfirmFrame,
+                TweenInfo.new(0.15),
+                {Size = UDim2.new(0,0,0,0)}
+            )
+
+            tw:Play()
+            tw.Completed:Wait()
+
+            ConfirmFrame.Visible = false
+            Overlay.Visible = false
+
+        end
+
+    end
+
+end)
+
+-- YES = ปิด UI
+YesBtn.MouseButton1Click:Connect(function()
+
+    local tw = TweenService:Create(
+        ConfirmFrame,
+        TweenInfo.new(0.15),
+        {Size = UDim2.new(0,0,0,0)}
+    )
+
+    tw:Play()
+    tw.Completed:Wait()
+
+    ScreenGui:Destroy()
+
+end)
+
+-- NO = ยกเลิก
+NoBtn.MouseButton1Click:Connect(function()
+
+    local tw = TweenService:Create(
+        ConfirmFrame,
+        TweenInfo.new(0.15),
+        {Size = UDim2.new(0,0,0,0)}
+    )
+
+    tw:Play()
+    tw.Completed:Wait()
+
+    ConfirmFrame.Visible = false
+    Overlay.Visible = false
+
 end)          
           
 local minimized = false          
@@ -1448,9 +1599,44 @@ local percent = (value - min) / (max - min)
 Fill.Size = UDim2.new(percent,0,1,0)          
 end)          
 end          
-          
-return Tab          
-          
+
+function Tab:AddInput(config)
+
+    local Frame = Instance.new("Frame", Page)
+    Frame.Size = UDim2.new(1,-10,0,60)
+    Frame.BackgroundTransparency = 1
+
+    local Title = Instance.new("TextLabel", Frame)
+    Title.Size = UDim2.new(1,0,0,18)
+    Title.BackgroundTransparency = 1
+    Title.Text = config.Title or "Input"
+    Title.TextColor3 = Color3.fromRGB(220,220,220)
+    Title.Font = Enum.Font.GothamBold
+    Title.TextSize = 14
+    Title.TextXAlignment = Enum.TextXAlignment.Left
+
+    local Box = Instance.new("TextBox", Frame)
+    Box.Size = UDim2.new(1,0,0,32)
+    Box.Position = UDim2.new(0,0,0,24)
+    Box.BackgroundColor3 = Color3.fromRGB(35,35,35)
+    Box.TextColor3 = Color3.new(1,1,1)
+    Box.PlaceholderText = config.Placeholder or ""
+    Box.ClearTextOnFocus = false
+    Box.Font = Enum.Font.Gotham
+    Box.TextSize = 14
+
+    Instance.new("UICorner", Box)
+
+    Box.FocusLost:Connect(function(enterPressed)
+        if config.Callback then
+            config.Callback(Box.Text, enterPressed)
+        end
+    end)
+
+    return Box
+	end
+	
+return Tab                    
 end          
           
 function Window:AddMinimizeButton(config)          
@@ -1478,10 +1664,51 @@ config = config or {}
           
 -- ตั้ง Title อย่างเดียว          
 Title.Text = config.Title or "KuoHub"          
-          
+
+
 return Window          
           
-end          
+end 
+
+function Window:Notify(config)
+
+    local Gui = Instance.new("ScreenGui")
+    Gui.Parent = game:GetService("CoreGui")
+    Gui.ResetOnSpawn = false
+
+    local Frame = Instance.new("Frame", Gui)
+    Frame.Size = UDim2.new(0,260,0,70)
+    Frame.Position = UDim2.new(1,-280,1,-90)
+    Frame.BackgroundColor3 = Color3.fromRGB(35,35,35)
+    Instance.new("UICorner", Frame).CornerRadius = UDim.new(0,10)
+
+    local Title = Instance.new("TextLabel", Frame)
+    Title.Size = UDim2.new(1,-20,0,22)
+    Title.Position = UDim2.new(0,10,0,6)
+    Title.BackgroundTransparency = 1
+    Title.Font = Enum.Font.GothamBold
+    Title.TextSize = 16
+    Title.TextColor3 = Color3.new(1,1,1)
+    Title.TextXAlignment = Enum.TextXAlignment.Left
+    Title.Text = config.Title or "Notification"
+
+    local Desc = Instance.new("TextLabel", Frame)
+    Desc.Size = UDim2.new(1,-20,1,-30)
+    Desc.Position = UDim2.new(0,10,0,28)
+    Desc.BackgroundTransparency = 1
+    Desc.Font = Enum.Font.Gotham
+    Desc.TextSize = 13
+    Desc.TextWrapped = true
+    Desc.TextColor3 = Color3.fromRGB(220,220,220)
+    Desc.TextXAlignment = Enum.TextXAlignment.Left
+    Desc.TextYAlignment = Enum.TextYAlignment.Top
+    Desc.Text = config.Desc or ""
+
+    task.delay(config.Time or 3,function()
+        Gui:Destroy()
+    end)
+
+end
           
 -- =========================          
 -- 🔥 AUTO ICON SYSTEM (STABLE)          

@@ -1664,10 +1664,51 @@ config = config or {}
           
 -- ตั้ง Title อย่างเดียว          
 Title.Text = config.Title or "KuoHub"          
-          
+
+
 return Window          
           
-end          
+end 
+
+function Window:Notify(config)
+
+    local Gui = Instance.new("ScreenGui")
+    Gui.Parent = game:GetService("CoreGui")
+    Gui.ResetOnSpawn = false
+
+    local Frame = Instance.new("Frame", Gui)
+    Frame.Size = UDim2.new(0,260,0,70)
+    Frame.Position = UDim2.new(1,-280,1,-90)
+    Frame.BackgroundColor3 = Color3.fromRGB(35,35,35)
+    Instance.new("UICorner", Frame).CornerRadius = UDim.new(0,10)
+
+    local Title = Instance.new("TextLabel", Frame)
+    Title.Size = UDim2.new(1,-20,0,22)
+    Title.Position = UDim2.new(0,10,0,6)
+    Title.BackgroundTransparency = 1
+    Title.Font = Enum.Font.GothamBold
+    Title.TextSize = 16
+    Title.TextColor3 = Color3.new(1,1,1)
+    Title.TextXAlignment = Enum.TextXAlignment.Left
+    Title.Text = config.Title or "Notification"
+
+    local Desc = Instance.new("TextLabel", Frame)
+    Desc.Size = UDim2.new(1,-20,1,-30)
+    Desc.Position = UDim2.new(0,10,0,28)
+    Desc.BackgroundTransparency = 1
+    Desc.Font = Enum.Font.Gotham
+    Desc.TextSize = 13
+    Desc.TextWrapped = true
+    Desc.TextColor3 = Color3.fromRGB(220,220,220)
+    Desc.TextXAlignment = Enum.TextXAlignment.Left
+    Desc.TextYAlignment = Enum.TextYAlignment.Top
+    Desc.Text = config.Desc or ""
+
+    task.delay(config.Time or 3,function()
+        Gui:Destroy()
+    end)
+
+end
           
 -- =========================          
 -- 🔥 AUTO ICON SYSTEM (STABLE)          

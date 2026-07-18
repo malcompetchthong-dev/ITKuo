@@ -1624,9 +1624,8 @@ function Tab:AddInput(config)
     Box.ClearTextOnFocus = false
     Box.Font = Enum.Font.Gotham
     Box.TextSize = 14
-    Box.Text = ""
 
-    Instance.new("UICorner", Box).CornerRadius = UDim.new(0,8)
+    Instance.new("UICorner", Box)
 
     Box.FocusLost:Connect(function(enterPressed)
         if config.Callback then
@@ -1637,8 +1636,7 @@ function Tab:AddInput(config)
     return Box
 	end
 	
-return Tab          
-          
+return Tab                    
 end          
           
 function Window:AddMinimizeButton(config)          

@@ -1599,7 +1599,44 @@ local percent = (value - min) / (max - min)
 Fill.Size = UDim2.new(percent,0,1,0)          
 end)          
 end          
-          
+
+function Tab:AddInput(config)
+
+    local Frame = Instance.new("Frame", Page)
+    Frame.Size = UDim2.new(1,-10,0,60)
+    Frame.BackgroundTransparency = 1
+
+    local Title = Instance.new("TextLabel", Frame)
+    Title.Size = UDim2.new(1,0,0,18)
+    Title.BackgroundTransparency = 1
+    Title.Text = config.Title or "Input"
+    Title.TextColor3 = Color3.fromRGB(220,220,220)
+    Title.Font = Enum.Font.GothamBold
+    Title.TextSize = 14
+    Title.TextXAlignment = Enum.TextXAlignment.Left
+
+    local Box = Instance.new("TextBox", Frame)
+    Box.Size = UDim2.new(1,0,0,32)
+    Box.Position = UDim2.new(0,0,0,24)
+    Box.BackgroundColor3 = Color3.fromRGB(35,35,35)
+    Box.TextColor3 = Color3.new(1,1,1)
+    Box.PlaceholderText = config.Placeholder or ""
+    Box.ClearTextOnFocus = false
+    Box.Font = Enum.Font.Gotham
+    Box.TextSize = 14
+    Box.Text = ""
+
+    Instance.new("UICorner", Box).CornerRadius = UDim.new(0,8)
+
+    Box.FocusLost:Connect(function(enterPressed)
+        if config.Callback then
+            config.Callback(Box.Text, enterPressed)
+        end
+    end)
+
+    return Box
+	end
+	
 return Tab          
           
 end          

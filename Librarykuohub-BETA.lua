@@ -1635,6 +1635,102 @@ function Tab:AddInput(config)
 
     return Box
 	end
+
+function Tab:AddDropdown(config)
+
+    local Frame = Instance.new("Frame", Page)
+    Frame.Size = UDim2.new(1,-10,0,70)
+    Frame.BackgroundTransparency = 1
+
+    local Title = Instance.new("TextLabel", Frame)
+    Title.Size = UDim2.new(1,0,0,18)
+    Title.BackgroundTransparency = 1
+    Title.Text = config.Title or "Dropdown"
+    Title.TextColor3 = Color3.fromRGB(220,220,220)
+    Title.Font = Enum.Font.GothamBold
+    Title.TextSize = 14
+    Title.TextXAlignment = Enum.TextXAlignment.Left
+
+    local Selected = config.Default or (config.Options and config.Options[1]) or "None"
+
+    local MainButton = Instance.new("TextButton", Frame)
+    MainButton.Size = UDim2.new(1,0,0,32)
+    MainButton.Position = UDim2.new(0,0,0,24)
+    MainButton.BackgroundColor3 = Color3.fromRGB(35,35,35)
+    MainButton.Text = "▼ "..Selected
+    MainButton.TextColor3 = Color3.new(1,1,1)
+    MainButton.Font = Enum.Font.Gotham
+    MainButton.TextSize = 14
+    Instance.new("UICorner", MainButton).CornerRadius = UDim.new(0,8)
+
+    local List = Instance.new("Frame", Frame)
+    List.Position = UDim2.new(0,0,0,58)
+    List.Size = UDim2.new(1,0,0,0)
+    List.BackgroundColor3 = Color3.fromRGB(30,30,30)
+    List.ClipsDescendants = true
+    List.Visible = false
+    Instance.new("UICorner", List).CornerRadius = UDim.new(0,8)
+
+    local Layout = Instance.new("UIListLayout", List)
+
+    local Open = false
+    local Height = 30
+
+    MainButton.MouseButton1Click:Connect(function()
+
+        Open = not Open
+        List.Visible = Open
+
+        TweenService:Create(
+            List,
+            TweenInfo.new(0.2),
+            {
+                Size = Open
+                    and UDim2.new(1,0,0,#config.Options*Height)
+                    or UDim2.new(1,0,0,0)
+            }
+        ):Play()
+
+    end)
+
+    for _,Option in ipairs(config.Options or {}) do
+
+        local Btn = Instance.new("TextButton", List)
+        Btn.Size = UDim2.new(1,0,0,Height)
+        Btn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+        Btn.Text = Option
+        Btn.TextColor3 = Color3.new(1,1,1)
+        Btn.Font = Enum.Font.Gotham
+        Btn.TextSize = 14
+
+        Btn.MouseButton1Click:Connect(function()
+
+            Selected = Option
+            MainButton.Text = "▼ "..Option
+
+            Open = false
+            TweenService:Create(
+                List,
+                TweenInfo.new(0.2),
+                {Size = UDim2.new(1,0,0,0)}
+            ):Play()
+
+            task.wait(0.2)
+            List.Visible = false
+
+            if config.Callback then
+                config.Callback(Option)
+            end
+
+        end)
+
+    end
+
+    if config.Callback then
+        config.Callback(Selected)
+    end
+
+	end
 	
 return Tab                    
 end          

@@ -2052,7 +2052,7 @@ local blacklist = {
     "67","555","123","abc","asdf","qwerty",
     "กกก","หกด","test","hi","hello",
     "ok","gg","ez","lol",".","..","...",
-    "?","???"
+    "?","???","677","67777777"
 }
 
 local badWords = {
@@ -2072,7 +2072,8 @@ local badWords = {
     "asshole",
     "motherfucker",
     "kuy",
-    "kys"
+    "kys",
+    "Splash"
 }
 
 local function sendFeedback(message)

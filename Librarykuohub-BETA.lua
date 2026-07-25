@@ -1753,7 +1753,7 @@ function Tab:AddDropdown(config)
 	
 return Tab                    
 end          
-          
+
 function Window:AddMinimizeButton(config)
 
     local UIS = game:GetService("UserInputService")
@@ -1763,24 +1763,61 @@ function Window:AddMinimizeButton(config)
     btn.Parent = ScreenGui
     btn.Name = "MinimizeButton"
 
-    btn.Size = UDim2.fromOffset(55,55)
-    btn.Position = config.Position or UDim2.new(0,20,0.5,-30)
+    btn.Position = Window.LastMinimizePosition
+        or config.Position
+        or UDim2.new(0,20,0.5,-30)
 
     btn.Image = config.Button.Image or ""
     btn.BackgroundColor3 = Color3.fromRGB(30,30,30)
     btn.BackgroundTransparency = config.Button.BackgroundTransparency or 0
 
     btn.AutoButtonColor = false
+    btn.Active = true
     btn.ZIndex = 999
 
+    ------------------------------------------------
+    -- Responsive Size
+    ------------------------------------------------
+
+    local UIScale = Instance.new("UIScale")
+    UIScale.Parent = btn
+
+    local BaseSize = 42
+
+    local function UpdateButtonSize()
+
+        local viewport = workspace.CurrentCamera.ViewportSize
+
+        local scale = math.clamp(viewport.X / 1920,0.7,1.2)
+
+        local size = math.floor(BaseSize * scale)
+
+        btn.Size = UDim2.fromOffset(size,size)
+
+        UIScale.Scale = math.clamp(viewport.X/900,0.85,1.15)
+
+    end
+
+    UpdateButtonSize()
+
+    workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateButtonSize)
+
+    ------------------------------------------------
+    -- Corner
+    ------------------------------------------------
+
     local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0,14)
+    Corner.CornerRadius = config.Corner and config.Corner.CornerRadius or UDim.new(0,10)
     Corner.Parent = btn
 
+    ------------------------------------------------
+    -- Stroke
+    ------------------------------------------------
+
     local Stroke = Instance.new("UIStroke")
+    Stroke.Parent = btn
     Stroke.Color = Color3.fromRGB(170,0,255)
     Stroke.Thickness = 1.5
-    Stroke.Parent = btn
 
     ------------------------------------------------
     -- Hover (PC)
@@ -1789,11 +1826,9 @@ function Window:AddMinimizeButton(config)
     btn.MouseEnter:Connect(function()
 
         TweenService:Create(
-            btn,
+            UIScale,
             TweenInfo.new(.15),
-            {
-                Size=UDim2.fromOffset(58,58)
-            }
+            {Scale = UIScale.Scale + 0.08}
         ):Play()
 
     end)
@@ -1801,11 +1836,9 @@ function Window:AddMinimizeButton(config)
     btn.MouseLeave:Connect(function()
 
         TweenService:Create(
-            btn,
+            UIScale,
             TweenInfo.new(.15),
-            {
-                Size=UDim2.fromOffset(55,55)
-            }
+            {Scale = math.clamp(workspace.CurrentCamera.ViewportSize.X/900,0.85,1.15)}
         ):Play()
 
     end)
@@ -1814,68 +1847,64 @@ function Window:AddMinimizeButton(config)
     -- Click Animation
     ------------------------------------------------
 
-    local Visible=true
+    local Visible = true
 
     btn.Activated:Connect(function()
 
         TweenService:Create(
-            btn,
+            UIScale,
             TweenInfo.new(.08),
-            {
-                Size=UDim2.fromOffset(49,49)
-            }
+            {Scale = UIScale.Scale * 0.88}
         ):Play()
 
         task.wait(.08)
 
         TweenService:Create(
-            btn,
+            UIScale,
             TweenInfo.new(.08),
-            {
-                Size=UDim2.fromOffset(55,55)
-            }
+            {Scale = math.clamp(workspace.CurrentCamera.ViewportSize.X/900,0.85,1.15)}
         ):Play()
 
-        Visible=not Visible
-        Main.Visible=Visible
+        Visible = not Visible
+        Main.Visible = Visible
 
     end)
 
     ------------------------------------------------
-    -- Drag รองรับมือถือ + PC
+    -- Drag (Mobile + PC)
     ------------------------------------------------
 
-    local Dragging=false
+    local Dragging = false
     local DragInput
     local DragStart
     local StartPos
 
     local function Update(input)
 
-        local Delta=input.Position-DragStart
+        local Delta = input.Position - DragStart
 
-        btn.Position=UDim2.new(
+        btn.Position = UDim2.new(
             StartPos.X.Scale,
-            StartPos.X.Offset+Delta.X,
+            StartPos.X.Offset + Delta.X,
             StartPos.Y.Scale,
-            StartPos.Y.Offset+Delta.Y
+            StartPos.Y.Offset + Delta.Y
         )
 
     end
 
     btn.InputBegan:Connect(function(input)
 
-        if input.UserInputType==Enum.UserInputType.MouseButton1
-        or input.UserInputType==Enum.UserInputType.Touch then
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
 
-            Dragging=true
-            DragStart=input.Position
-            StartPos=btn.Position
+            Dragging = true
+            DragStart = input.Position
+            StartPos = btn.Position
 
             input.Changed:Connect(function()
 
-                if input.UserInputState==Enum.UserInputState.End then
-                    Dragging=false
+                if input.UserInputState == Enum.UserInputState.End then
+                    Dragging = false
                 end
 
             end)
@@ -1886,10 +1915,10 @@ function Window:AddMinimizeButton(config)
 
     btn.InputChanged:Connect(function(input)
 
-        if input.UserInputType==Enum.UserInputType.MouseMovement
-        or input.UserInputType==Enum.UserInputType.Touch then
+        if input.UserInputType == Enum.UserInputType.MouseMovement
+        or input.UserInputType == Enum.UserInputType.Touch then
 
-            DragInput=input
+            DragInput = input
 
         end
 
@@ -1897,7 +1926,7 @@ function Window:AddMinimizeButton(config)
 
     UIS.InputChanged:Connect(function(input)
 
-        if input==DragInput and Dragging then
+        if Dragging and input == DragInput then
             Update(input)
         end
 
@@ -1908,10 +1937,13 @@ function Window:AddMinimizeButton(config)
     ------------------------------------------------
 
     btn:GetPropertyChangedSignal("Position"):Connect(function()
-        Window.LastMinimizePosition=btn.Position
+
+        Window.LastMinimizePosition = btn.Position
+
     end)
 
-end        
+end
+
 function Window:MakeWindow(config)          
 config = config or {}          
           

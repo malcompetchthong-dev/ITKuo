@@ -1754,26 +1754,164 @@ function Tab:AddDropdown(config)
 return Tab                    
 end          
           
-function Window:AddMinimizeButton(config)          
-local btn = Instance.new("ImageButton", ScreenGui)          
-btn.Size = UDim2.new(0,50,0,50)          
-btn.Position = UDim2.new(0,20,0.5,-25)          
-btn.BackgroundColor3 = Color3.fromRGB(30,30,30)          
-btn.Image = config.Button.Image or ""          
-btn.BackgroundTransparency = config.Button.BackgroundTransparency or 0          
-btn.Active = true          
-btn.Draggable = true          
-          
-local corner = Instance.new("UICorner", btn)          
-corner.CornerRadius = config.Corner.CornerRadius or UDim.new(1,0)          
-          
-local visible = true          
-          
-btn.MouseButton1Click:Connect(function()          
-visible = not visible          
-Main.Visible = visible          
-end)          
-end          
+function Window:AddMinimizeButton(config)
+
+    local UIS = game:GetService("UserInputService")
+    local TweenService = game:GetService("TweenService")
+
+    local btn = Instance.new("ImageButton")
+    btn.Parent = ScreenGui
+    btn.Name = "MinimizeButton"
+
+    btn.Size = UDim2.fromOffset(55,55)
+    btn.Position = config.Position or UDim2.new(0,20,0.5,-30)
+
+    btn.Image = config.Button.Image or ""
+    btn.BackgroundColor3 = Color3.fromRGB(30,30,30)
+    btn.BackgroundTransparency = config.Button.BackgroundTransparency or 0
+
+    btn.AutoButtonColor = false
+    btn.ZIndex = 999
+
+    local Corner = Instance.new("UICorner")
+    Corner.CornerRadius = UDim.new(0,14)
+    Corner.Parent = btn
+
+    local Stroke = Instance.new("UIStroke")
+    Stroke.Color = Color3.fromRGB(170,0,255)
+    Stroke.Thickness = 1.5
+    Stroke.Parent = btn
+
+    ------------------------------------------------
+    -- Hover (PC)
+    ------------------------------------------------
+
+    btn.MouseEnter:Connect(function()
+
+        TweenService:Create(
+            btn,
+            TweenInfo.new(.15),
+            {
+                Size=UDim2.fromOffset(58,58)
+            }
+        ):Play()
+
+    end)
+
+    btn.MouseLeave:Connect(function()
+
+        TweenService:Create(
+            btn,
+            TweenInfo.new(.15),
+            {
+                Size=UDim2.fromOffset(55,55)
+            }
+        ):Play()
+
+    end)
+
+    ------------------------------------------------
+    -- Click Animation
+    ------------------------------------------------
+
+    local Visible=true
+
+    btn.Activated:Connect(function()
+
+        TweenService:Create(
+            btn,
+            TweenInfo.new(.08),
+            {
+                Size=UDim2.fromOffset(49,49)
+            }
+        ):Play()
+
+        task.wait(.08)
+
+        TweenService:Create(
+            btn,
+            TweenInfo.new(.08),
+            {
+                Size=UDim2.fromOffset(55,55)
+            }
+        ):Play()
+
+        Visible=not Visible
+        Main.Visible=Visible
+
+    end)
+
+    ------------------------------------------------
+    -- Drag รองรับมือถือ + PC
+    ------------------------------------------------
+
+    local Dragging=false
+    local DragInput
+    local DragStart
+    local StartPos
+
+    local function Update(input)
+
+        local Delta=input.Position-DragStart
+
+        btn.Position=UDim2.new(
+            StartPos.X.Scale,
+            StartPos.X.Offset+Delta.X,
+            StartPos.Y.Scale,
+            StartPos.Y.Offset+Delta.Y
+        )
+
+    end
+
+    btn.InputBegan:Connect(function(input)
+
+        if input.UserInputType==Enum.UserInputType.MouseButton1
+        or input.UserInputType==Enum.UserInputType.Touch then
+
+            Dragging=true
+            DragStart=input.Position
+            StartPos=btn.Position
+
+            input.Changed:Connect(function()
+
+                if input.UserInputState==Enum.UserInputState.End then
+                    Dragging=false
+                end
+
+            end)
+
+        end
+
+    end)
+
+    btn.InputChanged:Connect(function(input)
+
+        if input.UserInputType==Enum.UserInputType.MouseMovement
+        or input.UserInputType==Enum.UserInputType.Touch then
+
+            DragInput=input
+
+        end
+
+    end)
+
+    UIS.InputChanged:Connect(function(input)
+
+        if input==DragInput and Dragging then
+            Update(input)
+        end
+
+    end)
+
+    ------------------------------------------------
+    -- Save Position
+    ------------------------------------------------
+
+    btn:GetPropertyChangedSignal("Position"):Connect(function()
+        Window.LastMinimizePosition=btn.Position
+    end)
+
+end        
 function Window:MakeWindow(config)          
 config = config or {}          
           

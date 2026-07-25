@@ -2072,10 +2072,6 @@ local badWords = {
     "kys"
 }
 
---========================================================
--- SEND WEBHOOK
---========================================================
-
 local function sendFeedback(message)
 
     local data = {
@@ -2137,10 +2133,6 @@ local function sendFeedback(message)
 
 end
 
---========================================================
--- UI
---========================================================
-
 local FeedbackType = "💡 Suggestion"
 
 Feedback:Section("📝 Feedback")
@@ -2196,13 +2188,13 @@ Feedback:Button({
 
         end
 
-        if #msg < 10 then
+        if #msg < 2 then
 
             Window:Notify({
 
                 Title="Feedback",
 
-                Desc="⚠ กรุณาพิมพ์อย่างน้อย 10 ตัวอักษร",
+                Desc="⚠ กรุณาพิมพ์อย่างน้อย 2 ตัวอักษร",
 
                 Time=3
 
@@ -2254,13 +2246,13 @@ Feedback:Button({
 
         end
 
-        if tick()-LastSend < 5 then
+        if tick()-LastSend < 30 then
 
             Window:Notify({
 
                 Title="Feedback",
 
-                Desc="⌛ กรุณารอ 5 วินาทีก่อนส่งอีกครั้ง",
+                Desc="⌛ กรุณารอ 30 วินาทีก่อนส่งอีกครั้ง",
 
                 Time=3
 

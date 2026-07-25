@@ -4,10 +4,13 @@ Window:MakeWindow({
 Title = "Kuo Hub | MM2",  
 })  
   
-Window:AddMinimizeButton({  
-Button = { Image = "rbxassetid://126460540157931", BackgroundTransparency = 0 },  
-Corner = { CornerRadius = UDim.new(35, 1) },  
-})  
+Window:AddMinimizeButton({
+    Button = {
+        Image = "rbxassetid://126460540157931",
+        BackgroundTransparency = 0
+    },
+    Position = UDim2.new(0,20,0.5,-25)
+})
   
 local Home = Window:Tab("Home")  
   

@@ -2192,13 +2192,13 @@ Feedback:Button({
 
         end
 
-        if #msg < 2 then
+        if #msg < 10 then
 
             Window:Notify({
 
                 Title="Feedback",
 
-                Desc="⚠ กรุณาพิมพ์อย่างน้อย 2 ตัวอักษร",
+                Desc="⚠ กรุณาพิมพ์อย่างน้อย 10 ตัวอักษร",
 
                 Time=3
 

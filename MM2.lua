@@ -2140,17 +2140,18 @@ end
 Feedback:Section("📝 Feedback")
 
 Feedback:AddDropdown({
-Title = "📂 Type",
-Values = {
-"🐞 Bug Report",
-"💡 Suggestion",
-"📦 Other"
-},
-Default = "💡 Suggestion",
-Callback = function(v)
-    FeedbackType = v
-    print("[FeedbackType]", FeedbackType)
-end
+    Title = "📂 Type",
+    Values = {
+        "🐞 Bug Report",
+        "💡 Suggestion",
+        "📦 Other"
+    },
+    Default = "💡 Suggestion",
+
+    Callback = function(v)
+        FeedbackType = v
+        print("FeedbackType =", FeedbackType)
+    end
 })
 
 Feedback:AddInput({

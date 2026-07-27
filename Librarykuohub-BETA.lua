@@ -1959,11 +1959,14 @@ Holder:Destroy()
 
 end
 
-if config.Callback then          
-    config.Callback(Selected)          
+if config.Callback then
+    task.defer(function()
+        config.Callback(Selected)
+    end)
 end
 
-end)
+return Dropdown
+		end
 
 return Dropdown
 

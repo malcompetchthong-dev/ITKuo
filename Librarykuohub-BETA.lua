@@ -1637,189 +1637,214 @@ function Tab:AddInput(config)
 
 function Tab:AddDropdown(config)
 
-local TweenService = game:GetService("TweenService")
-local UIS = game:GetService("UserInputService")
+    config = config or {}
 
-config = config or {}
+    local TweenService = game:GetService("TweenService")
 
-local Values = config.Values or {}
-local Selected = config.Default or Values[1] or "None"
+    local Dropdown = {}
 
+    local Values = config.Values or {}
+    local Selected = config.Default or Values[1] or "None"
 
----
+    local Open = false
+    local ItemHeight = 32
+    local MaxVisible = 5
 
--- Main Frame
+    ------------------------------------------------
+    -- Holder
+    ------------------------------------------------
 
-local Holder = Instance.new("Frame")
-Holder.Parent = Page
-Holder.BackgroundTransparency = 1
-Holder.Size = UDim2.new(1,-10,0,60)
-Holder.ClipsDescendants = false
+    local Holder = Instance.new("Frame")
+    Holder.Parent = Page
+    Holder.BackgroundTransparency = 1
+    Holder.Size = UDim2.new(1,-10,0,60)
+    Holder.ClipsDescendants = false
 
-local Title = Instance.new("TextLabel")
-Title.Parent = Holder
-Title.Size = UDim2.new(1,0,0,18)
-Title.BackgroundTransparency = 1
-Title.Text = config.Title or "Dropdown"
-Title.TextColor3 = Color3.fromRGB(220,220,220)
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 14
-Title.TextXAlignment = Enum.TextXAlignment.Left
+    ------------------------------------------------
+    -- Title
+    ------------------------------------------------
 
+    local Title = Instance.new("TextLabel")
+    Title.Parent = Holder
+    Title.BackgroundTransparency = 1
+    Title.Size = UDim2.new(1,0,0,18)
 
----
+    Title.Font = Enum.Font.GothamBold
+    Title.TextSize = 14
+    Title.TextColor3 = Color3.fromRGB(225,225,225)
+    Title.TextXAlignment = Enum.TextXAlignment.Left
 
--- Main Button
+    Title.Text = config.Title or "Dropdown"
 
-local Button = Instance.new("TextButton")
-Button.Parent = Holder
-Button.Position = UDim2.new(0,0,0,24)
-Button.Size = UDim2.new(1,0,0,32)
-Button.AutoButtonColor = false
-Button.Text = ""
-Button.BackgroundColor3 = Color3.fromRGB(35,35,35)
+    ------------------------------------------------
+    -- Button
+    ------------------------------------------------
 
-Instance.new("UICorner",Button).CornerRadius = UDim.new(0,8)
+    local Button = Instance.new("TextButton")
+    Button.Parent = Holder
 
-local Stroke = Instance.new("UIStroke")
-Stroke.Parent = Button
-Stroke.Color = Color3.fromRGB(60,60,60)
+    Button.Position = UDim2.new(0,0,0,24)
+    Button.Size = UDim2.new(1,0,0,34)
 
+    Button.Text = ""
+    Button.AutoButtonColor = false
 
----
+    Button.BackgroundColor3 = Color3.fromRGB(35,35,35)
 
--- Selected Text
+    Instance.new("UICorner",Button).CornerRadius = UDim.new(0,8)
+
+    local Stroke = Instance.new("UIStroke")
+    Stroke.Parent = Button
+    Stroke.Color = Color3.fromRGB(65,65,65)
+------------------------------------------------
+-- Selected Label
+------------------------------------------------
 
 local SelectedLabel = Instance.new("TextLabel")
 SelectedLabel.Parent = Button
 SelectedLabel.BackgroundTransparency = 1
 SelectedLabel.Position = UDim2.new(0,10,0,0)
 SelectedLabel.Size = UDim2.new(1,-40,1,0)
+
 SelectedLabel.Font = Enum.Font.Gotham
-SelectedLabel.TextColor3 = Color3.new(1,1,1)
 SelectedLabel.TextSize = 14
+SelectedLabel.TextColor3 = Color3.new(1,1,1)
 SelectedLabel.TextXAlignment = Enum.TextXAlignment.Left
 SelectedLabel.Text = Selected
 
+------------------------------------------------
 -- Arrow
+------------------------------------------------
 
 local Arrow = Instance.new("TextLabel")
 Arrow.Parent = Button
 Arrow.BackgroundTransparency = 1
-Arrow.AnchorPoint = Vector2.new(1,0.5)
-Arrow.Position = UDim2.new(1,-10,0.5,0)
-Arrow.Size = UDim2.new(0,18,0,18)
+Arrow.AnchorPoint = Vector2.new(1,.5)
+Arrow.Position = UDim2.new(1,-12,.5,0)
+Arrow.Size = UDim2.fromOffset(18,18)
+
 Arrow.Font = Enum.Font.GothamBold
 Arrow.Text = "▼"
-Arrow.TextSize = 14
+Arrow.TextSize = 13
 Arrow.TextColor3 = Color3.fromRGB(220,220,220)
 
-
----
-
+------------------------------------------------
 -- Dropdown Frame
+------------------------------------------------
 
 local DropFrame = Instance.new("Frame")
 DropFrame.Parent = Holder
-DropFrame.Position = UDim2.new(0,0,0,60)
+
+DropFrame.Position = UDim2.new(0,0,0,62)
 DropFrame.Size = UDim2.new(1,0,0,0)
+
 DropFrame.BackgroundColor3 = Color3.fromRGB(30,30,30)
-DropFrame.ClipsDescendants = true
 DropFrame.Visible = false
-DropFrame.ZIndex = 5
+DropFrame.ClipsDescendants = true
+DropFrame.ZIndex = 20
 
 Instance.new("UICorner",DropFrame).CornerRadius = UDim.new(0,8)
 
-local Stroke2 = Instance.new("UIStroke")
-Stroke2.Parent = DropFrame
-Stroke2.Color = Color3.fromRGB(60,60,60)
+local DropStroke = Instance.new("UIStroke")
+DropStroke.Parent = DropFrame
+DropStroke.Color = Color3.fromRGB(65,65,65)
 
-
----
-
--- Scroll
+------------------------------------------------
+-- ScrollingFrame
+------------------------------------------------
 
 local Scroll = Instance.new("ScrollingFrame")
 Scroll.Parent = DropFrame
+
+Scroll.Size = UDim2.new(1,0,1,0)
 Scroll.BackgroundTransparency = 1
 Scroll.BorderSizePixel = 0
-Scroll.Size = UDim2.new(1,0,1,0)
 
-Scroll.CanvasSize = UDim2.new()
-Scroll.ScrollBarThickness = 3
+Scroll.ScrollBarThickness = 4
 Scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
-Scroll.ScrollingDirection = Enum.ScrollingDirection.Y
-Scroll.CanvasPosition = Vector2.new(0,0)
-Scroll.ZIndex = 6
+Scroll.CanvasSize = UDim2.new()
+
+Scroll.ZIndex = 21
+
+------------------------------------------------
+-- Layout
+------------------------------------------------
 
 local Layout = Instance.new("UIListLayout")
 Layout.Parent = Scroll
+
 Layout.Padding = UDim.new(0,2)
+Layout.SortOrder = Enum.SortOrder.LayoutOrder
+
 Layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
 
-    Scroll.CanvasSize = UDim2.new(
-        0,
-        0,
+    Scroll.CanvasSize = UDim2.fromOffset(
         0,
         Layout.AbsoluteContentSize.Y
     )
 
 end)
+------------------------------------------------
+-- Open / Close
+------------------------------------------------
 
-local Open = false
+local function SetOpen(State)
 
-local ItemHeight = 30
-local MaxVisible = 5
+    Open = State
 
-local function Toggle()
+    local Count = math.min(#Values, MaxVisible)
+    local Height = Count * ItemHeight + math.max(0, Count-1) * 2
 
-Open = not Open          
-  
-local Height = math.min(#Values, MaxVisible) * (ItemHeight + 2)         
-  
-if Open then          
-    DropFrame.Visible = true          
-end          
-  
-TweenService:Create(          
-    DropFrame,          
-    TweenInfo.new(.2,Enum.EasingStyle.Quad),          
-    {          
-        Size = Open          
-            and UDim2.new(1,0,0,Height)          
-            or UDim2.new(1,0,0,0)          
-    }          
-):Play()          
-  
-TweenService:Create(          
-    Holder,          
-    TweenInfo.new(.2,Enum.EasingStyle.Quad),          
-    {          
-        Size = Open          
-            and UDim2.new(1,-10,0,60+Height)          
-            or UDim2.new(1,-10,0,60)          
-    }          
-):Play()          
-  
-Arrow.Text = Open and "▲" or "▼"          
-  
-if not Open then          
-    task.delay(.2,function()          
-        DropFrame.Visible = false          
-    end)          
+    if Open then
+        DropFrame.Visible = true
+    end
+
+    TweenService:Create(
+        DropFrame,
+        TweenInfo.new(.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        {
+            Size = Open
+                and UDim2.new(1,0,0,Height)
+                or UDim2.new(1,0,0,0)
+        }
+    ):Play()
+
+    TweenService:Create(
+        Holder,
+        TweenInfo.new(.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        {
+            Size = Open
+                and UDim2.new(1,-10,0,62+Height)
+                or UDim2.new(1,-10,0,60)
+        }
+    ):Play()
+
+    Arrow.Text = Open and "▲" or "▼"
+
+    if not Open then
+        task.delay(.18, function()
+            if not Open then
+                DropFrame.Visible = false
+            end
+        end)
+    end
+
 end
 
-end
+Button.Activated:Connect(function()
+    SetOpen(not Open)
+end)
 
-Button.Activated:Connect(Toggle)
-
--- Create Options
-
-local Dropdown = {}
-
-local Buttons = {}
+------------------------------------------------
+-- Select
+------------------------------------------------
 
 local function Select(Value)
+
+    if Selected == Value then
+        SetOpen(false)
+        return
+    end
 
     Selected = Value
     SelectedLabel.Text = Value
@@ -1827,148 +1852,19 @@ local function Select(Value)
     print("[Dropdown] Selected =", Value)
 
     if config.Callback then
-        config.Callback(Value)
+        local ok, err = pcall(function()
+            config.Callback(Value)
+        end)
+
+        if not ok then
+            warn("[Dropdown Callback Error]", err)
+        end
     end
 
-    if Open then
-        Toggle()
-    end
+    SetOpen(false)
 
-end
+			end		
 
-for _,Value in ipairs(Values) do
-
-local Item = Instance.new("TextButton")          
-Item.Parent = Scroll 
-Item.ZIndex = 7         
-Item.Size = UDim2.new(1,-4,0,ItemHeight)          
-  
-Item.BackgroundColor3 = Color3.fromRGB(40,40,40)          
-Item.AutoButtonColor = false          
-Item.Text = Value          
-Item.Font = Enum.Font.Gotham          
-Item.TextSize = 14          
-Item.TextColor3 = Color3.new(1,1,1)          
-  
-Instance.new("UICorner",Item).CornerRadius = UDim.new(0,6)         
-
-local UIPadding = Instance.new("UIPadding")
-UIPadding.Parent = Item
-UIPadding.PaddingLeft = UDim.new(0,8) 
-  
-Buttons[#Buttons+1] = Item          
-  
-----------------------------------------          
--- Hover          
-----------------------------------------          
-  
-Item.MouseEnter:Connect(function()          
-  
-    TweenService:Create(          
-        Item,          
-        TweenInfo.new(.15),          
-        {          
-            BackgroundColor3 = Color3.fromRGB(55,55,55)          
-        }          
-    ):Play()          
-  
-end)          
-  
-Item.MouseLeave:Connect(function()          
-  
-    TweenService:Create(          
-        Item,          
-        TweenInfo.new(.15),          
-        {          
-            BackgroundColor3 = Color3.fromRGB(40,40,40)          
-        }          
-    ):Play()          
-  
-end)          
-  
-----------------------------------------          
--- Click          
-----------------------------------------          
-  
-Item.Activated:Connect(function()          
-  
-    Select(Value)          
-  
-end)
-
-end
-
-
----
-
--- Functions
-
-function Dropdown:Set(Value)
-
-if table.find(Values,Value) then          
-    Select(Value)          
-end
-
-end
-
-function Dropdown:Get()
-
-return Selected
-
-end
-
-function Dropdown:Refresh(NewValues)
-
-Values = NewValues or {}          
-  
-for _,v in ipairs(Buttons) do          
-    v:Destroy()          
-end          
-  
-table.clear(Buttons)          
-  
-for _,Value in ipairs(Values) do          
-  
-    local Item = Instance.new("TextButton")          
-    Item.Parent = Scroll          
-    Item.Size = UDim2.new(1,-4,0,ItemHeight)          
-  
-    Item.BackgroundColor3 = Color3.fromRGB(40,40,40)          
-    Item.Text = Value          
-    Item.Font = Enum.Font.Gotham          
-    Item.TextSize = 14          
-    Item.TextColor3 = Color3.new(1,1,1)          
-  
-    Instance.new("UICorner",Item).CornerRadius = UDim.new(0,6)          
-  
-    Item.Activated:Connect(function()          
-  
-        Select(Value)          
-  
-    end)          
-  
-    Buttons[#Buttons+1] = Item          
-  
-end
-
-end
-
-function Dropdown:Destroy()
-
-Holder:Destroy()
-
-end
-
-if config.Callback then
-    task.defer(function()
-        config.Callback(Selected)
-    end)
-end
-			
-return Dropdown
-
-end		
-	
 return Tab                    
 end          
 

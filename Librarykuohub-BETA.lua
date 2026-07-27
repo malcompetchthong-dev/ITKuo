@@ -1964,10 +1964,7 @@ if config.Callback then
         config.Callback(Selected)
     end)
 end
-
-return Dropdown
-		end
-
+			
 return Dropdown
 
 end		

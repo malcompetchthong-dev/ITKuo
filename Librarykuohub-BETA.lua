@@ -1223,8 +1223,93 @@ CurrentPage.Visible = true -- เปิด Tab กลับ
 end          
 end          
           
-end)          
-          
+end)   
+
+local Responsive = {}
+
+Responsive.BaseWidth = 1920
+Responsive.Scale = 1
+
+Responsive.Objects = {}
+
+function Responsive:GetScale()
+    local camera = workspace.CurrentCamera
+    if not camera then
+        return 1
+    end
+
+    local width = camera.ViewportSize.X
+
+    if width <= 500 then
+        return 0.78      -- มือถือ
+    elseif width <= 900 then
+        return 0.9       -- มือถือใหญ่
+    elseif width <= 1400 then
+        return 1         -- Tablet
+    else
+        return 1.15      -- PC
+    end
+end
+
+function Responsive:Register(data)
+    table.insert(self.Objects,data)
+end
+
+function Responsive:Update()
+
+    self.Scale = self:GetScale()
+
+    for _,v in ipairs(self.Objects) do
+
+        if v.Size then
+
+            v.Object.Size = UDim2.new(
+                v.Size.X.Scale,
+                math.floor(v.Size.X.Offset*self.Scale),
+                v.Size.Y.Scale,
+                math.floor(v.Size.Y.Offset*self.Scale)
+            )
+
+        end
+
+        if v.TextSize then
+            v.Object.TextSize = math.floor(v.TextSize*self.Scale)
+        end
+
+        if v.Corner then
+            v.Corner.CornerRadius =
+                UDim.new(
+                    0,
+                    math.floor(v.Radius*self.Scale)
+                )
+        end
+
+        if v.Padding then
+
+            v.Padding.PaddingLeft =
+                UDim.new(0,math.floor(v.Left*self.Scale))
+
+            v.Padding.PaddingRight =
+                UDim.new(0,math.floor(v.Right*self.Scale))
+
+            v.Padding.PaddingTop =
+                UDim.new(0,math.floor(v.Top*self.Scale))
+
+            v.Padding.PaddingBottom =
+                UDim.new(0,math.floor(v.Bottom*self.Scale))
+
+        end
+
+    end
+
+end
+
+Responsive:Update()
+
+workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+    Responsive:Update()
+end)
+
 -- WINDOW SYSTEM          
 local Window = {}          
           

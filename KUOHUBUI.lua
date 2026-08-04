@@ -826,10 +826,6 @@ Icons = (function()
           
 local TweenService = game:GetService("TweenService")          
 local UIS = game:GetService("UserInputService")   
-
-local Responsive = loadstring(game:HttpGet(
-    "https://raw.githubusercontent.com/malcompetchthong-dev/ITKuo/refs/heads/main/Responsive.lua"
-))()
           
 -- =========================          
 -- 🔥 KUOHUB CORE FUNCTIONS          
@@ -915,7 +911,6 @@ Main.BackgroundColor3 = Color3.fromRGB(15,15,15)
 Main.BackgroundTransparency = 0.15          
 Main.Active = true
 Instance.new("UICorner", Main).CornerRadius = UDim.new(0,16) 
-Responsive:RegisterWindow(Main)
 
           
 -- GLOW BORDER  

@@ -827,9 +827,6 @@ Icons = (function()
 local TweenService = game:GetService("TweenService")          
 local UIS = game:GetService("UserInputService")   
 
-local Responsive = loadstring(game:HttpGet(
-    "https://raw.githubusercontent.com/malcompetchthong-dev/ITKuo/refs/heads/main/Responsive.lua"
-))()
 -- =========================          
 -- 🔥 KUOHUB CORE FUNCTIONS          
 -- =========================          
@@ -901,7 +898,6 @@ old:Destroy()
 end          
           
 local ScreenGui = Instance.new("ScreenGui")
-Responsive:Scan(ScreenGui)
 ScreenGui.Name = "KuoHub"          
 ScreenGui.Parent = game.CoreGui          
           
@@ -909,7 +905,6 @@ ScreenGui.Name = "KuoHub"
           
 -- MAIN          
 local Main = Instance.new("Frame", ScreenGui) 
-Responsive:RegisterWindow(Main)
 Main.Size = UDim2.new(0, 550, 0, 350)          
 Main.Position = UDim2.new(0, 0, 0.5, -175) -- ฝั่งซ้าย          
 Main.BackgroundColor3 = Color3.fromRGB(15,15,15)          

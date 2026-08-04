@@ -1,9 +1,9 @@
-local KuoHub = loadstring(game:HttpGet("https://raw.githubusercontent.com/malcompetchthong-dev/ITKuo/refs/heads/main/Librarykuohub-BETA.lua"))()  
-  
-KuoHub:MakeWindow({  
-Title = "Kuo Hub | MM2",  
-})  
-  
+local KuoHub = loadstring(game:HttpGet("https://raw.githubusercontent.com/malcompetchthong-dev/ITKuo/refs/heads/main/Librarykuohub-BETA.lua"))()
+
+local Window = KuoHub:MakeWindow({
+    Title = "Kuo Hub | MM2",
+})
+
 Window:AddMinimizeButton({
     Button = {
         Image = "rbxassetid://126460540157931",

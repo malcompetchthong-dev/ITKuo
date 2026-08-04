@@ -1,6 +1,6 @@
-local Window = loadstring(game:HttpGet("https://raw.githubusercontent.com/malcompetchthong-dev/ITKuo/refs/heads/main/KUOHUBUI.lua"))()  
+local KuoHub = loadstring(game:HttpGet("https://raw.githubusercontent.com/malcompetchthong-dev/ITKuo/refs/heads/main/Librarykuohub-BETA.lua"))()  
   
-Window:MakeWindow({  
+KuoHub:MakeWindow({  
 Title = "Kuo Hub | MM2",  
 })  
   
@@ -1891,7 +1891,7 @@ end)
 Info:Section("📌 KuoHub Information | ข้อมูลสคริปต์")
 
 Info:Button({
-Title = "📅 Last Update | อัปเดตล่าสุด : 28/06/2026",
+Title = "📅 Last Update | อัปเดตล่าสุด :04/07/2026",
 Callback = function()
 end
 })
@@ -1903,7 +1903,7 @@ end
 })
 
 Info:Button({
-Title = "⚡ Script Version | เวอร์ชันสคริปต์ : v9.5 FUTURISTIC",
+Title = "⚡ Script Version | เวอร์ชันสคริปต์ : v10.0 FUTURISTIC",
 Callback = function()
 end
 })

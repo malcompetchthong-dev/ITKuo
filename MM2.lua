@@ -34,8 +34,7 @@ local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")  
 local root = character:WaitForChild("HumanoidRootPart")  
   
---// SETTINGS  
-local flying = false  
+--// SETTINGS    
 local speed = 60  
 local ESP_ENABLED = false  
 local AUTO_WARP_GUN = false  
@@ -64,26 +63,443 @@ local Shot_AURA = false
 -- =========================  
 -- FLY  
 -- =========================  
-local bv = Instance.new("BodyVelocity")  
-bv.MaxForce = Vector3.new(9e9,9e9,9e9)  
-  
-local bg = Instance.new("BodyGyro")  
-bg.MaxTorque = Vector3.new(9e9,9e9,9e9)  
-  
-local function setFly(state)  
-flying = state  
-bv.Parent = state and root or nil  
-bg.Parent = state and root or nil  
-end  
-  
-RunService.RenderStepped:Connect(function()  
-if flying then  
-local cam = workspace.CurrentCamera  
-local moveDir = humanoid.MoveDirection  
-bv.Velocity = (cam.CFrame.LookVector * moveDir.Z + cam.CFrame.RightVector * moveDir.X) * speed  
-bg.CFrame = cam.CFrame  
-end  
-end)  
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local Player = Players.LocalPlayer
+
+--==================================================
+-- SETTINGS
+--==================================================
+
+local speed = 60
+local TOGGLE_KEY = Enum.KeyCode.F
+
+--==================================================
+-- VARIABLES
+--==================================================
+
+local Character
+local Humanoid
+local Root
+local Animator
+local AnimateScript
+
+local Flying = false
+
+local BodyVelocity
+local BodyGyro
+local IdleTrack
+
+local PCKeys = {
+	W = false,
+	A = false,
+	S = false,
+	D = false,
+	Up = false,
+	Down = false
+}
+
+--==================================================
+-- CHARACTER SETUP
+--==================================================
+
+local function SetupCharacter()
+	Character = Player.Character or Player.CharacterAdded:Wait()
+
+	Humanoid = Character:WaitForChild("Humanoid")
+	Root = Character:WaitForChild("HumanoidRootPart")
+
+	Animator = Humanoid:FindFirstChildOfClass("Animator")
+
+	if not Animator then
+		Animator = Instance.new("Animator")
+		Animator.Parent = Humanoid
+	end
+
+	AnimateScript = Character:FindFirstChild("Animate")
+end
+
+SetupCharacter()
+
+Player.CharacterAdded:Connect(function()
+	Flying = false
+
+	if BodyVelocity then
+		BodyVelocity:Destroy()
+		BodyVelocity = nil
+	end
+
+	if BodyGyro then
+		BodyGyro:Destroy()
+		BodyGyro = nil
+	end
+
+	if IdleTrack then
+		IdleTrack:Stop()
+		IdleTrack:Destroy()
+		IdleTrack = nil
+	end
+
+	task.wait(0.2)
+	SetupCharacter()
+end)
+
+--==================================================
+-- STOP NORMAL ANIMATIONS
+--==================================================
+
+local function StopNormalAnimations()
+	if not Animator then
+		return
+	end
+
+	for _, Track in ipairs(Animator:GetPlayingAnimationTracks()) do
+		Track:Stop(0.1)
+	end
+end
+
+--==================================================
+-- IDLE ANIMATION
+--==================================================
+
+local function StartIdleAnimation()
+	if not Animator then
+		return
+	end
+
+	StopNormalAnimations()
+
+	local Animation = Instance.new("Animation")
+
+	if Humanoid.RigType == Enum.HumanoidRigType.R15 then
+		Animation.AnimationId = "rbxassetid://507766666"
+	else
+		Animation.AnimationId = "rbxassetid://180435571"
+	end
+
+	IdleTrack = Animator:LoadAnimation(Animation)
+	IdleTrack.Priority = Enum.AnimationPriority.Idle
+	IdleTrack.Looped = true
+	IdleTrack:Play(0.15)
+
+	Animation:Destroy()
+end
+
+local function StopIdleAnimation()
+	if IdleTrack then
+		IdleTrack:Stop(0.15)
+		IdleTrack:Destroy()
+		IdleTrack = nil
+	end
+end
+
+--==================================================
+-- START FLY
+--==================================================
+
+local function StartFly()
+	if Flying then
+		return
+	end
+
+	if not Character or not Humanoid or not Root then
+		return
+	end
+
+	Flying = true
+
+	StopNormalAnimations()
+
+	if AnimateScript then
+		AnimateScript.Enabled = false
+	end
+
+	Humanoid.AutoRotate = false
+
+	BodyVelocity = Instance.new("BodyVelocity")
+	BodyVelocity.Name = "FlyVelocity"
+	BodyVelocity.MaxForce = Vector3.new(
+		math.huge,
+		math.huge,
+		math.huge
+	)
+	BodyVelocity.P = 50000
+	BodyVelocity.Velocity = Vector3.zero
+	BodyVelocity.Parent = Root
+
+	BodyGyro = Instance.new("BodyGyro")
+	BodyGyro.Name = "FlyGyro"
+	BodyGyro.MaxTorque = Vector3.new(
+		math.huge,
+		math.huge,
+		math.huge
+	)
+	BodyGyro.P = 50000
+	BodyGyro.D = 1000
+	BodyGyro.CFrame = Root.CFrame
+	BodyGyro.Parent = Root
+
+	StartIdleAnimation()
+end
+
+--==================================================
+-- STOP FLY
+--==================================================
+
+local function StopFly()
+	if not Flying then
+		return
+	end
+
+	Flying = false
+
+	if BodyVelocity then
+		BodyVelocity:Destroy()
+		BodyVelocity = nil
+	end
+
+	if BodyGyro then
+		BodyGyro:Destroy()
+		BodyGyro = nil
+	end
+
+	StopIdleAnimation()
+
+	if AnimateScript then
+		AnimateScript.Enabled = true
+	end
+
+	Humanoid.AutoRotate = true
+
+	Humanoid:ChangeState(
+		Enum.HumanoidStateType.GettingUp
+	)
+end
+
+--==================================================
+-- SET FLY
+--==================================================
+
+function setFly(v)
+	if v then
+		StartFly()
+	else
+		StopFly()
+	end
+end
+
+--==================================================
+-- PC KEYBOARD
+--==================================================
+
+UserInputService.InputBegan:Connect(function(Input, Processed)
+	if Processed then
+		return
+	end
+
+	if Input.KeyCode == TOGGLE_KEY then
+		setFly(not Flying)
+		return
+	end
+
+	if Input.KeyCode == Enum.KeyCode.W then
+		PCKeys.W = true
+
+	elseif Input.KeyCode == Enum.KeyCode.A then
+		PCKeys.A = true
+
+	elseif Input.KeyCode == Enum.KeyCode.S then
+		PCKeys.S = true
+
+	elseif Input.KeyCode == Enum.KeyCode.D then
+		PCKeys.D = true
+
+	elseif Input.KeyCode == Enum.KeyCode.Space then
+		PCKeys.Up = true
+
+	elseif Input.KeyCode == Enum.KeyCode.LeftControl then
+		PCKeys.Down = true
+	end
+end)
+
+UserInputService.InputEnded:Connect(function(Input)
+	if Input.KeyCode == Enum.KeyCode.W then
+		PCKeys.W = false
+
+	elseif Input.KeyCode == Enum.KeyCode.A then
+		PCKeys.A = false
+
+	elseif Input.KeyCode == Enum.KeyCode.S then
+		PCKeys.S = false
+
+	elseif Input.KeyCode == Enum.KeyCode.D then
+		PCKeys.D = false
+
+	elseif Input.KeyCode == Enum.KeyCode.Space then
+		PCKeys.Up = false
+
+	elseif Input.KeyCode == Enum.KeyCode.LeftControl then
+		PCKeys.Down = false
+	end
+end)
+
+--==================================================
+-- PC DIRECTION
+--==================================================
+
+local function GetPCDirection(Camera)
+	local Direction = Vector3.zero
+
+	local Forward = Camera.CFrame.LookVector
+	local Right = Camera.CFrame.RightVector
+
+	if PCKeys.W then
+		Direction += Forward
+	end
+
+	if PCKeys.S then
+		Direction -= Forward
+	end
+
+	if PCKeys.D then
+		Direction += Right
+	end
+
+	if PCKeys.A then
+		Direction -= Right
+	end
+
+	if PCKeys.Up then
+		Direction += Vector3.new(0, 1, 0)
+	end
+
+	if PCKeys.Down then
+		Direction -= Vector3.new(0, 1, 0)
+	end
+
+	if Direction.Magnitude > 1 then
+		Direction = Direction.Unit
+	end
+
+	return Direction
+end
+
+--==================================================
+-- MOBILE DIRECTION
+--==================================================
+
+local function GetMobileDirection(Camera)
+	local Move = Humanoid.MoveDirection
+
+	if Move.Magnitude <= 0.01 then
+		return Vector3.zero
+	end
+
+	local Look = Camera.CFrame.LookVector
+	local Right = Camera.CFrame.RightVector
+
+	local FlatForward = Vector3.new(
+		Look.X,
+		0,
+		Look.Z
+	)
+
+	local FlatRight = Vector3.new(
+		Right.X,
+		0,
+		Right.Z
+	)
+
+	if FlatForward.Magnitude > 0 then
+		FlatForward = FlatForward.Unit
+	end
+
+	if FlatRight.Magnitude > 0 then
+		FlatRight = FlatRight.Unit
+	end
+
+	local ForwardAmount = Move:Dot(FlatForward)
+	local RightAmount = Move:Dot(FlatRight)
+
+	local Direction =
+		Look * ForwardAmount
+		+
+		FlatRight * RightAmount
+
+	if Direction.Magnitude > 1 then
+		Direction = Direction.Unit
+	end
+
+	return Direction
+end
+
+--==================================================
+-- MAIN FLY LOOP
+--==================================================
+
+RunService.RenderStepped:Connect(function()
+	if not Flying then
+		return
+	end
+
+	if not Character
+		or not Humanoid
+		or not Root
+		or not BodyVelocity
+		or not BodyGyro then
+		return
+	end
+
+	local Camera = workspace.CurrentCamera
+
+	local Direction
+
+	-- PC
+	if UserInputService.KeyboardEnabled then
+		Direction = GetPCDirection(Camera)
+
+	-- Mobile
+	else
+		Direction = GetMobileDirection(Camera)
+	end
+
+	--================================================
+	-- SPEED
+	--================================================
+
+	BodyVelocity.Velocity = Direction * speed
+
+	--================================================
+	-- ROTATION
+	--================================================
+
+	if Direction.Magnitude > 0.01 then
+
+		BodyGyro.CFrame = CFrame.lookAt(
+			Root.Position,
+			Root.Position + Direction.Unit
+		)
+
+	else
+
+		local Look = Camera.CFrame.LookVector
+
+		BodyGyro.CFrame = CFrame.lookAt(
+			Root.Position,
+			Root.Position + Look
+		)
+	end
+
+	--================================================
+	-- KEEP IDLE
+	--================================================
+
+	if IdleTrack and not IdleTrack.IsPlaying then
+		IdleTrack:Play(0.1)
+	end
+end)
   
 -- =========================  
 -- CLEAN OLD CONNECTION  
@@ -1891,7 +2307,7 @@ end)
 Info:Section("📌 KuoHub Information | ข้อมูลสคริปต์")
 
 Info:Button({
-Title = "📅 Last Update | อัปเดตล่าสุด :04/07/2026",
+Title = "📅 Last Update | อัปเดตล่าสุด :12/07/2026",
 Callback = function()
 end
 })
@@ -1903,7 +2319,7 @@ end
 })
 
 Info:Button({
-Title = "⚡ Script Version | เวอร์ชันสคริปต์ : v10.0 FUTURISTIC",
+Title = "⚡ Script Version | เวอร์ชันสคริปต์ : v10.1 FUTURISTIC",
 Callback = function()
 end
 })
@@ -1930,7 +2346,14 @@ Invite = "https://discord.gg/Apn2j9Fez",
 })
 Home:Toggle({Title="ESP",Desc="ไฮไลต์ผู้เล่น",Callback=function(v) ESP_ENABLED=v end})  
 Home:Toggle({Title ="Gun ESP",Desc ="ไฮไลต์ปืนตก",Callback =function(v) GunESP =v end})  
-Home:Toggle({Title="Fly",Desc="บิน",Callback=function(v) setFly(v) end})  
+Home:Toggle({
+	Title = "Fly",
+	Desc = "บิน",
+	Callback = function(v)
+		setFly(v)
+	end
+})
+	
 Home:Toggle({Title="Auto Warp Gun",Desc="วาร์ปเก็บปืน",Callback=function(v) AUTO_WARP_GUN=v end})  
 Home:Toggle({Title="Infinite Jump",Desc="กระโดดไม่จำกัด",Callback=function(v) INFINITE_JUMP=v end})  
 Home:Toggle({Title="NoClip",Desc="ทะลุกำแพง",Callback=function(v) NOCLIP=v end})  
@@ -2059,15 +2482,15 @@ task.wait(0.5)
 applySpeed(getgenv().SpeedValue)  
 end)  
   
-Home:AddSlider({  
-Name = "Adjust flight speed",  
-Min = 16,  
-Max = 200,  
-Default = 60,  
-Callback = function(v)  
-speed = v  
-end  
-})  
+Home:AddSlider({
+	Name = "Adjust flight speed",
+	Min = 16,
+	Max = 200,
+	Default = 60,
+	Callback = function(v)
+		speed = v
+	end
+})
   
 Home:AddSlider({  
 Name = "Coin Collect Speed",  

@@ -719,6 +719,16 @@ Home:Toggle({
 	end
 })
 
+Home:AddSlider({
+	Name = "Adjust flight speed",
+	Min = 16,
+	Max = 200,
+	Default = 60,
+	Callback = function(v)
+		speed = v
+	end
+})
+
 Home:Toggle({
 Title = "Infinite Jump",
 Desc = "กระโดดไม่จำกัด",

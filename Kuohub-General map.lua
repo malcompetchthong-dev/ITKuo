@@ -32,6 +32,7 @@ local NOCLIP = false
 
 --// Storage
 local ESPObjects = {}
+local walkSpeed = 16
 
 --==================================================
 -- ESP
@@ -757,3 +758,23 @@ Callback = function(v)
 applyInvisible(v)
 end
 })
+
+Home:AddSlider({
+	Name = "Adjust walk speed",
+	Min = 16,
+	Max = 200,
+	Default = 16,
+	Callback = function(v)
+		walkSpeed = v
+	end
+})
+
+game:GetService("RunService").Heartbeat:Connect(function()
+	local character = game.Players.LocalPlayer.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+
+	if humanoid then
+		humanoid.WalkSpeed = walkSpeed
+	end
+end)
+

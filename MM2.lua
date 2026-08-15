@@ -35,7 +35,8 @@ local humanoid = character:WaitForChild("Humanoid")
 local root = character:WaitForChild("HumanoidRootPart")  
   
 --// SETTINGS    
-local speed = 60  
+local speed = 60
+local walkSpeed = 16
 local ESP_ENABLED = false  
 local AUTO_WARP_GUN = false  
 local INFINITE_JUMP = false  
@@ -2444,7 +2445,7 @@ end)
   
 Home:AddSlider({
 	Name = "Adjust flight speed",
-	Min = 16,
+	Min = 1,
 	Max = 200,
 	Default = 60,
 	Callback = function(v)

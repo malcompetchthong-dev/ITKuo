@@ -11,7 +11,7 @@ local PlayerGui = Player:WaitForChild("PlayerGui")
 --==================================================
 
 local CONFIG = {
-	TitleTH = "ขอภัยในความไม่สะดวกปิดปรับปรุงชั่วคราว",
+	TitleTH = "ขอภัยในความไม่สะดวกเนิ่องจากปิดปรับปรุงชั่วคราว",
 	TitleEN = "Temporarily Under Maintenance",
 
 	DescriptionTH = "ระบบกำลังอยู่ระหว่างการปรับปรุงและพัฒนา",

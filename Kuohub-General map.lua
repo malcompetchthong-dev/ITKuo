@@ -693,6 +693,42 @@ LocalPlayer.CharacterAdded:Connect(function()
 task.wait(1)
 end)
 
+--===========≈======================================
+--into
+--==================================================
+
+Info:Section("📌 KuoHub Information | ข้อมูลสคริปต์")
+
+Info:Button({
+Title = "📅 Last Update | อัปเดตล่าสุด :12/07/2026",
+Callback = function()
+end
+})
+
+Info:Button({
+Title = "🇹🇭 Developed By Thai | พัฒนาโดยคนไทย",
+Callback = function()
+end
+})
+
+Info:Button({
+Title = "⚡ Script Version | เวอร์ชันสคริปต์ : v10.1 FUTURISTIC",
+Callback = function()
+end
+})
+
+Info:Button({
+Title = "🛠 Status : ✔️| สถานะ : Stable✔️",
+Callback = function()
+end
+})
+
+Info:Button({
+Title = "📃 Punk status : Yes | สถานะพังค์ชั้น : ยังใช้งานได้",
+Callback = function()
+end
+})
+
 --==================================================
 -- UI TOGGLES
 --==================================================

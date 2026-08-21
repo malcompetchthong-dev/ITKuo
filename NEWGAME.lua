@@ -701,9 +701,7 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
--- ========== ตัวแปรเก็บ State ==========
 local Bypass = {
     Enabled = false,
     Connections = {},
@@ -711,9 +709,6 @@ local Bypass = {
     Hook = nil
 }
 
-local killWords = {"ซื้อไอเท็ม", "แทรดมิลล์แอดมิน", "แทรดมิลล์", "899", "1,029", "Admin Treadmill", "Buy Item"}
-
--- ========== เปิด Bypass ==========
 function EnableBypass()
     if Bypass.Enabled then return end
     Bypass.Enabled = true
@@ -736,8 +731,7 @@ function EnableBypass()
         end
     end)
 
-    -- 2) Block Remote ด้วย hookmetamethod (ถ้า executor รองรับ)
-    -- เอาออกจากตรงนี้เพราะถูกป้องกัน ย้ายมาใช้ hook แทน
+    -- 2) Block Remote ด้วย hookmetamethod
     if hookmetamethod then
         local oldNamecall
         oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
@@ -746,7 +740,7 @@ function EnableBypass()
                 local name = self.Name
                 if name == "PromptAdminTreadmill" or name == "PromptDiamondTreadmill" 
                    or name == "PromptCandyTreadmill" or name == "PromptGoldTreadmill" then
-                    return -- บล็อกการส่งไป Server
+                    return
                 end
             end
             return oldNamecall(self, ...)
@@ -754,42 +748,7 @@ function EnableBypass()
         Bypass.Hook = oldNamecall
     end
 
-    -- 3) ทำลาย UI ซื้อขายทันที (Heartbeat)
-    table.insert(Bypass.Connections, RunService.Heartbeat:Connect(function()
-        for _, gui in ipairs(PlayerGui:GetChildren()) do
-            if not gui:IsA("ScreenGui") then continue end
-            for _, desc in ipairs(gui:GetDescendants()) do
-                if desc:IsA("TextLabel") or desc:IsA("TextButton") then
-                    local t = desc.Text
-                    for _, word in ipairs(killWords) do
-                        if t and t:find(word) then
-                            gui:Destroy()
-                            return
-                        end
-                    end
-                end
-            end
-        end
-    end))
-
-    -- 4) ทำลาย UI ที่เพิ่งสร้างใหม่
-    table.insert(Bypass.Connections, PlayerGui.ChildAdded:Connect(function(child)
-        task.wait(0.05)
-        if not child:IsA("ScreenGui") then return end
-        for _, desc in ipairs(child:GetDescendants()) do
-            if desc:IsA("TextLabel") or desc:IsA("TextButton") then
-                local t = desc.Text
-                for _, word in ipairs(killWords) do
-                    if t and t:find(word) then
-                        child:Destroy()
-                        return
-                    end
-                end
-            end
-        end
-    end))
-
-    -- 5) ลบ ProximityPrompt/ClickDetector บนแทรดมิลล์
+    -- 3) ลบ ProximityPrompt / ClickDetector บนแทรดมิลล์
     local function cleanPrompts()
         for _, obj in ipairs(workspace:GetDescendants()) do
             if obj:IsA("ProximityPrompt") or obj:IsA("ClickDetector") then
@@ -801,30 +760,29 @@ function EnableBypass()
         end
     end
     cleanPrompts()
-    table.insert(Bypass.Connections, workspace.DescendantAdded:Connect(function(d)
+    
+    local conn = workspace.DescendantAdded:Connect(function(d)
         if d:IsA("ProximityPrompt") or d:IsA("ClickDetector") then
             local p = d.Parent
             if p and (p.Name:lower():find("treadmill") or p.Name:lower():find("admin")) then
                 d:Destroy()
             end
         end
-    end))
+    end)
+    table.insert(Bypass.Connections, conn)
 
     print("✅ Treadmill Bypass Enabled")
 end
 
--- ========== ปิด Bypass ==========
 function DisableBypass()
     if not Bypass.Enabled then return end
     Bypass.Enabled = false
 
-    -- Disconnect ทุก Connection
     for _, conn in ipairs(Bypass.Connections) do
         pcall(function() conn:Disconnect() end)
     end
     Bypass.Connections = {}
 
-    -- Restore ClientState.Get
     pcall(function()
         local ClientState = require(ReplicatedStorage:WaitForChild("ClientState"))
         if ClientState and Bypass.Old.ClientStateGet then
@@ -834,7 +792,6 @@ function DisableBypass()
 
     print("❌ Treadmill Bypass Disabled")
 end
-
 
 --===========≈======================================
 --into

@@ -706,18 +706,20 @@ local Bypass = {
     Enabled = false,
     Connections = {},
     Old = {},
-    Hook = nil
+    Hook = nil,
+    Spoofed = false
 }
 
-function EnableBypass()
-    if Bypass.Enabled then return end
-    Bypass.Enabled = true
-
-    -- 1) Spoof ClientState (สำคัญที่สุด)
+-- ========== Spoof ClientState ==========
+local function SpoofClientState()
+    if not Bypass.Enabled then return end
     pcall(function()
         local ClientState = require(ReplicatedStorage:WaitForChild("ClientState"))
-        if ClientState and ClientState.Get and not Bypass.Old.ClientStateGet then
+        if not ClientState then return end
+        if not Bypass.Old.ClientStateGet and ClientState.Get then
             Bypass.Old.ClientStateGet = ClientState.Get
+        end
+        if ClientState.Get == Bypass.Old.ClientStateGet or not Bypass.Spoofed then
             ClientState.Get = function(self, ...)
                 local result = Bypass.Old.ClientStateGet(self, ...)
                 if type(result) == "table" then
@@ -728,11 +730,58 @@ function EnableBypass()
                 end
                 return result
             end
+            Bypass.Spoofed = true
+        end
+    end)
+end
+
+-- ========== แก้ Cooldown ให้ใกล้ 0 (ทำให้ความเร็วขึ้นเร็ว) ==========
+local function FastCooldown()
+    pcall(function()
+        local Config = require(ReplicatedStorage:WaitForChild("Config"))
+        if Config and Config.XP_TIME_BASED then
+            -- เก็บค่าเดิมไว้คืนค่า (ถ้ายังไม่เคยเก็บ)
+            if not Bypass.Old.MinCooldown then
+                Bypass.Old.MinCooldown = Config.XP_TIME_BASED.MIN_COOLDOWN
+                Bypass.Old.MaxCooldown = Config.XP_TIME_BASED.MAX_COOLDOWN
+            end
+            -- ตั้ง cooldown ให้น้อยมากๆ
+            Config.XP_TIME_BASED.MIN_COOLDOWN = 0.01
+            Config.XP_TIME_BASED.MAX_COOLDOWN = 0.05
+        end
+    end)
+end
+
+-- ========== เปิด Bypass ==========
+function EnableBypass()
+    if Bypass.Enabled then return end
+    Bypass.Enabled = true
+
+    SpoofClientState()
+    FastCooldown()
+
+    -- เกิดใหม่ → spoof ซ้ำ
+    local charConn = LocalPlayer.CharacterAdded:Connect(function()
+        task.wait(0.5)
+        Bypass.Spoofed = false
+        SpoofClientState()
+        FastCooldown()
+    end)
+    table.insert(Bypass.Connections, charConn)
+    
+    -- Loop ตรวจสอบทุก 2 วิ (กัน script ต้นฉบับ reset)
+    task.spawn(function()
+        while Bypass.Enabled do
+            task.wait(2)
+            if Bypass.Enabled then
+                SpoofClientState()
+                FastCooldown()
+            end
         end
     end)
 
-    -- 2) Block Remote ด้วย hookmetamethod
-    if hookmetamethod then
+    -- Block Remote ซื้อแทรดมิลล์
+    if hookmetamethod and not Bypass.Hook then
         local oldNamecall
         oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
             local method = getnamecallmethod()
@@ -748,7 +797,7 @@ function EnableBypass()
         Bypass.Hook = oldNamecall
     end
 
-    -- 3) ลบ ProximityPrompt / ClickDetector บนแทรดมิลล์
+    -- ลบ ProximityPrompt แทรดมิลล์
     local function cleanPrompts()
         for _, obj in ipairs(workspace:GetDescendants()) do
             if obj:IsA("ProximityPrompt") or obj:IsA("ClickDetector") then
@@ -771,22 +820,34 @@ function EnableBypass()
     end)
     table.insert(Bypass.Connections, conn)
 
-    print("✅ Treadmill Bypass Enabled")
+    print("✅ Treadmill Bypass Enabled | Cooldown: 0.01s")
 end
 
+-- ========== ปิด Bypass ==========
 function DisableBypass()
     if not Bypass.Enabled then return end
     Bypass.Enabled = false
+    Bypass.Spoofed = false
 
     for _, conn in ipairs(Bypass.Connections) do
         pcall(function() conn:Disconnect() end)
     end
     Bypass.Connections = {}
 
+    -- คืนค่า ClientState
     pcall(function()
         local ClientState = require(ReplicatedStorage:WaitForChild("ClientState"))
         if ClientState and Bypass.Old.ClientStateGet then
             ClientState.Get = Bypass.Old.ClientStateGet
+        end
+    end)
+    
+    -- คืนค่า Cooldown เดิม
+    pcall(function()
+        local Config = require(ReplicatedStorage:WaitForChild("Config"))
+        if Config and Config.XP_TIME_BASED then
+            Config.XP_TIME_BASED.MIN_COOLDOWN = Bypass.Old.MinCooldown or 0.1
+            Config.XP_TIME_BASED.MAX_COOLDOWN = Bypass.Old.MaxCooldown or 1.0
         end
     end)
 

@@ -980,13 +980,9 @@ Home:AddSlider({
 
 Home:Toggle({
     Title = "Treadmill Bypass",
-    Desc = "ปลดล็อกลู่วิ่งทั้งหมด",
-    Callback = function(value)
-        if value then
-            EnableBypass()
-        else
-            DisableBypass()
-        end
+    Desc = "ปลดล็อกลู่วิ่ง",
+    Callback = function(v)
+        if v then EnableBypass() else DisableBypass() end
     end
 })
 

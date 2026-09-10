@@ -700,55 +700,117 @@ end)
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
+local CollectionService = game:GetService("CollectionService")
 
 local Bypass = {
     Enabled = false,
     Connections = {},
     Old = {},
     Hook = nil,
-    Spoofed = false
+    Spoofed = false,
+    RapidFire = nil
 }
 
+local UpdateSpeed = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("UpdateSpeed")
+
+-- ========== Raycast Filter (เหมือนต้นฉบับ) ==========
+local treadmillFilter
+pcall(function()
+    treadmillFilter = require(ReplicatedStorage:WaitForChild("Treadmill"):WaitForChild("Raycast")).getTreadmillFilter()
+end)
+
+-- ========== Check Floor ==========
+local function checkFloor()
+    local char = LocalPlayer.Character
+    if not char then return nil end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if not hrp or not treadmillFilter then return nil end
+    
+    local result = workspace:Raycast(hrp.Position, Vector3.new(0, -7, 0), treadmillFilter)
+    if not (result and result.Instance) then return nil end
+    
+    local inst = result.Instance
+    local tags = {
+        {"AdminTreadmill", "AdminTreadmill"},
+        {"AdminAbuseTreadmill", "AdminAbuseTreadmill"},
+        {"CandyTreadmill", "CandyTreadmill"},
+        {"DiamondTreadmill", "DiamondTreadmill"},
+        {"GoldTreadmill", "GoldTreadmill"},
+        {"AATreadmillX3ll3n", "AATreadmillX3ll3n"},
+        {"HourlyTreadmill", "HourlyTreadmill"},
+        {"DailyTreadmill", "DailyTreadmill"},
+        {"Treadmill", "Treadmill"},
+        {"VoidTreadmillAAChichine", "VoidTreadmillAAChichine"},
+        {"AdminAbuse_IndependanceTreadmill", "AdminAbuse_IndependanceTreadmill"},
+        {"AdminAbuse_July14thTreadmill", "AdminAbuse_July14thTreadmill"},
+        {"AdminAbuse_WorldCupTreadmill", "AdminAbuse_WorldCupTreadmill"},
+        {"BBNOConcertTreadmill", "BBNOConcertTreadmill"},
+        {"SummerTreadmill", "SummerTreadmill"},
+    }
+    
+    for _, pair in ipairs(tags) do
+        if CollectionService:HasTag(inst, pair[1]) then
+            return pair[2]
+        end
+    end
+    return nil
+end
+
 -- ========== Spoof ClientState ==========
-local function SpoofClientState()
+local function spoofState()
     if not Bypass.Enabled then return end
     pcall(function()
         local ClientState = require(ReplicatedStorage:WaitForChild("ClientState"))
-        if not ClientState then return end
-        if not Bypass.Old.ClientStateGet and ClientState.Get then
-            Bypass.Old.ClientStateGet = ClientState.Get
+        if not Bypass.Old.Get and ClientState.Get then
+            Bypass.Old.Get = ClientState.Get
         end
-        if ClientState.Get == Bypass.Old.ClientStateGet or not Bypass.Spoofed then
+        if ClientState.Get == Bypass.Old.Get or not Bypass.Spoofed then
             ClientState.Get = function(self, ...)
-                local result = Bypass.Old.ClientStateGet(self, ...)
-                if type(result) == "table" then
-                    result.AdminTreadmillActive = true
-                    result.DiamondTreadmillActive = true
-                    result.GoldTreadmillActive = true
-                    result.CandyTreadmillActive = true
+                local r = Bypass.Old.Get(self, ...)
+                if type(r) == "table" then
+                    r.AdminTreadmillActive = true
+                    r.DiamondTreadmillActive = true
+                    r.GoldTreadmillActive = true
+                    r.CandyTreadmillActive = true
                 end
-                return result
+                return r
             end
             Bypass.Spoofed = true
         end
     end)
 end
 
--- ========== แก้ Cooldown ให้ใกล้ 0 (ทำให้ความเร็วขึ้นเร็ว) ==========
-local function FastCooldown()
+-- ========== Fast Cooldown ==========
+local function fastCooldown()
     pcall(function()
-        local Config = require(ReplicatedStorage:WaitForChild("Config"))
-        if Config and Config.XP_TIME_BASED then
-            -- เก็บค่าเดิมไว้คืนค่า (ถ้ายังไม่เคยเก็บ)
-            if not Bypass.Old.MinCooldown then
-                Bypass.Old.MinCooldown = Config.XP_TIME_BASED.MIN_COOLDOWN
-                Bypass.Old.MaxCooldown = Config.XP_TIME_BASED.MAX_COOLDOWN
-            end
-            -- ตั้ง cooldown ให้น้อยมากๆ
-            Config.XP_TIME_BASED.MIN_COOLDOWN = 0.01
-            Config.XP_TIME_BASED.MAX_COOLDOWN = 0.05
+        local cfg = require(ReplicatedStorage:WaitForChild("Config")).XP_TIME_BASED
+        if not Bypass.Old.Min then
+            Bypass.Old.Min = cfg.MIN_COOLDOWN
+            Bypass.Old.Max = cfg.MAX_COOLDOWN
         end
+        cfg.MIN_COOLDOWN = 0.001
+        cfg.MAX_COOLDOWN = 0.005
+    end)
+end
+
+-- ========== ×1000 Rapid Fire ==========
+local function startRapid()
+    if Bypass.RapidFire then return end
+    Bypass.RapidFire = task.spawn(function()
+        while Bypass.Enabled do
+            local t = checkFloor()
+            if t then
+                -- ยิง 10 ครั้งต่อ 0.01 วิ = ความเร็ว×10 
+                -- ถ้าต้องการ×1000 จริงๆ ให้เปลี่ยน 10 เป็น 100
+                -- แต่ระวังอาจโดน kick ถ้ายิงมากเกินไป
+                for i = 1, 1000 do
+                    if not Bypass.Enabled then break end
+                    UpdateSpeed:FireServer(t)
+                end
+            end
+            task.wait(0.001)
+        end
+        Bypass.RapidFire = nil
     end)
 end
 
@@ -757,48 +819,45 @@ function EnableBypass()
     if Bypass.Enabled then return end
     Bypass.Enabled = true
 
-    SpoofClientState()
-    FastCooldown()
+    spoofState()
+    fastCooldown()
+    startRapid()
 
-    -- เกิดใหม่ → spoof ซ้ำ
-    local charConn = LocalPlayer.CharacterAdded:Connect(function()
+    -- Respawn → spoof ซ้ำ
+    table.insert(Bypass.Connections, LocalPlayer.CharacterAdded:Connect(function()
         task.wait(0.5)
         Bypass.Spoofed = false
-        SpoofClientState()
-        FastCooldown()
-    end)
-    table.insert(Bypass.Connections, charConn)
-    
+        spoofState()
+        fastCooldown()
+    end))
+
     -- Loop ตรวจสอบทุก 2 วิ (กัน script ต้นฉบับ reset)
     task.spawn(function()
         while Bypass.Enabled do
             task.wait(2)
-            if Bypass.Enabled then
-                SpoofClientState()
-                FastCooldown()
-            end
+            spoofState()
+            fastCooldown()
         end
     end)
 
     -- Block Remote ซื้อแทรดมิลล์
     if hookmetamethod and not Bypass.Hook then
-        local oldNamecall
-        oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
-            local method = getnamecallmethod()
-            if method == "FireServer" then
-                local name = self.Name
-                if name == "PromptAdminTreadmill" or name == "PromptDiamondTreadmill" 
-                   or name == "PromptCandyTreadmill" or name == "PromptGoldTreadmill" then
+        local old
+        old = hookmetamethod(game, "__namecall", function(self, ...)
+            if getnamecallmethod() == "FireServer" then
+                local n = self.Name
+                if n == "PromptAdminTreadmill" or n == "PromptDiamondTreadmill" 
+                   or n == "PromptCandyTreadmill" or n == "PromptGoldTreadmill" then
                     return
                 end
             end
-            return oldNamecall(self, ...)
+            return old(self, ...)
         end)
-        Bypass.Hook = oldNamecall
+        Bypass.Hook = old
     end
 
-    -- ลบ ProximityPrompt แทรดมิลล์
-    local function cleanPrompts()
+    -- ลบ ProximityPrompt / ClickDetector
+    local function clean()
         for _, obj in ipairs(workspace:GetDescendants()) do
             if obj:IsA("ProximityPrompt") or obj:IsA("ClickDetector") then
                 local p = obj.Parent
@@ -808,19 +867,17 @@ function EnableBypass()
             end
         end
     end
-    cleanPrompts()
-    
-    local conn = workspace.DescendantAdded:Connect(function(d)
+    clean()
+    table.insert(Bypass.Connections, workspace.DescendantAdded:Connect(function(d)
         if d:IsA("ProximityPrompt") or d:IsA("ClickDetector") then
             local p = d.Parent
             if p and (p.Name:lower():find("treadmill") or p.Name:lower():find("admin")) then
                 d:Destroy()
             end
         end
-    end)
-    table.insert(Bypass.Connections, conn)
+    end))
 
-    print("✅ Treadmill Bypass Enabled | Cooldown: 0.01s")
+    print("✅ Treadmill Bypass | ×1000 Rapid Fire")
 end
 
 -- ========== ปิด Bypass ==========
@@ -829,29 +886,23 @@ function DisableBypass()
     Bypass.Enabled = false
     Bypass.Spoofed = false
 
-    for _, conn in ipairs(Bypass.Connections) do
-        pcall(function() conn:Disconnect() end)
+    for _, c in ipairs(Bypass.Connections) do
+        pcall(function() c:Disconnect() end)
     end
     Bypass.Connections = {}
 
-    -- คืนค่า ClientState
     pcall(function()
-        local ClientState = require(ReplicatedStorage:WaitForChild("ClientState"))
-        if ClientState and Bypass.Old.ClientStateGet then
-            ClientState.Get = Bypass.Old.ClientStateGet
-        end
+        local cs = require(ReplicatedStorage:WaitForChild("ClientState"))
+        if Bypass.Old.Get then cs.Get = Bypass.Old.Get end
     end)
     
-    -- คืนค่า Cooldown เดิม
     pcall(function()
-        local Config = require(ReplicatedStorage:WaitForChild("Config"))
-        if Config and Config.XP_TIME_BASED then
-            Config.XP_TIME_BASED.MIN_COOLDOWN = Bypass.Old.MinCooldown or 0.1
-            Config.XP_TIME_BASED.MAX_COOLDOWN = Bypass.Old.MaxCooldown or 1.0
-        end
+        local cfg = require(ReplicatedStorage:WaitForChild("Config")).XP_TIME_BASED
+        cfg.MIN_COOLDOWN = Bypass.Old.Min or 0.1
+        cfg.MAX_COOLDOWN = Bypass.Old.Max or 1.0
     end)
 
-    print("❌ Treadmill Bypass Disabled")
+    print("❌ Disabled")
 end
 
 --===========≈======================================

@@ -803,12 +803,12 @@ local function startRapid()
                 -- ยิง 10 ครั้งต่อ 0.01 วิ = ความเร็ว×10 
                 -- ถ้าต้องการ×1000 จริงๆ ให้เปลี่ยน 10 เป็น 100
                 -- แต่ระวังอาจโดน kick ถ้ายิงมากเกินไป
-                for i = 1, 1000 do
+                for i = 1, 100 do
                     if not Bypass.Enabled then break end
                     UpdateSpeed:FireServer(t)
                 end
             end
-            task.wait(0.001)
+            task.wait(0.01)
         end
         Bypass.RapidFire = nil
     end)
